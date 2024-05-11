@@ -1,4 +1,5 @@
 import winsound
+import os
 from pydub import utils, AudioSegment
 from pydub.playback import play
 
@@ -25,18 +26,20 @@ class PydubPlayerConfig(BaseConfig):
     ffprobePath: str
     ffplayPath: str
     ffmpegPath: str
+    playDelete: bool = True
 
-    def __init__(self, ffprobePath: str, ffplayPath: str, ffmpegPath: str):
+    def __init__(self, ffprobePath: str, ffplayPath: str, ffmpegPath: str, playDelete: bool = True):
         self.ffprobePath = ffprobePath
         self.ffplayPath = ffplayPath
         self.ffmpegPath = ffmpegPath
-
+        self.playDelete = playDelete
     @staticmethod
     def fromJson(json: dict):
         return PydubPlayerConfig(
             ffprobePath=json["ffprobePath"],
             ffplayPath=json["ffplayPath"],
             ffmpegPath=json["ffmpegPath"],
+            playDelete=json["playDelete"],
         )
 
     def notNone(self):
@@ -44,6 +47,7 @@ class PydubPlayerConfig(BaseConfig):
             self.ffprobePath != None
             and self.ffplayPath != None
             and self.ffmpegPath != None
+            and self.playDelete != None
         )
 
 
@@ -53,7 +57,7 @@ class PydubPlayer(BasePlayer):
     def __init__(self, configDict: dict):
         self.config = PydubPlayerConfig.fromJson(configDict)
 
-    def play(self, sound: str):
+    def play(self, soundPath: str):
         if self.config != None and self.config.notNone():
 
             def get_prober_name():
@@ -67,5 +71,8 @@ class PydubPlayer(BasePlayer):
 
             AudioSegment.ffmpeg = self.config.ffmpegPath
             AudioSegment.converter = self.config.ffmpegPath
-        sound = AudioSegment.from_file(sound)
+        sound = AudioSegment.from_file(soundPath)
         play(sound)
+        if self.config.playDelete:
+            # 调用系统命令删除文件sound
+            os.remove(soundPath)

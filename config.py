@@ -66,6 +66,7 @@ class BiRespiConfig:
                 "ffprobePath": getFfprobePath(),
                 "ffplayPath": getFfplayerPath(),
                 "ffmpegPath": getFfmpegPath(),
+                "playDelete": True,
             },
         },
         ComponentConfigKey.DanmuReceiver: {
