@@ -61,11 +61,15 @@ class BiRespiConfig:
             },
         },
         ComponentConfigKey.Player: {
-            "type": "PydubPlayer",
+            "type": "WindowsPlayer",
             "PydubPlayer": {
                 "ffprobePath": getFfprobePath(),
                 "ffplayPath": getFfplayerPath(),
                 "ffmpegPath": getFfmpegPath(),
+                "playDelete": True,
+            },
+            "SubprocessPlayer": {},
+            "WindowsPlayer": {
                 "playDelete": True,
             },
         },

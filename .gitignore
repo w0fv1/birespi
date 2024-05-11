@@ -5,11 +5,10 @@ venv/
 # Compiled Python files
 *.pyc``
 
-# 忽略sounds目录下的所有文件
+# 忽略sounds目录下的的mp3文件
 
-sounds/*
+sounds/*.mp3
 
-*.mp3
 
 # IDE files
 .vscode/
