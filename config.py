@@ -68,10 +68,13 @@ class BiRespiConfig:
                 "ffmpegPath": getFfmpegPath(),
                 "playDelete": True,
             },
-            "SubprocessPlayer": {},
+            "SubprocessPlayer": {
+                "playDelete": True,
+            },
             "WindowsPlayer": {
                 "playDelete": True,
             },
+            "MiniPlayer": {"playDelete": True},
         },
         ComponentConfigKey.DanmuReceiver: {
             "type": "BiliOpenDanmuReceiver",

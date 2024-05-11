@@ -1,6 +1,6 @@
 from component.Chatter import BaseChatter, OpenaiChatter, WebChatter
 from component.DanmuReceiver import BaseDanmuReceiver, BiliOpenDanmuReceiver
-from component.SoundPlayer import BasePlayer, PydubPlayer, SubprocessPlayer, WindowsPlayer
+from component.SoundPlayer import BasePlayer, MiniPlayer, PydubPlayer, SubprocessPlayer, WindowsPlayer
 from component.Speaker import BaseSpeaker, EdgeSpeaker
 from value.ComponentConfigKey import ComponentConfigKey
 
@@ -60,7 +60,8 @@ class ComponentManager:
             return PydubPlayer(config[config["type"]])
         elif config["type"] == "SubprocessPlayer":
             return SubprocessPlayer()
-
+        elif config["type"] == "MiniPlayer":
+            return MiniPlayer(config[config["type"]])
         else:
             raise NotImplementedError
 
