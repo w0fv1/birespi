@@ -8,6 +8,7 @@ beautifulsoup4==4.12.3
 bilibili-api-python==16.2.0
 Brotli==1.1.0
 certifi==2024.2.2
+cffi==1.16.0
 charset-normalizer==3.3.2
 colorama==0.4.6
 distro==1.9.0
@@ -18,12 +19,15 @@ httpcore==1.0.5
 httpx==0.26.0
 idna==3.7
 lxml==5.1.1
+miniaudio==1.59
 multidict==6.0.5
+numpy==1.26.4
 openai==1.27.0
 pillow==10.2.0
 plac==1.4.3
 pyasn1==0.6.0
 PyAudio==0.2.14
+pycparser==2.22
 pycryptodomex==3.20.0
 pydantic==2.7.1
 pydantic_core==2.18.2
