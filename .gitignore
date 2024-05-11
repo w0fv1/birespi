@@ -1,7 +1,7 @@
 # 忽略根目录的birespi文件夹
 
 birespi/
-
+venv/
 # Compiled Python files
 *.pyc``
 
