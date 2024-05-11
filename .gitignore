@@ -1,0 +1,25 @@
+# 忽略根目录的birespi文件夹
+
+birespi/
+
+# Compiled Python files
+*.pyc``
+
+# 忽略sounds目录下的所有文件
+
+sounds/*
+
+*.mp3
+
+# IDE files
+.vscode/
+.idea/
+
+# Dependency directories
+__pycache__/
+dist/
+build/
+
+# config
+
+config.json
