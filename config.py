@@ -61,7 +61,7 @@ class BiRespiConfig:
             },
         },
         ComponentConfigKey.Player: {
-            "type": "WindowsPlayer",
+            "type": "PydubPlayer",
             "PydubPlayer": {
                 "ffprobePath": getFfprobePath(),
                 "ffplayPath": getFfplayerPath(),
@@ -86,6 +86,12 @@ class BiRespiConfig:
                 "host": "",
             },
         },
+        ComponentConfigKey.WebUi: {
+            "username": "admin",
+            "password": "admin",
+            "port": 8000,
+            "allowNoLocalhost": False,
+        },
     }
 
     def __init__(self, jsonConfigPath: str = None) -> None:
@@ -105,3 +111,6 @@ class BiRespiConfig:
                 type,
                 componentConfig[componentConfig["type"]],
             )
+
+    def getWebUiConfig(self):
+        return self.birespiConfig[ComponentConfigKey.WebUi]

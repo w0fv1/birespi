@@ -35,7 +35,8 @@ class ComponentManager:
             self.player = self.buildPlayer(self.config[key])
         elif key == ComponentConfigKey.Speaker:
             self.speaker = self.buildSpeaker(self.config[key])
-
+        elif key == ComponentConfigKey.WebUi:
+            pass
         else:
             raise Exception("Unknown component type")
 

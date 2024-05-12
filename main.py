@@ -2,26 +2,18 @@ import asyncio
 import threading
 from Birespi import Birespi
 from config import BiRespiConfig
-from ui.ui import BirespiUI
-from util.ConfigUtil import argDict, getConfigPath, loadJson
-import uvicorn
+from ui.UI import BirespiUI
+from util.ConfigUtil import getConfigPath, loadJson
+from system import Context
 
-configPath = getConfigPath()
-
+configPath: str = getConfigPath()
+birespiConfig: BiRespiConfig = BiRespiConfig(jsonConfigPath=loadJson(configPath))
 print("configPath:", configPath)
 
-birespi: Birespi = Birespi(
-    BiRespiConfig(jsonConfigPath=loadJson(configPath)).birespiConfig
-)
-
-
-async def startBirespi(birespi: Birespi):
-    await birespi.startRespi()
-
-    while True:
-        await asyncio.sleep(10)
-
+birespi: Birespi = Birespi(birespiConfig.birespiConfig)
+Context.getBirespi = lambda: birespi
 
 if __name__ == "__main__":
-    threading.Thread(target=BirespiUI(birespi).startUi).start()
-    asyncio.run(startBirespi(birespi))
+    uiThread = threading.Thread(target=BirespiUI(birespiConfig.getWebUiConfig()).start)
+    uiThread.start()
+    birespi.startRespi()

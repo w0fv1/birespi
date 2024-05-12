@@ -3,3 +3,4 @@ class ComponentConfigKey:
     Speaker = "speaker"
     Player = "player"
     DanmuReceiver = "danmu_receiver"
+    WebUi = "web_ui"

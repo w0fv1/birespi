@@ -61,5 +61,5 @@ class BiliOpenDanmuReceiver:
         self.biliClient.onRecvDanmu = self.onRecvDanmu
 
     def startReceive(self):
-        asyncio.create_task(self.biliClient.run())
+        self.biliClient.run()
         

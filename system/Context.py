@@ -1,0 +1,4 @@
+
+@staticmethod
+def getBirespi():
+    pass

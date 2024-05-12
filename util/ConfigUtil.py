@@ -23,5 +23,5 @@ def argDict() -> dict:
             argDict[key] = value
     return argDict
 
-def getConfigPath():
+def getConfigPath()->str:
     return argDict().get("config", "config.json")

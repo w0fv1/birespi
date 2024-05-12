@@ -96,26 +96,23 @@ class BiliClient:
             self.__exit__(None, None, None)
         except:
             pass
-        asyncio.run(self.run())
+        self.run()
         pass
 
     # 事件循环
-    async def run(self):
-        self.websocket = await self.connect()
+    def run(self):
+        loop = asyncio.get_event_loop()
         # 建立连接
+        websocket = loop.run_until_complete(self.connect())
         tasks = [
             # 读取信息
-            asyncio.ensure_future(self.recvLoop(self.websocket)),
+            asyncio.ensure_future(self.recvLoop(websocket)),
             # 发送心跳
-            asyncio.ensure_future(self.heartBeat(self.websocket)),
-            # 发送游戏心跳
+            asyncio.ensure_future(self.heartBeat(websocket)),
+             # 发送游戏心跳
             asyncio.ensure_future(self.appheartBeat()),
         ]
-        try:
-            await asyncio.gather(*tasks)
-        except:
-            print("run error")
-            await self.reRun()
+        loop.run_until_complete(asyncio.gather(*tasks))
 
     # http的签名
     def sign(self, params):
