@@ -5,7 +5,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Birespi后台</title>
+    <script src="/static/api.js"></script>
     <script src="/static/alpine.js"></script>
+    <script src="/static/bootstrap.js"></script>
+    <link href="/static/bootstrap.css" rel="stylesheet">
+
+
+
+    <script>
+
+        function app() {
+            return {
+                danmus: [],
+                init() {
+                    danmuList = document.getElementById('danmuList');
+
+                    setInterval(async () => {
+                        const getDanmusResult = await getDanmus();
+                        if (getDanmusResult != 0) {
+
+                            const danmus = getDanmusResult.data.danmus;
+                            this.danmus = danmus;
+                            console.log(this.danmus);
+
+
+                            // 将danmuList滚动到底部
+                            danmuList.scrollTop = danmuList.scrollHeight;
+                        }
+                    }, 1000);
+                }
+            };
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+        });
+
+
+    </script>
+
     <style>
         html,
         body {
@@ -15,11 +53,101 @@
             background-color: aqua;
             overflow: hidden;
         }
+
+        main {
+            height: 100%;
+            overflow: auto;
+            padding: 24px;
+            background-color: yellowgreen;
+        }
+
+        .danmu_list {
+            height: 84vh;
+            overflow: auto;
+        }
+
+        .user_avatar {
+            width: 32px;
+            height: 32px;
+            padding: 4px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 
 <body>
 
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Birespi后台</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">配置</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="row">
+            <div class="col-3">
+                <div class="card ">
+                    <div class="card-header">
+                        弹幕
+                    </div>
+                    <div id="danmuList" class="card-body danmu_list" x-data="app()" x-init="init()">
+                        <template x-for="danmu in danmus">
+                            <div style="display: block; margin-bottom: 10px;" class="toast" role="alert"
+                                aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header">
+                                    <img class="user_avatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                    &nbsp;
+                                    <strong class="me-auto" x-text="danmu.from_user"></strong>
+                                    <small>11 mins ago</small>
+                                    <button type="button" class="btn-close" data-bs-dismiss="toast"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body" x-text="danmu.data.content">
+                                </div>
+                            </div>
+
+                            <div style="height: 12px;"></div>
+                            <div style="height: 12px;"></div>
+                            <div style="height: 12px;"></div>
+                        </template>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card">
+                    <div class="card-header">
+                        数据统计
+                    </div>
+                    <div class="card-body">
+                        <h1>欢迎来到Birespi后台</h1>
+                        <p>这是一个后台管理系统</p>
+                    </div>
+                </div>
+                <br>
+
+                <div class="card">
+                    <div class="card-header">
+                        正在回复
+                    </div>
+                    <div class="card-body">
+                        <h1>欢迎来到Birespi后台</h1>
+                        <p>这是一个后台管理系统</p>
+                    </div>
+                </div>
+            </div>
+    </main>
 
 </body>
 

@@ -11,7 +11,7 @@ from system.ComponentManager import ComponentManager
 class Birespi:
     componentManager: ComponentManager = ComponentManager()
     danmuQueue = FastConsumptionQueue[LiveMessage[DanmuMessageData]]()
-    danmuDisplayqueue: deque[LiveMessage[DanmuMessageData]]
+    danmuDisplayqueue: deque[LiveMessage[DanmuMessageData]] = deque()
 
     def __init__(self, config: dict) -> None:
         self.componentManager.loadComponents(config)
@@ -19,8 +19,7 @@ class Birespi:
     def startRespi(self) -> "Birespi":
         def process(danmu: LiveMessage[DanmuMessageData]):
             print("Receive danmu:", danmu.from_user, ": ", danmu.data.content)
-            self.danmuQueue.push(danmu)
-            self.danmuDisplayqueue.append(danmu)
+            self.insertDanmu(danmu)
 
         self.componentManager.danmuReceiver.onReceive(process)
 
@@ -65,3 +64,10 @@ class Birespi:
 
     def insertDanmu(self, danmu: LiveMessage[DanmuMessageData]):
         self.danmuQueue.push(danmu)
+        self.danmuDisplayqueue.append(danmu)
+        if len(self.danmuDisplayqueue) > 100:
+            self.danmuDisplayqueue.popleft()
+        
+
+    def getDanmus(self)->deque[LiveMessage[DanmuMessageData]]:
+        return self.danmuDisplayqueue

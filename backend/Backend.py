@@ -6,6 +6,7 @@ from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from system import Context
 from fastapi.responses import FileResponse, HTMLResponse
 
+
 class BirespiBackendConfig:
     username: str = "admin"
     password: str = "admin"
@@ -31,32 +32,40 @@ class BirespiApi:
     def start(self) -> "BirespiApi":
         uvicorn.run(self.api, host="localhost", port=self.config.port)
         return self
-    
+
     @api.get("/")
-    def index():
+    def index() -> FileResponse:
         return FileResponse("backend/index.html")
-    
+
     @api.get("/static/{file_path:path}")
-    def static_file(file_path: str):
+    def static_file(file_path: str) -> FileResponse:
         print(f"static_file {file_path}")
         return FileResponse(f"backend/static/{file_path}")
-    
-    @api.get("/0")
-    def read_root():
+
+    @api.get("/api/0")
+    def read_root() -> dict:
         return {"Hello": "World"}
 
-    @api.get("/version")
-    def version():
+    @api.get("/api/version")
+    def version() -> dict:
         return {"version": "0.1.2"}
 
-    @api.get("/test/danmu/{danmu}")
-    def read_root(danmu: str):
+    @api.get("/api/test/danmu/{danmu}")
+    def read_root(danmu: str) -> dict:
 
         Context.getBirespi().insertDanmu(
             LiveMessage[DanmuMessageData].Danmu(from_user="admin", content=danmu)
         )
 
         return {"Hello": "World"}
+
+    @api.get("/api/danmus")
+    def getDanmus() -> dict:
+        danmuList: list[LiveMessage[DanmuMessageData]] = list(
+            Context.getBirespi().getDanmus()
+        )
+        print("danmuList", danmuList)
+        return {"code": 0, "data": {"danmus": danmuList}}
 
 
 class BirespiBackend:
