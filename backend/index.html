@@ -9,16 +9,38 @@
     <script src="/static/alpine.js"></script>
     <script src="/static/bootstrap.js"></script>
     <link href="/static/bootstrap.css" rel="stylesheet">
-
+    <link href="/static/style.css" rel="stylesheet">
 
 
     <script>
 
+        function setMainHeight() {
+            // 获取nav元素
+            const nav = document.querySelector('nav');
+            // 获取main元素
+            const main = document.querySelector('main');
+            // 获取nav元素的高度
+            const navHeight = nav.offsetHeight;
+            // 获取界面高度
+            const windowHeight = window.innerHeight;
+            // 设置main元素的高度
+            main.style.height = windowHeight - navHeight + 'px';
+        }
+
+        window.addEventListener('load', function () {
+            setMainHeight();
+        });
+
+        window.addEventListener('resize', function () {
+            setMainHeight();
+        });
+
         function app() {
             return {
                 danmus: [],
+                danmuAutoScroll: true,
                 init() {
-                    danmuList = document.getElementById('danmuList');
+                    danmuList = document.getElementById('danmu_list');
 
                     setInterval(async () => {
                         const getDanmusResult = await getDanmus();
@@ -28,9 +50,10 @@
                             this.danmus = danmus;
                             console.log(this.danmus);
 
+                            if (this.danmuAutoScroll) {
+                                danmuList.scrollTop = danmuList.scrollHeight;
+                            }
 
-                            // 将danmuList滚动到底部
-                            danmuList.scrollTop = danmuList.scrollHeight;
                         }
                     }, 1000);
                 }
@@ -45,25 +68,10 @@
     </script>
 
     <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            background-color: aqua;
-            overflow: hidden;
-        }
-
         main {
-            height: 100%;
-            overflow: auto;
             padding: 24px;
-            background-color: yellowgreen;
-        }
-
-        .danmu_list {
-            height: 84vh;
-            overflow: auto;
+            overflow: hidden;
+            background-color: bisque;
         }
 
         .user_avatar {
@@ -73,10 +81,15 @@
             border-radius: 50%;
             border: 1px solid #ccc;
         }
+
+        .danmu_list {
+            height: 0px;
+            overflow-y: scroll;
+        }
     </style>
 </head>
 
-<body>
+<body x-data="app()" x-init="init()">
 
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
@@ -94,14 +107,23 @@
         </div>
     </nav>
 
-    <main>
-        <div class="row">
+    <main class="main d-flex flex-column">
+        <div class="row h-100">
             <div class="col-3">
-                <div class="card ">
-                    <div class="card-header">
-                        弹幕
+                <div class="card h-100 ">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>弹幕</div>
+                        <div>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                自动滚到底部
+                            </label>
+                            <input class="form-check-input" type="checkbox" x-model="danmuAutoScroll"
+                                x-on:click="danmuAutoScroll = ! danmuAutoScroll">
+                        </div>
+
                     </div>
-                    <div id="danmuList" class="card-body danmu_list" x-data="app()" x-init="init()">
+                    <div id="danmu_list" class="card-body danmu_list">
+
                         <template x-for="danmu in danmus">
                             <div style="display: block; margin-bottom: 10px;" class="toast" role="alert"
                                 aria-live="assertive" aria-atomic="true">
@@ -126,24 +148,29 @@
                 </div>
             </div>
             <div class="col-9">
-                <div class="card">
-                    <div class="card-header">
-                        数据统计
-                    </div>
-                    <div class="card-body">
-                        <h1>欢迎来到Birespi后台</h1>
-                        <p>这是一个后台管理系统</p>
+                <div class="row h-75 pb-3">
+                    <div class="card ps-0 pe-0">
+                        <div class="card-header">
+                            数据统计
+                        </div>
+                        <div class="card-body">
+                            <h1>数据统计</h1>
+                            <p>这是一个数据统计</p>
+                        </div>
                     </div>
                 </div>
-                <br>
 
-                <div class="card">
-                    <div class="card-header">
-                        正在回复
-                    </div>
-                    <div class="card-body">
-                        <h1>欢迎来到Birespi后台</h1>
-                        <p>这是一个后台管理系统</p>
+                <div class="row h-25">
+
+
+                    <div class="card ps-0 pe-0">
+                        <div class="card-header">
+                            正在回复
+                        </div>
+                        <div class="card-body">
+                            <h1>欢迎来到正在回复</h1>
+                            <p>这是一个正在回复</p>
+                        </div>
                     </div>
                 </div>
             </div>
