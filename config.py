@@ -94,11 +94,13 @@ class BiRespiConfig:
             "allowNoLocalhost": False,
         },
     }
+    version: str = "0.0.0"
 
-    def __init__(self, jsonConfigPath: str = None) -> None:
+    def __init__(self, jsonConfigPath: str = None,version:str = "0.0.0") -> None:
         if jsonConfigPath != None:
             print(f"loadJsonConfig {jsonConfigPath}")
             self.loadJsonConfig(loadJson(jsonConfigPath))
+        self.version = version
     
     def __str__(self) -> str:
         return str(self.birespiConfig)

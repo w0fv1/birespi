@@ -2,13 +2,15 @@ import asyncio
 import threading
 from Birespi import Birespi
 from config import BiRespiConfig
-from ui.Ui import BirespiUi
+from backend.Backend import BirespiBackend
 from util.ConfigUtil import getConfigPath, loadJson
 from system import Context
 
+version = "0.1.2"
+
 configPath: str = getConfigPath()
 
-birespiConfig: BiRespiConfig = BiRespiConfig(jsonConfigPath=configPath)
+birespiConfig: BiRespiConfig = BiRespiConfig(jsonConfigPath=configPath,version=version)
 Context.getBirespiConfig = lambda: birespiConfig
 
 print(birespiConfig)
@@ -16,7 +18,7 @@ print(birespiConfig)
 birespi: Birespi = Birespi(birespiConfig.birespiConfig)
 Context.getBirespi = lambda: birespi
 
-birespiUi: BirespiUi = BirespiUi(birespiConfig.getWebUiConfig())
+birespiUi: BirespiBackend = BirespiBackend(birespiConfig.getWebUiConfig())
 Context.getBirespiUi = lambda: birespiUi
 
 if __name__ == "__main__":
