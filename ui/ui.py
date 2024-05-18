@@ -1,8 +1,10 @@
+import threading
 from fastapi import Depends, FastAPI
 from Birespi import Birespi
 import uvicorn
-from model.Danmu import Danmu
+from model.LiveEventMessage import  DanmuMessageData, LiveMessage
 from system import Context
+
 
 class BirespiUIConfig:
     username: str = "admin"
@@ -18,15 +20,15 @@ class BirespiUIConfig:
         self.allowNoLocalhost = dict.get("allowNoLocalhost", False)
 
 
-class BirespiAPI:
+class BirespiApi:
     api = FastAPI()
     config: BirespiUIConfig = None
 
     def __init__(self, config: dict) -> None:
         self.config = BirespiUIConfig(config)
-        print("BirespiAPI init")
+        print("BirespiApi init")
 
-    def start(self) -> "BirespiUI":
+    def start(self) -> "BirespiApi":
         uvicorn.run(self.api, host="localhost", port=self.config.port)
         return self
 
@@ -37,20 +39,22 @@ class BirespiAPI:
     @api.get("/test/danmu/{danmu}")
     def read_root(danmu: str):
 
-        Context.getBirespi().insertDanmu(Danmu("admin", danmu))
+        Context.getBirespi().insertDanmu(
+            LiveMessage[DanmuMessageData].Danmu(from_user="admin", content=danmu)
+        )
 
         return {"Hello": "World"}
 
 
-class BirespiUI:
+class BirespiUi:
     config: BirespiUIConfig = None
-    api: BirespiAPI = None
+    api: BirespiApi = None
 
-    def __init__(self,  config: dict) -> None:
+    def __init__(self, config: dict) -> None:
         self.config = BirespiUIConfig(config)
-        self.api = BirespiAPI(config)
-        
-    
+        self.api = BirespiApi(config)
+
     def start(self):
-        self.api.start()
+        uiThread = threading.Thread(target=self.api.start)
+        uiThread.start()
         print("BirespiUI start")

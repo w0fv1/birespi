@@ -6,6 +6,7 @@ from component.Chatter import OpenaiChatterConfig
 from component.DanmuReceiver import BiliOpenDanmuReceiverConfig
 from component.SoundPlayer import PydubPlayerConfig
 from component.Speaker import EdgeSpeakerConfig
+from util.ConfigUtil import loadJson
 from value.ComponentConfigKey import ComponentConfigKey
 
 
@@ -96,20 +97,31 @@ class BiRespiConfig:
 
     def __init__(self, jsonConfigPath: str = None) -> None:
         if jsonConfigPath != None:
-            self.loadJsonConfig(jsonConfigPath)
+            print(f"loadJsonConfig {jsonConfigPath}")
+            self.loadJsonConfig(loadJson(jsonConfigPath))
+    
+    def __str__(self) -> str:
+        return str(self.birespiConfig)
 
-    def setComponentConfig(self, componentConfigKey: str, type: str, config: dict):
+    def setComponentConfig(self, componentConfigKeyStr: str, type: str, config: dict):
+        print(f"componentConfigKey {componentConfigKeyStr} type {type} config {config}")
+        componentConfigKey:ComponentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+
+        if componentConfigKey not in self.birespiConfig.keys():
+            self.birespiConfig[componentConfigKey] = {}
+        
         self.birespiConfig[componentConfigKey][type] = config
 
     def loadJsonConfig(self, jsonConfig: dict):
         print("loadJsonConfig:", jsonConfig)
-        for componentConfigKey in jsonConfig:
+        for componentConfigKey in jsonConfig.keys():
             componentConfig: dict = jsonConfig[componentConfigKey]
+            print(f"componentConfigKey {componentConfigKey} componentConfig {componentConfig}")
             type = componentConfig["type"]
             self.setComponentConfig(
                 componentConfigKey,
                 type,
-                componentConfig[componentConfig["type"]],
+                componentConfig[type],
             )
 
     def getWebUiConfig(self):

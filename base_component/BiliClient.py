@@ -11,7 +11,7 @@ from hashlib import sha256
 import struct
 import zlib
 
-from model.Danmu import Danmu
+from model.LiveEventMessage import DanmuMessageData, LiveMessage
 
 
 class Proto:
@@ -76,7 +76,7 @@ class BiliClient:
     secret: str
     host: str
     gameId: str
-    onRecvDanmu: Callable[[Danmu], None]
+    onRecvDanmu: Callable[[LiveMessage[DanmuMessageData]], None]
 
     def __init__(self, idCode, appId, key, secret, host):
         self.idCode = idCode
@@ -109,7 +109,7 @@ class BiliClient:
             asyncio.ensure_future(self.recvLoop(websocket)),
             # 发送心跳
             asyncio.ensure_future(self.heartBeat(websocket)),
-             # 发送游戏心跳
+            # 发送游戏心跳
             asyncio.ensure_future(self.appheartBeat()),
         ]
         loop.run_until_complete(asyncio.gather(*tasks))
@@ -223,9 +223,9 @@ class BiliClient:
             print("收到消息", result)
             message = json.loads(result)
             if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
-                danmu = Danmu(
-                    message["data"]["uname"],
-                    message["data"]["msg"],
+                danmu = LiveMessage.Danmu(
+                    from_user=message["data"]["uname"],
+                    content=message["data"]["msg"],
                 )
                 self.onRecvDanmu(danmu)
 

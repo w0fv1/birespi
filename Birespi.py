@@ -3,35 +3,35 @@ import threading
 
 from typing import Optional
 from util.Queue import FastConsumptionQueue
-from model.Danmu import Danmu
+from model.LiveEventMessage import LiveMessage,DanmuMessageData
 from system.ComponentManager import ComponentManager
 
 
 class Birespi:
     componentManager: ComponentManager = ComponentManager()
-    fastConsumptionQueue = FastConsumptionQueue[Danmu]()
+    danmuQueue = FastConsumptionQueue[LiveMessage[DanmuMessageData]]()
 
     def __init__(self, config: dict) -> None:
         self.componentManager.loadComponents(config)
 
     def startRespi(self) -> "Birespi":
-        def process(danmu: Danmu):
-            print("Receive danmu:", danmu.username, ": ", danmu.content)
-            self.fastConsumptionQueue.push(danmu)
+        def process(danmu: LiveMessage[DanmuMessageData]):
+            print("Receive danmu:", danmu.from_user, ": ", danmu.data.content)
+            self.danmuQueue.push(danmu)
 
         self.componentManager.danmuReceiver.onReceive(process)
 
         async def response():
             while True:
-                danmu: Optional[Danmu] = self.fastConsumptionQueue.pop()
+                danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
                 if danmu == None:
                     print("没获取到弹幕,等待...")
                     await asyncio.ensure_future(asyncio.sleep(1))
                     continue
                 print("Pop danmu:", danmu)
-                print(f'start respi: "{danmu.username}:{danmu.content}"')
+                print(f'start respi: "{danmu.from_user}:{danmu.data.content}"')
                 answer = await self.componentManager.chatter.answer(
-                    danmu.username + "说:" + danmu.content
+                    danmu.from_user + "说:" + danmu.data.content
                 )
                 print("answer: ", answer)
                 sound = await self.componentManager.speaker.speak(answer)
@@ -44,7 +44,7 @@ class Birespi:
 
         # async def wishes2Everyone():
         #     while True:
-        #         self.fastConsumptionQueue.push(
+        #         self.danmuQueue.push(
         #             Danmu(
         #                 "w0fv1-dev",
         #                 "请你祝福直播间的所有人,祝福他们的事业和生活, 祝福他们的家人和朋友, 祝福他们的爱情和婚姻, 祝福他们的健康和快乐。",
@@ -60,5 +60,5 @@ class Birespi:
         print("start Birespi startRespi")
         return self
 
-    def insertDanmu(self, danmu: Danmu):
-        self.fastConsumptionQueue.push(danmu)
+    def insertDanmu(self, danmu: LiveMessage[DanmuMessageData]):
+        self.danmuQueue.push(danmu)

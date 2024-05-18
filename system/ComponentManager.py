@@ -23,8 +23,9 @@ class ComponentManager:
         self.config[key] = config
         self.build(key)
 
-    def build(self, key: str):
-        print("Build component: ", key)
+    def build(self, key: ComponentConfigKey):
+        print("Build component key: ", key)
+        print("Build component key: ", type(key))
         print("Build component config: ", self.config[key])
 
         if key == ComponentConfigKey.Chatter:
@@ -38,7 +39,7 @@ class ComponentManager:
         elif key == ComponentConfigKey.WebUi:
             pass
         else:
-            raise Exception("Unknown component type")
+            raise Exception(f"Unknown component type {key}")
 
     def buildChatter(self, config: dict) -> BaseChatter:
         if config["type"] == "OpenaiChatter":

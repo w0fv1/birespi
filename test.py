@@ -9,7 +9,7 @@ from util.Queue import FastConsumptionQueue
 from component.SoundPlayer import BasePlayer
 from component.Speaker import BaseSpeaker
 from config import BiRespiConfig
-from model.Danmu import Danmu
+from model.LiveEventMessage import Danmu
 import threading
 from threading import Lock
 from system.ComponentManager import ComponentManager
