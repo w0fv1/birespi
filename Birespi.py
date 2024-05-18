@@ -1,15 +1,17 @@
 import asyncio
+from collections import deque
 import threading
 
 from typing import Optional
 from util.Queue import FastConsumptionQueue
-from model.LiveEventMessage import LiveMessage,DanmuMessageData
+from model.LiveEventMessage import LiveMessage, DanmuMessageData
 from system.ComponentManager import ComponentManager
 
 
 class Birespi:
     componentManager: ComponentManager = ComponentManager()
     danmuQueue = FastConsumptionQueue[LiveMessage[DanmuMessageData]]()
+    danmuDisplayqueue: deque[LiveMessage[DanmuMessageData]]
 
     def __init__(self, config: dict) -> None:
         self.componentManager.loadComponents(config)
@@ -18,6 +20,7 @@ class Birespi:
         def process(danmu: LiveMessage[DanmuMessageData]):
             print("Receive danmu:", danmu.from_user, ": ", danmu.data.content)
             self.danmuQueue.push(danmu)
+            self.danmuDisplayqueue.append(danmu)
 
         self.componentManager.danmuReceiver.onReceive(process)
 

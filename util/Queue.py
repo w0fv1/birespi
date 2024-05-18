@@ -5,6 +5,10 @@ from threading import Lock
 T = TypeVar('T')  # 定义一个类型变量T
 
 class FastConsumptionQueue(Generic[T]):
+
+    queue: deque
+    lock: Lock
+
     def __init__(self):
         self.queue = deque()  # 使用双端队列存储数据
         self.lock = Lock()    # 线程锁，保证数据安全

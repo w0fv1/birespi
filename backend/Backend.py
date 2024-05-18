@@ -4,7 +4,7 @@ from Birespi import Birespi
 import uvicorn
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from system import Context
-
+from fastapi.responses import FileResponse, HTMLResponse
 
 class BirespiBackendConfig:
     username: str = "admin"
@@ -31,6 +31,15 @@ class BirespiApi:
     def start(self) -> "BirespiApi":
         uvicorn.run(self.api, host="localhost", port=self.config.port)
         return self
+    
+    @api.get("/")
+    def index():
+        return FileResponse("backend/index.html")
+    
+    @api.get("/static/{file_path:path}")
+    def static_file(file_path: str):
+        print(f"static_file {file_path}")
+        return FileResponse(f"backend/static/{file_path}")
     
     @api.get("/0")
     def read_root():
