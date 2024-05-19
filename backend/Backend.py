@@ -27,7 +27,7 @@ class BirespiApi:
 
     def __init__(self, config: dict) -> None:
         self.config = BirespiBackendConfig(config)
-        print("BirespiApi init")
+        
 
     def start(self) -> "BirespiApi":
         uvicorn.run(self.api, host="localhost", port=self.config.port)
@@ -39,7 +39,7 @@ class BirespiApi:
 
     @api.get("/static/{file_path:path}")
     def static_file(file_path: str) -> FileResponse:
-        print(f"static_file {file_path}")
+        
         return FileResponse(f"backend/static/{file_path}")
 
     @api.get("/api/0")
@@ -64,7 +64,7 @@ class BirespiApi:
         danmus: list[LiveMessage[DanmuMessageData]] = list(
             Context.getBirespi().getDanmus()
         )
-        print("danmuList", danmus)
+        
         return {"code": 0, "data": {"danmus": danmus}}
 
     @api.get("/api/last-talk")
@@ -91,4 +91,4 @@ class BirespiBackend:
     def start(self):
         uiThread = threading.Thread(target=self.api.start)
         uiThread.start()
-        print("BirespiUI start")
+        

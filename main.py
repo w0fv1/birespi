@@ -20,7 +20,7 @@ configPath: str = getConfigPath()
 birespiConfig: BiRespiConfig = BiRespiConfig(jsonConfigPath=configPath, version=version)
 Context.getBirespiConfig = lambda: birespiConfig
 
-print(birespiConfig)
+
 
 birespi: Birespi = Birespi(birespiConfig.birespiConfig)
 Context.getBirespi = lambda: birespi

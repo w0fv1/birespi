@@ -36,7 +36,7 @@ class Proto:
 
     def unpack(self, buf) -> str:
         if len(buf) < self.headerLen:
-            print("包头不够")
+            
             return
         self.packetLen = struct.unpack(">i", buf[0:4])[0]
         self.headerLen = struct.unpack(">h", buf[4:6])[0]
@@ -53,7 +53,7 @@ class Proto:
             )
             return "-1:包体长不对"
         if self.headerLen != self.headerLen:
-            print("包头长度不对")
+            
             return "-1:包头长度不对"
         bodyLen = self.packetLen - self.headerLen
         self.body = buf[16 : self.packetLen]
@@ -90,7 +90,7 @@ class BiliClient:
     websocket = None
 
     async def reRun(self):
-        print("reRun BiliClient")
+        
         try:
             await self.websocket.close()
             self.__exit__(None, None, None)
@@ -176,7 +176,7 @@ class BiliClient:
                 )
                 data = json.loads(r.content)
             except Exception as e:
-                print("appheartBeat error", e)
+                
                 await self.reRun()
 
     # 发送鉴权信息
@@ -190,9 +190,9 @@ class BiliClient:
         resp.unpack(buf)
         respBody = json.loads(resp.body)
         if respBody["code"] != 0:
-            print("auth 失败")
+            
         else:
-            print("auth 成功")
+            
 
     # 发送心跳
     async def heartBeat(self, websocket):
@@ -211,19 +211,19 @@ class BiliClient:
             # 去除空格
             result = result.replace(" ", "")
             if result.startswith("-1"):
-                print("解析错误", result)
+                
                 continue
             if result == "":
-                print("收到消息为空")
+                
                 continue
             if "{" not in result:
-                print("收到消息不为json格式")
+                
                 continue
 
-            print("收到消息", result)
+            
             message = json.loads(result)
             if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
-                print(f"收到弹幕消息 {message}")
+                
                 danmu = LiveMessage.Danmu(
                     fromUser=message["data"]["uname"],
                     content=message["data"]["msg"],

@@ -24,9 +24,9 @@ class ComponentManager:
         self.build(key)
 
     def build(self, key: ComponentConfigKey):
-        print("Build component key: ", key)
-        print("Build component key: ", type(key))
-        print("Build component config: ", self.config[key])
+        
+        )
+        
 
         if key == ComponentConfigKey.Chatter:
             self.chatter = self.buildChatter(self.config[key])

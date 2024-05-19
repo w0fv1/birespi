@@ -18,19 +18,19 @@ import os
 birespiConfig = BiRespiConfig.birespiConfig
 componentManager = ComponentManager()
 componentManager.loadComponents(birespiConfig)
-print(birespiConfig)
+
 
 
 async def testChatter():
     chater: BaseChatter = componentManager.buildChatter(birespiConfig["chatter"])
     result = await chater.answer("Hello")
-    print(result)
+    
 
 
 async def testSpeaker():
     speaker: BaseSpeaker = componentManager.buildSpeaker(birespiConfig["speaker"])
     result = await speaker.speak("你好")
-    print(result)
+    
 
 
 async def testPlayer():
@@ -48,9 +48,9 @@ async def testReply():
     speaker: BaseSpeaker = componentManager.buildSpeaker(birespiConfig["speaker"])
     player = componentManager.buildPlayer(birespiConfig["player"])
     result = await chater.answer("你好")
-    print(result)
+    
     result = await speaker.speak(result)
-    print(result)
+    
     player.play(result)
 
 
@@ -60,7 +60,7 @@ async def testDanmuReceiver():
     )
 
     def process(danmu: Danmu):
-        print("Receive danmu:", danmu.content)
+        
 
     danmuReceiver.onReceive(process)
     await danmuReceiver.startReceive()
@@ -76,7 +76,7 @@ async def testReplyDanmu():
     fastConsumptionQueue = FastConsumptionQueue[Danmu]()
 
     def process(danmu: Danmu):
-        print("Receive danmu:", danmu.username, ": ", danmu.content)
+        
         fastConsumptionQueue.push(danmu)
 
     async def response():
@@ -84,17 +84,17 @@ async def testReplyDanmu():
         while True:
             danmu: Optional[Danmu] = fastConsumptionQueue.pop()
             if danmu == None:
-                print("没获取到弹幕,等待...")
+                
                 await asyncio.sleep(1)
                 continue
-            print("Pop danmu:", danmu)
+            
 
             with playLock:
                 if danmu:
                     answer = await chater.answer(danmu.username + "说:" + danmu.content)
-                    print("answer: ", answer)
+                    
                     sound = await speaker.speak(answer)
-                    print("sound: ", sound)
+                    
                     player.play(sound)
 
             await asyncio.sleep(1)

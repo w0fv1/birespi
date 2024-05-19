@@ -98,7 +98,7 @@ class BiRespiConfig:
 
     def __init__(self, jsonConfigPath: str = None,version:str = "0.0.0") -> None:
         if jsonConfigPath != None:
-            print(f"loadJsonConfig {jsonConfigPath}")
+            
             self.loadJsonConfig(loadJson(jsonConfigPath))
         self.version = version
     
@@ -106,7 +106,7 @@ class BiRespiConfig:
         return str(self.birespiConfig)
 
     def setComponentConfig(self, componentConfigKeyStr: str, type: str, config: dict):
-        print(f"componentConfigKey {componentConfigKeyStr} type {type} config {config}")
+        
         componentConfigKey:ComponentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
 
         if componentConfigKey not in self.birespiConfig.keys():
@@ -115,10 +115,10 @@ class BiRespiConfig:
         self.birespiConfig[componentConfigKey][type] = config
 
     def loadJsonConfig(self, jsonConfig: dict):
-        print("loadJsonConfig:", jsonConfig)
+        
         for componentConfigKey in jsonConfig.keys():
             componentConfig: dict = jsonConfig[componentConfigKey]
-            print(f"componentConfigKey {componentConfigKey} componentConfig {componentConfig}")
+            
             type = componentConfig["type"]
             self.setComponentConfig(
                 componentConfigKey,

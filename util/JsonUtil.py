@@ -60,7 +60,7 @@ def test_set_json():
     set_json(json_data, "$.a.b", 5)
     expected = {'a': {'b': 5}}
     if json_data != expected:
-        print("测试用例 1 失败: 预期", expected, "得到", json_data)
+        
         errors += 1
 
     # 测试用例 2
@@ -68,7 +68,7 @@ def test_set_json():
     set_json(json_data, "$.a[0].b", 1)
     expected = {'a': [{'b': 1}]}
     if json_data != expected:
-        print("测试用例 2 失败: 预期", expected, "得到", json_data)
+        
         errors += 1
 
     # 测试用例 3
@@ -76,7 +76,7 @@ def test_set_json():
     set_json(json_data, "$.a[2].b", 3)
     expected = {'a': [None, None, {'b': 3}]}
     if json_data != expected:
-        print("测试用例 3 失败: 预期", expected, "得到", json_data)
+        
         errors += 1
 
     # 测试用例 4
@@ -84,7 +84,7 @@ def test_set_json():
     set_json(json_data, "$.a.b", {"x": "y"})
     expected = {'a': {'b': {'x': 'y'}}}
     if json_data != expected:
-        print("测试用例 4 失败: 预期", expected, "得到", json_data)
+        
         errors += 1
 
     # 测试用例 5
@@ -92,7 +92,7 @@ def test_set_json():
     set_json(json_data, "$.a.b.c.d.e", 10)
     expected = {'a': {'b': {'c': {'d': {'e': 10}}}}}
     if json_data != expected:
-        print("测试用例 5 失败: 预期", expected, "得到", json_data)
+        
         errors += 1
 
 # 运行测试

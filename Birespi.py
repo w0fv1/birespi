@@ -20,7 +20,6 @@ class Birespi:
 
     def startRespi(self) -> "Birespi":
         def process(danmu: LiveMessage[DanmuMessageData]):
-            print("Receive danmu:", danmu.fromUser, ": ", danmu.data.content)
             self.insertDanmu(danmu)
 
         self.componentManager.danmuReceiver.onReceive(process)
@@ -29,19 +28,19 @@ class Birespi:
             while True:
                 danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
                 if danmu == None:
-                    print("没获取到弹幕,等待...")
+                    
                     await asyncio.ensure_future(asyncio.sleep(1))
                     continue
-                print("Pop danmu:", danmu)
+                
                 self.setLastTalk(danmu, "生成中.....")
-                print(f'start respi: "{danmu.fromUser}:{danmu.data.content}"')
+                
                 answer: str = await self.componentManager.chatter.answer(
                     danmu.fromUser + "说:" + danmu.data.content
                 )
-                print("answer: ", answer)
+                
                 self.setLastTalk(danmu, answer)
                 sound = await self.componentManager.speaker.speak(answer)
-                print("sound: ", sound)
+                
                 self.componentManager.player.play(sound)
 
                 await asyncio.ensure_future(asyncio.sleep(1))
@@ -61,9 +60,9 @@ class Birespi:
         # asyncio.create_task(wishes2Everyone())
 
         self.componentManager.danmuReceiver.startReceive()
-        print("start Birespi startRespi")
+        
 
-        print("start Birespi startRespi")
+        
         return self
 
     def insertDanmu(self, danmu: LiveMessage[DanmuMessageData]):
