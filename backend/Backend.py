@@ -35,6 +35,14 @@ class BirespiApi:
     def index() -> FileResponse:
         return FileResponse("backend/index.html")
 
+    @api.get("/log")
+    def index() -> FileResponse:
+        return FileResponse("backend/log.html")
+
+    @api.get("/config")
+    def index() -> FileResponse:
+        return FileResponse("backend/config.html")
+
     @api.get("/static/{file_path:path}")
     def static_file(file_path: str) -> FileResponse:
 
