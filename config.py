@@ -96,29 +96,31 @@ class BiRespiConfig:
     }
     version: str = "0.0.0"
 
-    def __init__(self, jsonConfigPath: str = None,version:str = "0.0.0") -> None:
+    def __init__(self, jsonConfigPath: str = None, version: str = "0.0.0") -> None:
         if jsonConfigPath != None:
-            
+
             self.loadJsonConfig(loadJson(jsonConfigPath))
         self.version = version
-    
+
     def __str__(self) -> str:
         return str(self.birespiConfig)
 
     def setComponentConfig(self, componentConfigKeyStr: str, type: str, config: dict):
-        
-        componentConfigKey:ComponentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+
+        componentConfigKey: ComponentConfigKey = ComponentConfigKey.fromStr(
+            componentConfigKeyStr
+        )
 
         if componentConfigKey not in self.birespiConfig.keys():
             self.birespiConfig[componentConfigKey] = {}
-        
+
         self.birespiConfig[componentConfigKey][type] = config
 
     def loadJsonConfig(self, jsonConfig: dict):
-        
+
         for componentConfigKey in jsonConfig.keys():
             componentConfig: dict = jsonConfig[componentConfigKey]
-            
+
             type = componentConfig["type"]
             self.setComponentConfig(
                 componentConfigKey,
@@ -128,3 +130,16 @@ class BiRespiConfig:
 
     def getWebUiConfig(self):
         return self.birespiConfig[ComponentConfigKey.WebUi]
+
+
+class BirespiConfigHolder:
+    birespiConfig: BiRespiConfig = None
+
+    def set(self, birespiConfig: BiRespiConfig):
+        self.birespiConfig = birespiConfig
+
+    def get(self) -> BiRespiConfig:
+        return self.birespiConfig
+
+
+birespiConfigHolder = BirespiConfigHolder()

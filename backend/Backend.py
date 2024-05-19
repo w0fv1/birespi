@@ -1,9 +1,8 @@
 import threading
 from fastapi import Depends, FastAPI
-from Birespi import Birespi
 import uvicorn
+from Birespi import biRespiHolder
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
-from system import Context
 from fastapi.responses import FileResponse, HTMLResponse
 
 
@@ -27,7 +26,6 @@ class BirespiApi:
 
     def __init__(self, config: dict) -> None:
         self.config = BirespiBackendConfig(config)
-        
 
     def start(self) -> "BirespiApi":
         uvicorn.run(self.api, host="localhost", port=self.config.port)
@@ -39,7 +37,7 @@ class BirespiApi:
 
     @api.get("/static/{file_path:path}")
     def static_file(file_path: str) -> FileResponse:
-        
+
         return FileResponse(f"backend/static/{file_path}")
 
     @api.get("/api/0")
@@ -53,7 +51,7 @@ class BirespiApi:
     @api.get("/api/test/danmu/{danmu}")
     def read_root(danmu: str) -> dict:
 
-        Context.getBirespi().insertDanmu(
+        biRespiHolder.get().insertDanmu(
             LiveMessage[DanmuMessageData].Danmu(fromUser="admin", content=danmu)
         )
 
@@ -61,15 +59,13 @@ class BirespiApi:
 
     @api.get("/api/danmus")
     def getDanmus() -> dict:
-        danmus: list[LiveMessage[DanmuMessageData]] = list(
-            Context.getBirespi().getDanmus()
-        )
-        
+        danmus: list[LiveMessage[DanmuMessageData]] = list(biRespiHolder.get().getDanmus())
+
         return {"code": 0, "data": {"danmus": danmus}}
 
     @api.get("/api/last-talk")
     def getLastTalk() -> dict:
-        lastTalk = Context.getBirespi().getLastTalk()
+        lastTalk = biRespiHolder.get().getLastTalk()
 
         if lastTalk == None or len(lastTalk) == 0 or lastTalk[0] == None:
             return {"code": 1, "data": None}
@@ -91,4 +87,16 @@ class BirespiBackend:
     def start(self):
         uiThread = threading.Thread(target=self.api.start)
         uiThread.start()
-        
+
+
+class BirespiBackendHolder:
+    birespiBackend: BirespiBackend = None
+
+    def set(self, birespiBackend: BirespiBackend):
+        self.birespiBackend = birespiBackend
+
+    def get(self) -> BirespiBackend:
+        return self.birespiBackend
+
+
+birespiBackendHolder = BirespiBackendHolder()

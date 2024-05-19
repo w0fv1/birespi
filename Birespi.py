@@ -1,7 +1,5 @@
 import asyncio
 from collections import deque
-import threading
-
 from typing import Optional
 from model.Talk import Talk
 from util.Queue import FastConsumptionQueue
@@ -28,19 +26,19 @@ class Birespi:
             while True:
                 danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
                 if danmu == None:
-                    
+
                     await asyncio.ensure_future(asyncio.sleep(1))
                     continue
-                
+
                 self.setLastTalk(danmu, "生成中.....")
-                
+
                 answer: str = await self.componentManager.chatter.answer(
                     danmu.fromUser + "说:" + danmu.data.content
                 )
-                
+
                 self.setLastTalk(danmu, answer)
                 sound = await self.componentManager.speaker.speak(answer)
-                
+
                 self.componentManager.player.play(sound)
 
                 await asyncio.ensure_future(asyncio.sleep(1))
@@ -60,9 +58,8 @@ class Birespi:
         # asyncio.create_task(wishes2Everyone())
 
         self.componentManager.danmuReceiver.startReceive()
-        
 
-        
+        print("Birespi started.....!!")
         return self
 
     def insertDanmu(self, danmu: LiveMessage[DanmuMessageData]):
@@ -79,3 +76,16 @@ class Birespi:
 
     def getLastTalk(self) -> tuple[Talk, Talk]:
         return self.lastTalk
+
+
+class BirespiHolder:
+    birespi: Birespi = None
+
+    def set(self, birespi: Birespi):
+        self.birespi = birespi
+
+    def get(self) -> Birespi:
+        return self.birespi
+
+
+biRespiHolder: BirespiHolder = BirespiHolder()

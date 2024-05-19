@@ -10,7 +10,6 @@ import random
 from hashlib import sha256
 import struct
 import zlib
-
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 
 
@@ -155,7 +154,6 @@ class BiliClient:
         headerMap = self.sign(params)
         r = requests.post(url=postUrl, headers=headerMap, data=params, verify=False)
         live_info = json.loads(r.content)
-
         self.gameId = str(live_info["data"]["game_info"]["game_id"])
 
         # 获取长连地址和鉴权体
@@ -190,9 +188,9 @@ class BiliClient:
         resp.unpack(buf)
         respBody = json.loads(resp.body)
         if respBody["code"] != 0:
-            
+            pass
         else:
-            
+            pass
 
     # 发送心跳
     async def heartBeat(self, websocket):

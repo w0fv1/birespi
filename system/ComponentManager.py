@@ -24,9 +24,6 @@ class ComponentManager:
         self.build(key)
 
     def build(self, key: ComponentConfigKey):
-        
-        )
-        
 
         if key == ComponentConfigKey.Chatter:
             self.chatter = self.buildChatter(self.config[key])
