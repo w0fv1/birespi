@@ -1,6 +1,7 @@
 import threading
 from fastapi import Depends, FastAPI
 import uvicorn
+from base_component.Logger import BLogger, getLogger
 from Birespi import biRespiHolder, getBirespi
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from fastapi.responses import FileResponse, HTMLResponse
@@ -82,6 +83,14 @@ class BirespiApi:
             "code": 0,
             "data": {"lastTalkDanmu": lastTalk[0], "lastTalkBirespi": lastTalk[1]},
         }
+
+    @api.get("/api/logs")
+    def getLogs() -> dict:
+        return {"code": 0, "data": {"logs": getLogger().getLogFiles()}}
+
+    @api.get("/api/log/{logFilename}")
+    def getLog(logFilename: str) -> dict:
+        return {"code": 0, "data": {"log": getLogger().getLog(logFilename)}}
 
 
 class BirespiBackend:

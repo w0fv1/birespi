@@ -12,7 +12,7 @@ class BLogger:
         self.log.setLevel(logging.DEBUG)
 
         # Create file handler which logs even debug messages
-        filename = f'log/birespi-log-{datetime.datetime.now().strftime("%Y-%m-%d")}.txt'
+        filename = f'log/birespi-log-{datetime.datetime.now().strftime("%Y-%m-%d")}.log'
         if not os.path.exists("log"):
             os.makedirs("log")
 
@@ -65,6 +65,12 @@ class BLogger:
     def log_critical(self, message):
         self.log.critical(message)
 
+    def getLogFiles(self) -> list[str]:
+        return os.listdir("log")
+
+    def getLog(self, filename: str) -> str:
+        with open(f"log/{filename}", "r") as f:
+            return f.read()
 
 
 class BLoggerHolder:
@@ -75,8 +81,10 @@ class BLoggerHolder:
 
     def get(self) -> BLogger:
         return self.logger
-    
+
+
 bLoggerHolder: BLoggerHolder = BLoggerHolder()
+
 
 def getLogger() -> BLogger:
     return bLoggerHolder.get()

@@ -38,3 +38,49 @@ async function getLastTalk() {
     };
 }
 
+async function getLogs() {
+    const response = await fetch('/api/logs');
+    const data = await response.json();
+
+    const code = data.code;
+
+    if (code !== 0) {
+        return {
+            code: code,
+            msg: "error",
+            data: null
+        };
+    }
+
+    const logs = data.data;
+
+    return {
+        code: 0,
+        msg: "no error",
+        data: logs
+    };
+}
+
+async function getLog(logFilename) {
+    const response = await fetch(`/api/log/${logFilename}`);
+    const data = await response.json();
+
+    const code = data.code;
+
+    if (code !== 0) {
+        return {
+            code: code,
+            msg: "error",
+            data: null
+        };
+    }
+
+    const logContent = data.data;
+
+    return {
+        code: 0,
+        msg: "no error",
+        data: logContent
+    };
+}
+
