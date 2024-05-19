@@ -10,7 +10,7 @@ from backend.Backend import BirespiBackend, birespiBackendHolder
 from util.ConfigUtil import getConfigPath, loadJson
 
 
-version = "0.2.2"
+version = "0.3.0"
 
 
 logger: BLogger = BLogger()
