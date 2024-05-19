@@ -89,3 +89,6 @@ class BirespiHolder:
 
 
 biRespiHolder: BirespiHolder = BirespiHolder()
+
+def getBirespi() -> Birespi:
+    return biRespiHolder.get()

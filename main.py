@@ -1,7 +1,7 @@
 import warnings
 
 warnings.filterwarnings("ignore")
-from base_component.Logger import BLogger, bLoggerHolder
+from base_component.Logger import BLogger, bLoggerHolder,getLogger
 import asyncio
 import threading
 from Birespi import Birespi, biRespiHolder
@@ -17,30 +17,30 @@ logger: BLogger = BLogger()
 
 bLoggerHolder.set(logger)
 
-bLoggerHolder.get().log_message(f"Starting BiRespi {version}...")
+getLogger().log_info(f"Starting BiRespi {version}...")
 
 configPath: str = getConfigPath()
 
-bLoggerHolder.get().log_info(f"Loading config from {configPath}...")
+getLogger().log_info(f"Loading config from {configPath}...")
 
 birespiConfig: BiRespiConfig = BiRespiConfig(jsonConfigPath=configPath, version=version)
 
 birespiConfigHolder.set(birespiConfig)
 
-bLoggerHolder.get().log_info("Config loaded.")
+getLogger().log_info("Config loaded.")
 
 birespi: Birespi = Birespi(birespiConfig.birespiConfig)
 
 biRespiHolder.set(birespi)
 
-bLoggerHolder.get().log_info("Birespi loaded.")
+getLogger().log_info("Birespi loaded.")
 
 birespiUi: BirespiBackend = BirespiBackend(birespiConfig.getWebUiConfig())
 
 birespiBackendHolder.set(birespiUi)
 
-bLoggerHolder.get().log_info("Birespi BirespiBackend loaded.")
+getLogger().log_info("Birespi BirespiBackend loaded.")
 birespiUi.start()
-bLoggerHolder.get().log_info("Birespi BirespiBackend started.")
+getLogger().log_info("Birespi BirespiBackend started.")
 birespi.startRespi()
-bLoggerHolder.get().log_info("Birespi started.")
+getLogger().log_info("Birespi started.")

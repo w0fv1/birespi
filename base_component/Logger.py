@@ -77,3 +77,6 @@ class BLoggerHolder:
         return self.logger
     
 bLoggerHolder: BLoggerHolder = BLoggerHolder()
+
+def getLogger() -> BLogger:
+    return bLoggerHolder.get()

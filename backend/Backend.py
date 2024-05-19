@@ -1,7 +1,7 @@
 import threading
 from fastapi import Depends, FastAPI
 import uvicorn
-from Birespi import biRespiHolder
+from Birespi import biRespiHolder, getBirespi
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from fastapi.responses import FileResponse, HTMLResponse
 
@@ -51,7 +51,7 @@ class BirespiApi:
     @api.get("/api/test/danmu/{danmu}")
     def read_root(danmu: str) -> dict:
 
-        biRespiHolder.get().insertDanmu(
+        getBirespi().insertDanmu(
             LiveMessage[DanmuMessageData].Danmu(fromUser="admin", content=danmu)
         )
 
@@ -59,13 +59,13 @@ class BirespiApi:
 
     @api.get("/api/danmus")
     def getDanmus() -> dict:
-        danmus: list[LiveMessage[DanmuMessageData]] = list(biRespiHolder.get().getDanmus())
+        danmus: list[LiveMessage[DanmuMessageData]] = list(getBirespi().getDanmus())
 
         return {"code": 0, "data": {"danmus": danmus}}
 
     @api.get("/api/last-talk")
     def getLastTalk() -> dict:
-        lastTalk = biRespiHolder.get().getLastTalk()
+        lastTalk = getBirespi().getLastTalk()
 
         if lastTalk == None or len(lastTalk) == 0 or lastTalk[0] == None:
             return {"code": 1, "data": None}
