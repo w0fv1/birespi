@@ -23,3 +23,8 @@ build/
 
 config.json
 tmp_test.py
+
+# log
+
+log/
+*.log
