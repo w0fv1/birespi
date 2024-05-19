@@ -7,8 +7,34 @@ async function getDanmus() {
 
 
     return {
-        result: 0,
+        code: 0,
         msg: "no error",
         data: danmus
     };
 }
+
+async function getLastTalk() {
+
+    const response = await fetch('/api/last-talk');
+    const data = await response.json();
+
+    const code = data.code;
+
+    if (code !== 0) {
+        return {
+            code: code,
+            msg: "error",
+            data: null
+        };
+    }
+
+    const lastTalk = data.data;
+
+
+    return {
+        code: 0,
+        msg: "no error",
+        data: lastTalk
+    };
+}
+

@@ -3,6 +3,7 @@ from collections import deque
 import threading
 
 from typing import Optional
+from model.Talk import Talk
 from util.Queue import FastConsumptionQueue
 from model.LiveEventMessage import LiveMessage, DanmuMessageData
 from system.ComponentManager import ComponentManager
@@ -12,13 +13,14 @@ class Birespi:
     componentManager: ComponentManager = ComponentManager()
     danmuQueue = FastConsumptionQueue[LiveMessage[DanmuMessageData]]()
     danmuDisplayqueue: deque[LiveMessage[DanmuMessageData]] = deque()
+    lastTalk: tuple[Talk, Talk] = (None, None)
 
     def __init__(self, config: dict) -> None:
         self.componentManager.loadComponents(config)
 
     def startRespi(self) -> "Birespi":
         def process(danmu: LiveMessage[DanmuMessageData]):
-            print("Receive danmu:", danmu.from_user, ": ", danmu.data.content)
+            print("Receive danmu:", danmu.fromUser, ": ", danmu.data.content)
             self.insertDanmu(danmu)
 
         self.componentManager.danmuReceiver.onReceive(process)
@@ -31,11 +33,13 @@ class Birespi:
                     await asyncio.ensure_future(asyncio.sleep(1))
                     continue
                 print("Pop danmu:", danmu)
-                print(f'start respi: "{danmu.from_user}:{danmu.data.content}"')
-                answer = await self.componentManager.chatter.answer(
-                    danmu.from_user + "说:" + danmu.data.content
+                self.setLastTalk(danmu, "生成中.....")
+                print(f'start respi: "{danmu.fromUser}:{danmu.data.content}"')
+                answer: str = await self.componentManager.chatter.answer(
+                    danmu.fromUser + "说:" + danmu.data.content
                 )
                 print("answer: ", answer)
+                self.setLastTalk(danmu, answer)
                 sound = await self.componentManager.speaker.speak(answer)
                 print("sound: ", sound)
                 self.componentManager.player.play(sound)
@@ -67,7 +71,12 @@ class Birespi:
         self.danmuDisplayqueue.append(danmu)
         if len(self.danmuDisplayqueue) > 100:
             self.danmuDisplayqueue.popleft()
-        
 
-    def getDanmus(self)->deque[LiveMessage[DanmuMessageData]]:
+    def getDanmus(self) -> deque[LiveMessage[DanmuMessageData]]:
         return self.danmuDisplayqueue
+
+    def setLastTalk(self, talk: LiveMessage[DanmuMessageData], answer: str):
+        self.lastTalk = (Talk.fromDanmu(talk), Talk.fromBirespi(answer))
+
+    def getLastTalk(self) -> tuple[Talk, Talk]:
+        return self.lastTalk

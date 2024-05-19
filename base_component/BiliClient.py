@@ -223,8 +223,9 @@ class BiliClient:
             print("收到消息", result)
             message = json.loads(result)
             if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
+                print(f"收到弹幕消息 {message}")
                 danmu = LiveMessage.Danmu(
-                    from_user=message["data"]["uname"],
+                    fromUser=message["data"]["uname"],
                     content=message["data"]["msg"],
                 )
                 self.onRecvDanmu(danmu)

@@ -22,3 +22,4 @@ build/
 # config
 
 config.json
+tmp_test.py

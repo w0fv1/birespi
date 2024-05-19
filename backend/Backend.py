@@ -44,28 +44,40 @@ class BirespiApi:
 
     @api.get("/api/0")
     def read_root() -> dict:
-        return {"Hello": "World"}
+        return {"code": 0, "Hello": "World"}
 
     @api.get("/api/version")
     def version() -> dict:
-        return {"version": "0.1.2"}
+        return {"code": 0, "version": "0.1.2"}
 
     @api.get("/api/test/danmu/{danmu}")
     def read_root(danmu: str) -> dict:
 
         Context.getBirespi().insertDanmu(
-            LiveMessage[DanmuMessageData].Danmu(from_user="admin", content=danmu)
+            LiveMessage[DanmuMessageData].Danmu(fromUser="admin", content=danmu)
         )
 
-        return {"Hello": "World"}
+        return {"code": 0, "Hello": "World"}
 
     @api.get("/api/danmus")
     def getDanmus() -> dict:
-        danmuList: list[LiveMessage[DanmuMessageData]] = list(
+        danmus: list[LiveMessage[DanmuMessageData]] = list(
             Context.getBirespi().getDanmus()
         )
-        print("danmuList", danmuList)
-        return {"code": 0, "data": {"danmus": danmuList}}
+        print("danmuList", danmus)
+        return {"code": 0, "data": {"danmus": danmus}}
+
+    @api.get("/api/last-talk")
+    def getLastTalk() -> dict:
+        lastTalk = Context.getBirespi().getLastTalk()
+
+        if lastTalk == None or len(lastTalk) == 0 or lastTalk[0] == None:
+            return {"code": 1, "data": None}
+
+        return {
+            "code": 0,
+            "data": {"lastTalkDanmu": lastTalk[0], "lastTalkBirespi": lastTalk[1]},
+        }
 
 
 class BirespiBackend:

@@ -5,25 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Birespi后台</title>
+    <script src="/static/alpine.js" defer></script>
+
     <script src="/static/api.js"></script>
-    <script src="/static/alpine.js"></script>
+    <script src="/static/util.js"></script>
+    <script src="/static/day.js"></script>
     <script src="/static/bootstrap.js"></script>
     <link href="/static/bootstrap.css" rel="stylesheet">
+    <link href="/static/bootstrap.docs.css" rel="stylesheet">
+
     <link href="/static/style.css" rel="stylesheet">
 
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script>
 
         function setMainHeight() {
-            // 获取nav元素
             const nav = document.querySelector('nav');
-            // 获取main元素
             const main = document.querySelector('main');
-            // 获取nav元素的高度
             const navHeight = nav.offsetHeight;
-            // 获取界面高度
             const windowHeight = window.innerHeight;
-            // 设置main元素的高度
             main.style.height = windowHeight - navHeight + 'px';
         }
 
@@ -39,22 +39,35 @@
             return {
                 danmus: [],
                 danmuAutoScroll: true,
+                lastTalkBirespi: {},
+                lastTalkDanmu: {},
                 init() {
-                    danmuList = document.getElementById('danmu_list');
 
                     setInterval(async () => {
+                        danmuList = document.getElementById('danmu_list');
+
                         const getDanmusResult = await getDanmus();
-                        if (getDanmusResult != 0) {
+                        if (getDanmusResult.code == 0) {
 
                             const danmus = getDanmusResult.data.danmus;
                             this.danmus = danmus;
-                            console.log(this.danmus);
-
+                            console.log(danmus);
                             if (this.danmuAutoScroll) {
                                 danmuList.scrollTop = danmuList.scrollHeight;
                             }
 
                         }
+
+                        const getLastTalkResult = await getLastTalk();
+
+                        if (getLastTalkResult.code == 0) {
+                            const lastTalkDanmu = getLastTalkResult.data.lastTalkDanmu;
+                            this.lastTalkDanmu = lastTalkDanmu;
+                            const lastTalkBirespi = getLastTalkResult.data.lastTalkBirespi;
+                            this.lastTalkBirespi = lastTalkBirespi;
+                        }
+
+
                     }, 1000);
                 }
             };
@@ -71,10 +84,10 @@
         main {
             padding: 24px;
             overflow: hidden;
-            background-color: bisque;
+            background-color: #ededed;
         }
 
-        .user_avatar {
+        .userAvatar {
             width: 32px;
             height: 32px;
             padding: 4px;
@@ -128,27 +141,34 @@
                             <div style="display: block; margin-bottom: 10px;" class="toast" role="alert"
                                 aria-live="assertive" aria-atomic="true">
                                 <div class="toast-header">
-                                    <img class="user_avatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                    <template x-if="!danmu.userAvatar">
+                                        <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                    </template>
+                                    <template x-if="danmu.userAvatar">
+                                        <img class="userAvatar" x-bind:src="danmu.userAvatar" class="rounded me-2"
+                                            alt="用户头像">
+                                    </template>
                                     &nbsp;
-                                    <strong class="me-auto" x-text="danmu.from_user"></strong>
-                                    <small>11 mins ago</small>
-                                    <button type="button" class="btn-close" data-bs-dismiss="toast"
-                                        aria-label="Close"></button>
+                                    <strong class="me-auto" x-text="danmu.fromUser"></strong>
+                                    <small x-text="dayjs(danmu.timestamp * 1000).format('HH:mm:ss')"></small>
+                                    &nbsp;
+                                    <button type="button" class="btn btn-sm" aria-label="reply">
+                                        <i class="bi bi-reply"></i>
+                                    </button>
+                                    &nbsp;
                                 </div>
                                 <div class="toast-body" x-text="danmu.data.content">
+
                                 </div>
                             </div>
 
-                            <div style="height: 12px;"></div>
-                            <div style="height: 12px;"></div>
-                            <div style="height: 12px;"></div>
                         </template>
 
                     </div>
                 </div>
             </div>
             <div class="col-9">
-                <div class="row h-75 pb-3">
+                <div class="row h-75 pb-2">
                     <div class="card ps-0 pe-0">
                         <div class="card-header">
                             数据统计
@@ -161,15 +181,29 @@
                 </div>
 
                 <div class="row h-25">
-
-
                     <div class="card ps-0 pe-0">
                         <div class="card-header">
                             正在回复
                         </div>
                         <div class="card-body">
-                            <h1>欢迎来到正在回复</h1>
-                            <p>这是一个正在回复</p>
+                            <!-- <template x-if="lastTalkDanmu"></template> -->
+                            <div  class="mb-1  p-2 alert alert-light" role="alert">
+                                <template x-if="!lastTalkDanmu.userAvatar">
+                                    <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                </template>
+                                <template x-if="lastTalkDanmu.userAvatar">
+                                    <img class="userAvatar" x-bind:src="lastTalkDanmu.userAvatar" class="rounded me-2"
+                                        alt="用户头像">
+                                </template>
+                                <strong x-text="lastTalkDanmu.fromUser + ': '"></strong>
+                                <span x-text="lastTalkDanmu.content"></span>
+                            </div>
+                            <div class="mb-1 p-2 alert alert-primary" role="alert">
+                                <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                <strong>Birespi:&nbsp;</strong>
+                                <span x-text="lastTalkBirespi.content"></span>
+                            </div>
+                        <!-- </template> -->
                         </div>
                     </div>
                 </div>
