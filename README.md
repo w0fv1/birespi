@@ -152,6 +152,10 @@ python main.py
 python main.py config=/path/to/config.json
 ```
 
+### 4. 运行成功
+
+可访问`http://localhost:8000`进入后台
+
 # TODO
 
 1. 增加gpt-sovits的部署和支持

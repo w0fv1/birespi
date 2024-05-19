@@ -6,7 +6,7 @@ from backend.Backend import BirespiBackend
 from util.ConfigUtil import getConfigPath, loadJson
 from system import Context
 
-version = "0.1.2"
+version = "0.2.2"
 
 configPath: str = getConfigPath()
 
