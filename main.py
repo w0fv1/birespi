@@ -1,7 +1,9 @@
+import signal
+import time
 import warnings
 
 warnings.filterwarnings("ignore")
-from base_component.Logger import BLogger, bLoggerHolder,getLogger
+from base_component.Logger import BLogger, bLoggerHolder, getLogger
 import asyncio
 import threading
 from Birespi import Birespi, biRespiHolder
@@ -13,34 +15,40 @@ from util.ConfigUtil import getArgConfigPath, loadJson
 version = "0.3.0"
 
 
-logger: BLogger = BLogger()
+def main():
+    logger: BLogger = BLogger()
+    bLoggerHolder.set(logger)
 
-bLoggerHolder.set(logger)
+    getLogger().log_info(f"Starting BiRespi {version}...")
 
-getLogger().log_info(f"Starting BiRespi {version}...")
+    configPath: str = getArgConfigPath()
 
-configPath: str = getArgConfigPath()
+    getLogger().log_info(f"Loading config from {configPath}...")
 
-getLogger().log_info(f"Loading config from {configPath}...")
+    birespiConfig: BiRespiConfig = BiRespiConfig(
+        jsonConfigPath=configPath, version=version
+    )
+    birespiConfigHolder.set(birespiConfig)
 
-birespiConfig: BiRespiConfig = BiRespiConfig(jsonConfigPath=configPath, version=version)
+    getLogger().log_info("Config loaded.")
 
-birespiConfigHolder.set(birespiConfig)
+    birespi: Birespi = Birespi(birespiConfig.birespiConfig)
 
-getLogger().log_info("Config loaded.")
+    biRespiHolder.set(birespi)
 
-birespi: Birespi = Birespi(birespiConfig.birespiConfig)
+    getLogger().log_info("Birespi loaded.")
 
-biRespiHolder.set(birespi)
+    birespiBackend: BirespiBackend = BirespiBackend(birespiConfig.getWebUiConfig())
 
-getLogger().log_info("Birespi loaded.")
+    birespiBackendHolder.set(birespiBackend)
 
-birespiUi: BirespiBackend = BirespiBackend(birespiConfig.getWebUiConfig())
+    getLogger().log_info("Birespi BirespiBackend loaded.")
+    birespiBackend.start()
+    getLogger().log_info("Birespi BirespiBackend started.")
+    birespi.start()
+    getLogger().log_info("Birespi started.🎉🎉🎉🎉")
+    threading.Event().wait()
 
-birespiBackendHolder.set(birespiUi)
 
-getLogger().log_info("Birespi BirespiBackend loaded.")
-birespiUi.start()
-getLogger().log_info("Birespi BirespiBackend started.")
-birespi.startRespi()
-getLogger().log_info("Birespi started.")
+if __name__ == "__main__":
+    main()

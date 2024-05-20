@@ -1,6 +1,7 @@
 import threading
 from fastapi import Depends, FastAPI
 import uvicorn
+from base_component.Closer import getCloser
 from base_component.Logger import BLogger, getLogger
 from Birespi import biRespiHolder, getBirespi
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
@@ -102,8 +103,9 @@ class BirespiBackend:
         self.api = BirespiApi(config)
 
     def start(self):
-        uiThread = threading.Thread(target=self.api.start)
-        uiThread.start()
+        backendThread = threading.Thread(target=self.api.start)
+        backendThread.setDaemon(True)
+        backendThread.start()
 
 
 class BirespiBackendHolder:

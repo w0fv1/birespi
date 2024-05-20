@@ -8,12 +8,10 @@ from model.LiveEventMessage import DanmuMessageData, LiveMessage
 
 
 class BaseDanmuReceiver:
-    def onReceiveDanmu(self, process: Callable[[LiveMessage[DanmuMessageData]], None]):
+    def onReceive(self, process: Callable[[LiveMessage[DanmuMessageData]], None]):
         raise NotImplementedError
 
-    async def startReceive(
-        self, process: Callable[[LiveMessage[DanmuMessageData]], None]
-    ):
+    async def startReceive(self):
         raise NotImplementedError
 
 
@@ -60,7 +58,19 @@ class BiliOpenDanmuReceiver:
 
     def onReceive(self, process: Callable[[LiveMessage[DanmuMessageData]], None]):
         self.onRecvDanmu = process
-        self.biliClient.onRecvDanmu = self.onRecvDanmu
 
-    def startReceive(self):
-        self.biliClient.run()
+        def onRecv(message: dict):
+            if not message.keys().__contains__("cmd"):
+                return
+            print("def onRecv(message: dict):", message)
+            if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
+                danmu = LiveMessage.Danmu(
+                    fromUser=message["data"]["uname"],
+                    content=message["data"]["msg"],
+                )
+                self.onRecvDanmu(danmu)
+
+        self.biliClient.onRecv = onRecv
+
+    async def startReceive(self):
+        await self.biliClient.run()

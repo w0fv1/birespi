@@ -1,6 +1,8 @@
 import asyncio
 from collections import deque
+import threading
 from typing import Optional
+from base_component.Logger import getLogger
 from model.Talk import Talk
 from util.Queue import FastConsumptionQueue
 from model.LiveEventMessage import LiveMessage, DanmuMessageData
@@ -15,52 +17,50 @@ class Birespi:
 
     def __init__(self, config: dict) -> None:
         self.componentManager.loadComponents(config)
+        self.componentManager.danmuReceiver.onReceive(self.process)
 
-    def startRespi(self) -> "Birespi":
-        def process(danmu: LiveMessage[DanmuMessageData]):
-            self.insertDanmu(danmu)
-
-        self.componentManager.danmuReceiver.onReceive(process)
-
-        async def response():
-            while True:
-                danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
-                if danmu == None:
-
-                    await asyncio.ensure_future(asyncio.sleep(1))
-                    continue
-
-                self.setLastTalk(danmu, "生成中.....")
-
-                answer: str = await self.componentManager.chatter.answer(
-                    danmu.fromUser + "说:" + danmu.data.content
-                )
-
-                self.setLastTalk(danmu, answer)
-                sound = await self.componentManager.speaker.speak(answer)
-
-                self.componentManager.player.play(sound)
-
-                await asyncio.ensure_future(asyncio.sleep(1))
-
-        asyncio.ensure_future(response())
-
-        # async def wishes2Everyone():
-        #     while True:
-        #         self.danmuQueue.push(
-        #             Danmu(
-        #                 "w0fv1-dev",
-        #                 "请你祝福直播间的所有人,祝福他们的事业和生活, 祝福他们的家人和朋友, 祝福他们的爱情和婚姻, 祝福他们的健康和快乐。",
-        #             )
-        #         )
-        #         await asyncio.sleep(10)
-
-        # asyncio.create_task(wishes2Everyone())
-
-        self.componentManager.danmuReceiver.startReceive()
-
-        print("Birespi started.....!!")
+    def start(self) -> "Birespi":
+        thread = threading.Thread(target=self.startReceive)
+        thread.start()
+        asyncio_thread = threading.Thread(target=self.startWaitResponse)
+        asyncio_thread.start()
         return self
+
+    def process(self, danmu: LiveMessage[DanmuMessageData]):
+        self.insertDanmu(danmu)
+
+    async def waitResponse(self):
+        print("startWait")
+        while True:
+            danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
+            if danmu == None:
+                getLogger().log_info(f"等待弹幕....")
+                await asyncio.sleep(1)
+                continue
+            getLogger().log_info(f"接受一条弹幕: {danmu.data.content}")
+            self.setLastTalk(danmu, "生成中.....")
+
+            answer: str = await self.componentManager.chatter.answer(
+                danmu.fromUser + "说:" + danmu.data.content
+            )
+
+            self.setLastTalk(danmu, answer)
+            sound = await self.componentManager.speaker.speak(answer)
+
+            self.componentManager.player.play(sound)
+
+            await asyncio.sleep(1)
+
+    def startWaitResponse(self):
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        self.loop.run_until_complete(self.waitResponse())
+
+    def startReceive(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(self.componentManager.danmuReceiver.startReceive())
 
     def insertDanmu(self, danmu: LiveMessage[DanmuMessageData]):
         self.danmuQueue.push(danmu)
@@ -89,6 +89,7 @@ class BirespiHolder:
 
 
 biRespiHolder: BirespiHolder = BirespiHolder()
+
 
 def getBirespi() -> Birespi:
     return biRespiHolder.get()

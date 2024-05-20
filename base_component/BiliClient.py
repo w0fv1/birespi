@@ -1,7 +1,8 @@
 import asyncio
 import json
 from typing import Callable
-import websockets
+import websocket
+from websocket import WebSocketApp
 import requests
 import time
 import hashlib
@@ -11,6 +12,8 @@ from hashlib import sha256
 import struct
 import zlib
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
+from aiohttp import ClientSession
+import rel
 
 
 class Proto:
@@ -35,7 +38,7 @@ class Proto:
 
     def unpack(self, buf) -> str:
         if len(buf) < self.headerLen:
-            
+
             return
         self.packetLen = struct.unpack(">i", buf[0:4])[0]
         self.headerLen = struct.unpack(">h", buf[4:6])[0]
@@ -52,7 +55,7 @@ class Proto:
             )
             return "-1:包体长不对"
         if self.headerLen != self.headerLen:
-            
+
             return "-1:包头长度不对"
         bodyLen = self.packetLen - self.headerLen
         self.body = buf[16 : self.packetLen]
@@ -69,13 +72,21 @@ class Proto:
 
 
 class BiliClient:
-    idCode: str
-    appId: int
-    key: str
-    secret: str
-    host: str
-    gameId: str
-    onRecvDanmu: Callable[[LiveMessage[DanmuMessageData]], None]
+
+    idCode: str = ""
+    appId: int = ""
+    key: str = ""
+    secret: str = ""
+    host: str = ""
+    gameId: str = ""
+    onRecv: Callable[[dict], None] = None
+    websocket: WebSocketApp = None
+    aioHttpSession: ClientSession = None
+    websocketInfo: dict = {}
+    addr: str = ""
+    authBody: str = ""
+    roomId: str = ""
+    gameId: str = ""
 
     def __init__(self, idCode, appId, key, secret, host):
         self.idCode = idCode
@@ -84,61 +95,81 @@ class BiliClient:
         self.secret = secret
         self.host = host
         self.gameId = ""
-        pass
+        self.aioHttpSession = None
+        websocket.enableTrace(True)
+        self.websocket = None
 
-    websocket = None
+    async def run(self):
+        self.aioHttpSession = ClientSession()
+        await self.connect()
+        asyncio.create_task(self.heartBeat())
+        asyncio.create_task(self.appheartBeat())
 
     async def reRun(self):
-        
         try:
-            await self.websocket.close()
+            self.websocket.close()
             self.__exit__(None, None, None)
         except:
             pass
-        self.run()
-        pass
+        await self.run()
 
-    # 事件循环
-    def run(self):
+    async def connect(self):
+        def onMessage(ws, message):
+            resp = Proto()
+            result = resp.unpack(message)
+            result = result.replace(" ", "")
+            if result.startswith("-1"):
+                return
+            if result == "":
+                return
+            if "{" not in result:
+                return
+            message = json.loads(result)
+            if self.onRecv:
+                self.onRecv(message)
+
+        def onOpen(ws):
+            print("open")
+
+        self.websocketInfo = await self.getWebsocketInfo()
+        self.websocket = WebSocketApp(
+            self.addr,
+            on_open=onOpen,
+            on_message=onMessage,
+        )
+
         loop = asyncio.get_event_loop()
-        # 建立连接
-        websocket = loop.run_until_complete(self.connect())
-        tasks = [
-            # 读取信息
-            asyncio.ensure_future(self.recvLoop(websocket)),
-            # 发送心跳
-            asyncio.ensure_future(self.heartBeat(websocket)),
-            # 发送游戏心跳
-            asyncio.ensure_future(self.appheartBeat()),
-        ]
-        loop.run_until_complete(asyncio.gather(*tasks))
+        loop.run_in_executor(None, self.websocket.run_forever)
+        await asyncio.sleep(2)
+        self.auth()
 
-    # http的签名
-    def sign(self, params):
-        key = self.key
-        secret = self.secret
-        md5 = hashlib.md5()
-        md5.update(params.encode())
+        return websocket
+
+    def auth(self):
+        req = Proto()
+        req.body = self.authBody
+        req.op = 7
+        self.websocket.send(req.pack())
+
+    def signHeaderMap(self, params) -> dict:
         ts = time.time()
         nonce = random.randint(1, 100000) + time.time()
+        md5 = hashlib.md5()
+        md5.update(params.encode())
         md5data = md5.hexdigest()
         headerMap = {
             "x-bili-timestamp": str(int(ts)),
             "x-bili-signature-method": "HMAC-SHA256",
             "x-bili-signature-nonce": str(nonce),
-            "x-bili-accesskeyid": key,
+            "x-bili-accesskeyid": self.key,
             "x-bili-signature-version": "1.0",
             "x-bili-content-md5": md5data,
         }
 
-        headerList = sorted(headerMap)
-        headerStr = ""
-
-        for key in headerList:
-            headerStr = headerStr + key + ":" + str(headerMap[key]) + "\n"
-        headerStr = headerStr.rstrip("\n")
-
-        appsecret = secret.encode()
+        headerStr = "\n".join(f"{k}:{v}" for k, v in sorted(headerMap.items())).rstrip(
+            "\n"
+        )
+        appsecret = self.secret.encode()
         data = headerStr.encode()
         signature = hmac.new(appsecret, data, digestmod=sha256).hexdigest()
         headerMap["Authorization"] = signature
@@ -146,102 +177,52 @@ class BiliClient:
         headerMap["Accept"] = "application/json"
         return headerMap
 
-    # 获取长连信息
-    def getWebsocketInfo(self):
-        # 开启应用
-        postUrl = "%s/v2/app/start" % self.host
-        params = '{"code":"%s","app_id":%d}' % (self.idCode, self.appId)
-        headerMap = self.sign(params)
-        r = requests.post(url=postUrl, headers=headerMap, data=params, verify=False)
-        live_info = json.loads(r.content)
+    async def getWebsocketInfo(self):
+        postUrl: str = f"{self.host}/v2/app/start"
+        params: str = f'{{"code":"{self.idCode}","app_id":{self.appId}}}'
+        headerMap = self.signHeaderMap(params)
+        async with self.aioHttpSession.post(
+            url=postUrl, headers=headerMap, data=params
+        ) as response:
+            live_info = await response.json()
+        if live_info == None:
+            print("获取直播信息失败")
+            return
+        self.addr = str(live_info["data"]["websocket_info"]["wss_link"][0])
+        self.authBody = str(live_info["data"]["websocket_info"]["auth_body"])
         self.gameId = str(live_info["data"]["game_info"]["game_id"])
+        self.roomId = str(live_info["data"]["anchor_info"]["room_id"])
+        return live_info
 
-        # 获取长连地址和鉴权体
-        return str(live_info["data"]["websocket_info"]["wss_link"][0]), str(
-            live_info["data"]["websocket_info"]["auth_body"]
-        )
-
-    # 发送游戏心跳
-    async def appheartBeat(self):
+    async def heartBeat(self):
         while True:
+            print("heartBeat start")
             await asyncio.ensure_future(asyncio.sleep(20))
-            postUrl = "%s/v2/app/heartbeat" % self.host
-            params = '{"game_id":"%s"}' % (self.gameId)
-            headerMap = self.sign(params)
-            try:
-                r = requests.post(
-                    url=postUrl, headers=headerMap, data=params, verify=False
-                )
-                data = json.loads(r.content)
-            except Exception as e:
-                
-                await self.reRun()
-
-    # 发送鉴权信息
-    async def auth(self, websocket, authBody):
-        req = Proto()
-        req.body = authBody
-        req.op = 7
-        await websocket.send(req.pack())
-        buf = await websocket.recv()
-        resp = Proto()
-        resp.unpack(buf)
-        respBody = json.loads(resp.body)
-        if respBody["code"] != 0:
-            pass
-        else:
-            pass
-
-    # 发送心跳
-    async def heartBeat(self, websocket):
-        while True:
-            await asyncio.ensure_future(asyncio.sleep(20))
+            print("heartBeat")
             req = Proto()
             req.op = 2
-            await websocket.send(req.pack())
+            self.websocket.send(req.pack())
 
-    # 读取信息
-    async def recvLoop(self, websocket):
+    async def appheartBeat(self):
         while True:
-            recvBuf = await websocket.recv()
-            resp = Proto()
-            result = resp.unpack(recvBuf)
-            # 去除空格
-            result = result.replace(" ", "")
-            if result.startswith("-1"):
-                
-                continue
-            if result == "":
-                
-                continue
-            if "{" not in result:
-                
-                continue
-
-            
-            message = json.loads(result)
-            if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
-                
-                danmu = LiveMessage.Danmu(
-                    fromUser=message["data"]["uname"],
-                    content=message["data"]["msg"],
-                )
-                self.onRecvDanmu(danmu)
-
-    # 建立连接
-    async def connect(self):
-        addr, authBody = self.getWebsocketInfo()
-        websocket = await websockets.connect(addr)
-        # 鉴权
-        await self.auth(websocket, authBody)
-        return websocket
+            print("appheartBeat start")
+            await asyncio.ensure_future(asyncio.sleep(20))
+            print("appheartBeat")
+            postUrl = f"{self.host}/v2/app/heartbeat"
+            params = f'{{"game_id":"{self.gameId}"}}'
+            headerMap = self.signHeaderMap(params)
+            async with self.aioHttpSession.post(
+                url=postUrl, headers=headerMap, data=params, verify_ssl=False
+            ) as response:
+                data = await response.json()
 
     def __enter__(self):
         pass
 
     def __exit__(self, type, value, trace):
-        # 关闭应用
-        postUrl = "%s/v2/app/end" % self.host
-        params = '{"game_id":"%s","app_id":%d}' % (self.gameId, self.appId)
+        postUrl = f"{self.host}/v2/app/end"
+        params = f'{{"game_id":"{self.gameId}","app_id":{self.appId}}}'
         headerMap = self.sign(params)
-        r = requests.post(url=postUrl, headers=headerMap, data=params, verify=False)
+        requests.post(url=postUrl, headers=headerMap, data=params, verify=False)
+
+        asyncio.create_task(self.aioHttpSession.close())
