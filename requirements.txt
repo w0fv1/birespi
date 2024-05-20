@@ -51,6 +51,7 @@ pytz==2024.1
 PyYAML==6.0.1
 qrcode==7.4.2
 qrcode-terminal==0.8
+rel==0.4.9.19
 requests==2.31.0
 rich==13.7.1
 rsa==4.9
@@ -70,5 +71,6 @@ urllib3==2.2.1
 uvicorn==0.29.0
 wasabi==0.10.1
 watchfiles==0.21.0
+websocket-client==1.8.0
 websockets==12.0
 yarl==1.9.4
