@@ -3,6 +3,7 @@ import json
 import os
 import sys
 
+
 def loadJson(jsonPath: str) -> dict:
     if not jsonPath.endswith(".json"):
         raise ValueError(f"The file {jsonPath} must be a json file.")
@@ -14,7 +15,6 @@ def loadJson(jsonPath: str) -> dict:
         return json.load(f)
 
 
-
 def argDict() -> dict:
     argDict = {}
     for arg in sys.argv:
@@ -23,5 +23,6 @@ def argDict() -> dict:
             argDict[key] = value
     return argDict
 
-def getConfigPath()->str:
+
+def getArgConfigPath() -> str:
     return argDict().get("config", "config.json")

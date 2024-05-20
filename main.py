@@ -7,7 +7,7 @@ import threading
 from Birespi import Birespi, biRespiHolder
 from config import BiRespiConfig, birespiConfigHolder
 from backend.Backend import BirespiBackend, birespiBackendHolder
-from util.ConfigUtil import getConfigPath, loadJson
+from util.ConfigUtil import getArgConfigPath, loadJson
 
 
 version = "0.3.0"
@@ -19,7 +19,7 @@ bLoggerHolder.set(logger)
 
 getLogger().log_info(f"Starting BiRespi {version}...")
 
-configPath: str = getConfigPath()
+configPath: str = getArgConfigPath()
 
 getLogger().log_info(f"Loading config from {configPath}...")
 
