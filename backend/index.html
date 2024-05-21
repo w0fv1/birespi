@@ -45,8 +45,10 @@
                 lastTalkDanmu: {
 
                 },
-                init() {
+                liveRoomInfo: {
 
+                },
+                async init() {
                     setInterval(async () => {
                         danmuList = document.getElementById('danmu_list');
 
@@ -55,7 +57,6 @@
 
                             const danmus = getDanmusResult.data.danmus;
                             this.danmus = danmus;
-                            console.log(danmus);
                             if (this.danmuAutoScroll) {
                                 danmuList.scrollTop = danmuList.scrollHeight;
                             }
@@ -63,7 +64,6 @@
                         }
 
                         const getLastTalkResult = await getLastTalk();
-
                         if (getLastTalkResult.code == 0) {
                             const lastTalkDanmu = getLastTalkResult.data.lastTalkDanmu;
                             this.lastTalkDanmu = lastTalkDanmu;
@@ -72,7 +72,14 @@
                         }
 
 
+
                     }, 1000);
+                    const getLiveRoomInfoResult = await getLiveRoomInfo();
+                    if (getLiveRoomInfoResult.code == 0) {
+                        const liveRoomInfo = getLiveRoomInfoResult.data;
+                        this.liveRoomInfo = liveRoomInfo;
+                    }
+
                 },
                 async reply(bId) {
                     const replyResult = await replyByBid(bId);
@@ -85,7 +92,8 @@
                     if (sendTestDanmuResult.code == 0) {
                         console.log('发送成功');
                     }
-                }
+                },
+
             };
         }
 
@@ -106,7 +114,7 @@
         .userAvatar {
             width: 30px;
             height: 30px;
-            padding: 2px;
+            padding: 4px;
             border-radius: 50%;
             border: 1px solid #ccc;
         }
@@ -118,7 +126,7 @@
     </style>
 </head>
 
-<body x-data="app()" x-init="init()">
+<body x-data="app()">
 
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
@@ -193,9 +201,51 @@
                         <div class="card-header">
                             数据统计
                         </div>
-                        <div class="card-body">
-                            <h1>数据统计</h1>
-                            <p>这是一个数据统计</p>
+                        <div class="card-body d-flex">
+                            <template x-if="liveRoomInfo&&Object.keys(liveRoomInfo).length !== 0">
+                                <iframe style="flex: 2;width: 700px;height: 100%; min-width: 500px; border-radius: 4px;"
+                                    :src="`https://www.bilibili.com/blackboard/live/live-activity-player.html?cid=`+liveRoomInfo.roomId+`&quality=0`"
+                                    frameborder="no" framespacing="0" scrolling="no" allow="autoplay; encrypted-media"
+                                    allowfullscreen="true">
+                                </iframe>
+
+                            </template>
+
+                            <div style="flex: 1;margin-left: 24px;">
+                                <div class="card">
+                                    <div class="card-header">
+                                        直播间信息
+                                    </div>
+                                    <div class="card-body d-flex flex-column ">
+                                        <img class="userAvatar m-auto h-25 w-25" src="/static/user.png"
+                                            class="rounded m-auto" alt="用户头像">
+                                        <table class="table">
+                                            
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row"></th>
+                                                    <td> </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">主播名</th>
+                                                    <td> <span x-text="liveRoomInfo.uname"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">主播uid</th>
+                                                    <td> <span x-text="liveRoomInfo.uid"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">直播间ID</th>
+                                                    <td> <span x-text="liveRoomInfo.roomId"></span></td>
+                                                </tr>
+
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

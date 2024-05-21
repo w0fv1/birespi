@@ -6,6 +6,7 @@ from base_component.BiliClient import BiliClient
 from base_component.Logger import getLogger
 from component.BaseConfig import BaseConfig
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
+from model.LiveRoomInfo import LiveRoomInfo
 
 
 class BaseLiveEventReceiver:
@@ -13,6 +14,9 @@ class BaseLiveEventReceiver:
         raise NotImplementedError
 
     async def startReceive(self):
+        raise NotImplementedError
+
+    def getLiveRoomInfo(self):
         raise NotImplementedError
 
 
@@ -46,6 +50,7 @@ class BiliOpenLiveEventReceiver(BaseLiveEventReceiver):
 
     biliClient: BiliClient
     config: BiliOpenLiveEventReceiverConfig
+    liveRoomInfo: LiveRoomInfo
 
     def __init__(self, configDict: dict):
         self.config = BiliOpenLiveEventReceiverConfig.fromJson(configDict)
@@ -74,3 +79,15 @@ class BiliOpenLiveEventReceiver(BaseLiveEventReceiver):
 
     async def startReceive(self):
         await self.biliClient.run()
+        while True:
+            await asyncio.sleep(0.1)
+
+    def getLiveRoomInfo(self):
+        return LiveRoomInfo(
+            roomId=self.biliClient.roomId,
+            uname=self.biliClient.uname,
+            uavatar=self.biliClient.uface,
+            uid=self.biliClient.uid,
+            title="",
+            cover="",
+        )

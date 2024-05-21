@@ -4,6 +4,7 @@ import threading
 from typing import Optional
 from base_component.Logger import getLogger
 from config import getConfig
+from model.LiveRoomInfo import LiveRoomInfo
 from model.Talk import Talk
 from util.Queue import FastConsumptionQueue
 from model.LiveEventMessage import LiveMessage, DanmuMessageData
@@ -15,6 +16,7 @@ class Birespi:
     danmuQueue = FastConsumptionQueue[LiveMessage[DanmuMessageData]]()
     danmuDisplayqueue: deque[LiveMessage[DanmuMessageData]] = deque()
     lastTalk: tuple[Talk, Talk] = (None, None)
+    liveRoomInfo: LiveRoomInfo = None
 
     def __init__(self) -> None:
         self.componentManager.loadComponents(getConfig().birespiConfig)
@@ -78,6 +80,9 @@ class Birespi:
 
     def getLastTalk(self) -> tuple[Talk, Talk]:
         return self.lastTalk
+
+    def getLiveRoomInfo(self) -> LiveRoomInfo:
+        return self.componentManager.LiveEventReceiver.getLiveRoomInfo()
 
 
 class BirespiHolder:

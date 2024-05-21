@@ -124,3 +124,21 @@ async function sendTestDanmu(content) {
         msg: "no error"
     };
 }
+
+async function getLiveRoomInfo() {
+    // post
+    const response = await fetch(`/api/live-room-info`);
+    const data = await response.json();
+
+    if (data.code !== 0) {
+        return {
+            code: code,
+            msg: "error"
+        };
+    }
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    };
+}

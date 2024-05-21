@@ -78,15 +78,18 @@ class BiliClient:
     key: str = ""
     secret: str = ""
     host: str = ""
-    gameId: str = ""
     onRecv: Callable[[dict], None] = None
     websocket: WebSocketApp = None
     aioHttpSession: ClientSession = None
     websocketInfo: dict = {}
     addr: str = ""
     authBody: str = ""
-    roomId: str = ""
+
+    roomId: int = -1
     gameId: str = ""
+    uname: str = ""
+    uface: str = ""
+    uid: int = -1
 
     def __init__(self, idCode, appId, key, secret, host):
         self.idCode = idCode
@@ -100,13 +103,11 @@ class BiliClient:
         self.websocket = None
 
     async def run(self):
-        
+
         self.aioHttpSession = ClientSession()
         await self.connect()
         await self.heartBeat()
         await self.appheartBeat()
-        while True:
-            await asyncio.sleep(0.1)
 
     async def reRun(self):
         try:
@@ -135,7 +136,7 @@ class BiliClient:
                     print(f"onRecv error: {e}")
 
         def onOpen(ws):
-            print("open")
+            print("BiliClient websocket opened")
 
         self.websocketInfo = await self.getWebsocketInfo()
         self.websocket = WebSocketApp(
@@ -194,18 +195,21 @@ class BiliClient:
         if liveInfo == None:
             print("获取直播信息失败")
             return
+        print(json.dumps(liveInfo, indent=4))
         self.addr = str(liveInfo["data"]["websocket_info"]["wss_link"][0])
         self.authBody = str(liveInfo["data"]["websocket_info"]["auth_body"])
         self.gameId = str(liveInfo["data"]["game_info"]["game_id"])
         self.roomId = str(liveInfo["data"]["anchor_info"]["room_id"])
+        self.uname = str(liveInfo["data"]["anchor_info"]["uname"])
+        self.uface = str(liveInfo["data"]["anchor_info"]["uface"])
+        self.uid = str(liveInfo["data"]["anchor_info"]["uid"])
+        
         return liveInfo
 
     async def heartBeat(self):
-        print("heartBeat start")
         while True:
             try:
                 await asyncio.sleep(20)
-                print("heartBeat")
                 req = Proto()
                 req.op = 2
                 self.websocket.send(req.pack())
@@ -213,12 +217,10 @@ class BiliClient:
                 print(f"heartBeat error: {e}")
 
     async def appheartBeat(self):
-        print("appheartBeat start")
         while True:
             try:
 
                 await asyncio.sleep(20)
-                print("appheartBeat")
                 postUrl = f"{self.host}/v2/app/heartbeat"
                 params = f'{{"game_id":"{self.gameId}"}}'
                 headerMap = self.signHeaderMap(params)

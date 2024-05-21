@@ -115,6 +115,10 @@ class BirespiApi:
     def getLog(logFilename: str) -> dict:
         return {"code": 0, "data": {"log": getLogger().getLog(logFilename)}}
 
+    @api.get("/api/live-room-info")
+    def getLiveRoomInfo() -> dict:
+        return {"code": 0, "data": getBirespi().getLiveRoomInfo()}
+
 
 class BirespiBackend:
     api: BirespiApi = None
