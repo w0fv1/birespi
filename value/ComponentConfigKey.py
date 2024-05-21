@@ -13,7 +13,9 @@ class ComponentConfigKey(Enum):
         return self.value
 
     def fromStr(str: str) -> "ComponentConfigKey":
+        print(f"strstrstrstrstr '{str}' == 'chatter' {str == "chatter"}",str)
         if str == "chatter":
+            print("chatterchatterchatter ComponentConfigKey.Chatter",ComponentConfigKey.Chatter)
             return ComponentConfigKey.Chatter
         elif str == "speaker":
             return ComponentConfigKey.Speaker
@@ -26,4 +28,6 @@ class ComponentConfigKey(Enum):
         elif str == "logger":
             return ComponentConfigKey.Logger
         else:
-            raise Exception(f"Unknown component key {str}")
+            print("chatterchatterchatter ComponentConfigKey.Chatter",ComponentConfigKey.Chatter)
+            print("strstrstrstrstr str == 'chatter'",str == "chatter")
+            raise Exception(f"Unknown component key |{str}|")

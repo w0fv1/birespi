@@ -119,6 +119,57 @@ class BirespiApi:
     def getLiveRoomInfo() -> dict:
         return {"code": 0, "data": getBirespi().getLiveRoomInfo()}
 
+    @api.get("/api/config/component-keys")
+    def getComponentKeys() -> dict:
+        return {"code": 0, "data": {"componentKeys": getConfig().getComponentKeys()}}
+
+    @api.get("/api/config/component/{componentKey}/sub-types")
+    def getComponentSubTypes(componentKey: str) -> dict:
+        return {
+            "code": 0,
+            "data": {
+                "componentSubTypes": getConfig().getComponentSubTypes(componentKey),
+                "componentCurrentSubType": getConfig().getComponentCurrentType(
+                    componentKey
+                ),
+            },
+        }
+
+    @api.get("/api/config/component/{componentKey}/subtype/{subtype}")
+    def getComponentSubtypeConfig(componentKey: str, subtype: str) -> dict:
+        return {
+            "code": 0,
+            "data": {
+                "componentConfig": getConfig().getComponentSubtypeConfig(
+                    componentKey, subtype
+                ),
+            },
+        }
+
+    @api.get("/api/config")
+    def getConfig() -> dict:
+        componentKeys = getConfig().getComponentKeys()
+        config = {}
+
+        for componentKey in componentKeys:
+            currentSubType: str = getConfig().getComponentCurrentType(
+                componentKey.value
+            )
+            subTypes: list[str] = getConfig().getComponentSubTypes(componentKey.value)
+
+            config[componentKey] = {
+                "componentSubTypes": subTypes,
+                "componentCurrentSubTypes": currentSubType,
+                "componentConfig": getConfig().getCurrentComponentConfig(
+                    componentKey.value
+                ),
+            }
+
+        return {
+            "code": 0,
+            "data": {"config": config, "componentKeys": componentKeys},
+        }
+
 
 class BirespiBackend:
     api: BirespiApi = None

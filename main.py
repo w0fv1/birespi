@@ -16,11 +16,12 @@ version = "0.4.0"
 
 
 def main():
-    birespiConfig: BiRespiConfig = BiRespiConfig(version=version)
+    birespiConfig: BiRespiConfig = BiRespiConfig(
+        jsonConfigPath=getArgConfigPath(), version=version
+    )
     birespiConfigHolder.set(birespiConfig)
-    configPath: str = getArgConfigPath()
-    getConfig().loadJsonConfig(loadJson(configPath))
-
+    print(getConfig().getJsonConfig())
+    getConfig().saveJsonConfig()
     logger: BLogger = BLogger()
     bLoggerHolder.set(logger)
 

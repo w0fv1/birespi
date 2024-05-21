@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,8 +17,138 @@
     <link href="/static/style.css" rel="stylesheet">
 
     <link rel="stylesheet" href="/static/bootstrap-icons.css">
+    <script>
+        function setMainHeight() {
+            const nav = document.querySelector('nav');
+            const main = document.querySelector('main');
+            const navHeight = nav.offsetHeight;
+            const windowHeight = window.innerHeight;
+            main.style.height = windowHeight - navHeight + 'px';
+        }
+
+        window.addEventListener('load', function () {
+            setMainHeight();
+        });
+
+        window.addEventListener('resize', function () {
+            setMainHeight();
+        });
+
+        function app() {
+            return {
+                config: {},
+                async init() {
+                    const getConfigResult = await getConfig();
+                    if (getConfigResult.code === 0) {
+                        this.config = getConfigResult.data.config;
+                    }
+                },
+                async changeComponentSubtypeConfig(componentKey, componentSubType) {
+                    const getComponentSubtypeConfigResult = await getComponentSubtypeConfig(componentKey, componentSubType);
+                    if (getComponentSubtypeConfigResult.code === 0) {
+                        console.log(getComponentSubtypeConfigResult);
+                        this.config[componentKey].componentConfig = getComponentSubtypeConfigResult.data.componentConfig;
+                    }
+                }
+            };
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+        });
+
+
+    </script>
+    <style>
+        main {
+            padding: 24px;
+            overflow: auto;
+            background-color: #ededed;
+        }
+    </style>
 </head>
-<body>
-    
+
+<body x-data="app()">
+
+
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Birespi后台</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/config">配置</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/log">日志</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="main d-flex flex-column">
+
+        <template x-for="componentKey in Object.keys(config)">
+            <div>
+                <div class="card"
+                    style="width: 80%;max-width: 1200px; min-width: 800px; margin-left: auto; margin-right: auto;">
+                    <div class="card-header" x-text="componentKey">
+                        配置标题
+                    </div>
+                    <div class="card-body" style="width: 100%;">
+                        <template x-if="(config[componentKey].componentSubTypes).length !== 0">
+                            <div>
+                                <label for="component-subtype" class="form-label">子类别</label>
+                                <select id="component-subtype" class="form-select" aria-label="Default select example"
+                                    @change="changeComponentSubtypeConfig(componentKey,$event.target.value)">
+                                    <template x-for="componentSubType in config[componentKey].componentSubTypes">
+                                        <option x-text="componentSubType" x-bind:value="componentSubType"></option>
+                                    </template>
+
+                                </select>
+                                <br>
+                            </div>
+                        </template>
+
+                        <template x-for="configItemKey in Object.keys(config[componentKey].componentConfig)">
+                            <div>
+                                <label x-bind:for="componentKey+'-'+configItemKey" class="form-label" x-text="configItemKey"></label>
+                                <div class="input-group mb-3">
+                                    <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length > 40">
+                                        <textarea class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-text="config[componentKey].componentConfig[configItemKey]"></textarea>
+                                    </template>
+                                    <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length <= 40">
+                                        <input type="text" class="form-control" x-bind:id="componentKey+'-'+configItemKey" :value="config[componentKey].componentConfig[configItemKey]">
+                                    </template>
+                                    <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'boolean'">
+                                        <select class="form-control" x-bind:id="componentKey+'-'+configItemKey">
+                                            <option :selected="config[componentKey].componentConfig[configItemKey] === true" value="true">True</option>
+                                            <option :selected="config[componentKey].componentConfig[configItemKey] === false" value="false">False</option>
+                                        </select>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                        
+
+
+                        <button type="button" class="btn btn-primary">应用此组件配置</button>
+
+
+                    </div>
+
+                </div>
+                <br>
+            </div>
+        </template>
+
+
+
+    </main>
+
 </body>
+
 </html>

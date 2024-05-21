@@ -1,5 +1,6 @@
 # 获得当前路径
 import datetime
+import json
 import os
 import sys
 from util.ConfigUtil import loadJson
@@ -99,12 +100,14 @@ class BiRespiConfig:
         },
     }
     version: str = "0.0.0"
+    jsonConfigPath: str = None
 
     def __init__(self, jsonConfigPath: str = None, version: str = "0.0.0") -> None:
         if jsonConfigPath != None:
 
             self.loadJsonConfig(loadJson(jsonConfigPath))
         self.version = version
+        self.jsonConfigPath = jsonConfigPath
 
     def __str__(self) -> str:
         return str(self.birespiConfig)
@@ -145,32 +148,73 @@ class BiRespiConfig:
                 config,
             )
 
-    def getComponents(self) -> list[ComponentConfigKey]:
+    def getComponentKeys(self) -> list[ComponentConfigKey]:
         return list(self.birespiConfig.keys())
 
-    def getComponentSubTypes(self, componentConfigKey: ComponentConfigKey) -> list[str]:
+    def getComponentCurrentType(self, componentConfigKeyStr: str) -> str:
+        componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+        component: dict = self.birespiConfig[componentConfigKey]
+        if "type" not in component.keys():
+            return ""
+        return component["type"]
+
+    def getComponentSubTypes(self, componentConfigKeyStr: str) -> list[str]:
+        print("componentConfigKey", componentConfigKeyStr)
+        print("componentConfigKey", componentConfigKeyStr)
+        print("componentConfigKey", componentConfigKeyStr)
+        print("componentConfigKey", componentConfigKeyStr)
+        componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+
         component: dict = self.birespiConfig[componentConfigKey]
         componentsSubTypes = list(component.keys())
         if "type" not in componentsSubTypes:
-            raise Exception("不是有子类别的组件")
+            return []
         componentsSubTypes.remove("type")
         return componentsSubTypes
 
-    def getComponentConfigDict(
-        self, componentConfigKey: ComponentConfigKey, subType: str = None
-    ) -> dict:
+    def getCurrentComponentConfig(self, componentConfigKeyStr: str) -> dict:
+        componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
         if componentConfigKey == ComponentConfigKey.WebUi:
             return self.getWebUiConfigDict()
         if componentConfigKey == ComponentConfigKey.Logger:
             return self.getLoggerConfigDict()
 
-        return self.birespiConfig[componentConfigKey][subType]
+        type = self.birespiConfig[componentConfigKey]["type"]
+
+        return self.birespiConfig[componentConfigKey][type]
+
+    def getComponentSubtypeConfig(
+        self, componentConfigKeyStr: str, type: str = ""
+    ) -> dict:
+        componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+        if componentConfigKey == ComponentConfigKey.WebUi:
+            return self.getWebUiConfigDict()
+        if componentConfigKey == ComponentConfigKey.Logger:
+            return self.getLoggerConfigDict()
+
+        return self.birespiConfig[componentConfigKey][type]
 
     def getWebUiConfigDict(self) -> dict:
         return self.birespiConfig[ComponentConfigKey.WebUi]
 
     def getLoggerConfigDict(self) -> dict:
         return self.birespiConfig[ComponentConfigKey.Logger]
+
+    def getJsonConfig(self) -> dict:
+        jsonConfig = {}
+        for componentConfigKey in self.birespiConfig.keys():
+            componentConfig = self.birespiConfig[componentConfigKey]
+            if type(componentConfigKey) != ComponentConfigKey:
+                raise Exception(
+                    f"componentConfigKey {componentConfigKey} is not ComponentConfigKey"
+                )
+
+            jsonConfig[componentConfigKey.value] = componentConfig
+        return json.dumps(jsonConfig, indent=4,ensure_ascii=False)
+
+    def saveJsonConfig(self):
+        with open(self.jsonConfigPath, "w") as f:
+            f.write(self.getJsonConfig())
 
 
 class BirespiConfigHolder:

@@ -142,3 +142,37 @@ async function getLiveRoomInfo() {
         data: data.data
     };
 }
+
+async function getConfig() {
+    const response = await fetch('/api/config');
+    const data = await response.json();
+
+    if (data.code !== 0) {
+        return {
+            code: code,
+            msg: "error"
+        };
+    }
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    };
+}
+
+async function getComponentSubtypeConfig(componentType, subtype) {
+    const response = await fetch(`/api/config/component/${componentType}/subtype/${subtype}`);
+    const data = await response.json();
+
+    if (data.code !== 0) {
+        return {
+            code: code,
+            msg: "error"
+        };
+    }
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    };
+}
