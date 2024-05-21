@@ -34,13 +34,13 @@ class Birespi:
         while True:
             danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
             if danmu == None:
-                getLogger().logInfo(f"等待弹幕....")
+                # getLogger().logInfo(f"等待弹幕....")
                 await asyncio.sleep(1)
                 continue
             getLogger().logInfo(f"接受一条弹幕: {danmu.data.content}")
             await self.replyDanmu(danmu)
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
 
     async def replyDanmu(self, danmu: LiveMessage[DanmuMessageData]):
         answer: str = await self.componentManager.chatter.answer(
