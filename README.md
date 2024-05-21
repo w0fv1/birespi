@@ -88,16 +88,16 @@ copy config.example.py config.py
 
 请修改`config.example.json`, 不然应答姬无法正常运行!
 
-其中一定需要修改的值有chatter.OpenaiChatter的apiKey,host和danmu_receiver.BiliOpenDanmuReceiver的idCode,appId,key,secret：
+其中一定需要修改的值有chatter.OpenaiChatter的apiKey,host和live_event_receiver.BiliOpenLiveEventReceiver的idCode,appId,key,secret：
 
 | 必填配置项                                  | 说明                        |
 | ------------------------------------------- | --------------------------- |
 | chatter.OpenaiChatter.apiKey                | OpenAI协议的API Key         |
 | chatter.OpenaiChatter.host                  | OpenAI协议的API Host        |
-| danmu_receiver.BiliOpenDanmuReceiver.idCode | B站直播间ID                 |
-| danmu_receiver.BiliOpenDanmuReceiver.appId  | B站直播间appId              |
-| danmu_receiver.BiliOpenDanmuReceiver.key    | B站开放平台互动直播的key    |
-| danmu_receiver.BiliOpenDanmuReceiver.secret | B站开放平台互动直播的secret |
+| live_event_receiver.BiliOpenLiveEventReceiver.idCode | B站直播间ID                 |
+| live_event_receiver.BiliOpenLiveEventReceiver.appId  | B站直播间appId              |
+| live_event_receiver.BiliOpenLiveEventReceiver.key    | B站开放平台互动直播的key    |
+| live_event_receiver.BiliOpenLiveEventReceiver.secret | B站开放平台互动直播的secret |
 
 其他配置通常情况下不需要修改, 如果有需要, 请看config.py
 

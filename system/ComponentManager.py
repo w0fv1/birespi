@@ -1,6 +1,12 @@
 from component.Chatter import BaseChatter, OpenaiChatter, WebChatter
-from component.DanmuReceiver import BaseDanmuReceiver, BiliOpenDanmuReceiver
-from component.SoundPlayer import BasePlayer, MiniPlayer, PydubPlayer, SubprocessPlayer, WindowsPlayer
+from component.LiveEventReceiver import BaseLiveEventReceiver, BiliOpenLiveEventReceiver
+from component.SoundPlayer import (
+    BasePlayer,
+    MiniPlayer,
+    PydubPlayer,
+    SubprocessPlayer,
+    WindowsPlayer,
+)
 from component.Speaker import BaseSpeaker, EdgeSpeaker
 from value.ComponentConfigKey import ComponentConfigKey
 
@@ -10,7 +16,7 @@ class ComponentManager:
     config: dict = {}
 
     chatter: BaseChatter = BaseChatter()
-    danmuReceiver: BaseDanmuReceiver = BaseDanmuReceiver()
+    LiveEventReceiver: BaseLiveEventReceiver = BaseLiveEventReceiver()
     player: BasePlayer = BasePlayer()
     speaker: BaseSpeaker = BaseSpeaker()
 
@@ -27,13 +33,15 @@ class ComponentManager:
 
         if key == ComponentConfigKey.Chatter:
             self.chatter = self.buildChatter(self.config[key])
-        elif key == ComponentConfigKey.DanmuReceiver:
-            self.danmuReceiver = self.buildDanmuReceiver(self.config[key])
+        elif key == ComponentConfigKey.LiveEventReceiver:
+            self.LiveEventReceiver = self.buildLiveEventReceiver(self.config[key])
         elif key == ComponentConfigKey.Player:
             self.player = self.buildPlayer(self.config[key])
         elif key == ComponentConfigKey.Speaker:
             self.speaker = self.buildSpeaker(self.config[key])
         elif key == ComponentConfigKey.WebUi:
+            pass
+        elif key == ComponentConfigKey.Logger:
             pass
         else:
             raise Exception(f"Unknown component type {key}")
@@ -46,9 +54,9 @@ class ComponentManager:
         else:
             raise Exception("Unknown chatter type")
 
-    def buildDanmuReceiver(self, config: dict) -> BaseDanmuReceiver:
-        if config["type"] == "BiliOpenDanmuReceiver":
-            return BiliOpenDanmuReceiver(config[config["type"]])
+    def buildLiveEventReceiver(self, config: dict) -> BaseLiveEventReceiver:
+        if config["type"] == "BiliOpenLiveEventReceiver":
+            return BiliOpenLiveEventReceiver(config[config["type"]])
         else:
             raise Exception("不支持的弹幕接收器类型")
 

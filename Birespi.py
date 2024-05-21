@@ -3,6 +3,7 @@ from collections import deque
 import threading
 from typing import Optional
 from base_component.Logger import getLogger
+from config import getConfig
 from model.Talk import Talk
 from util.Queue import FastConsumptionQueue
 from model.LiveEventMessage import LiveMessage, DanmuMessageData
@@ -15,9 +16,9 @@ class Birespi:
     danmuDisplayqueue: deque[LiveMessage[DanmuMessageData]] = deque()
     lastTalk: tuple[Talk, Talk] = (None, None)
 
-    def __init__(self, config: dict) -> None:
-        self.componentManager.loadComponents(config)
-        self.componentManager.danmuReceiver.onReceive(self.process)
+    def __init__(self) -> None:
+        self.componentManager.loadComponents(getConfig().birespiConfig)
+        self.componentManager.LiveEventReceiver.onReceive(self.process)
 
     def start(self) -> "Birespi":
         thread = threading.Thread(target=self.startReceive)
@@ -30,14 +31,13 @@ class Birespi:
         self.insertDanmu(danmu)
 
     async def waitResponse(self):
-        print("startWait")
         while True:
             danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
             if danmu == None:
-                getLogger().log_info(f"等待弹幕....")
+                getLogger().logInfo(f"等待弹幕....")
                 await asyncio.sleep(1)
                 continue
-            getLogger().log_info(f"接受一条弹幕: {danmu.data.content}")
+            getLogger().logInfo(f"接受一条弹幕: {danmu.data.content}")
             self.setLastTalk(danmu, "生成中.....")
 
             answer: str = await self.componentManager.chatter.answer(
@@ -52,15 +52,10 @@ class Birespi:
             await asyncio.sleep(1)
 
     def startWaitResponse(self):
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-        self.loop.run_until_complete(self.waitResponse())
+        asyncio.run(self.waitResponse())
 
     def startReceive(self):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        loop.run_until_complete(self.componentManager.danmuReceiver.startReceive())
+        asyncio.run(self.componentManager.LiveEventReceiver.startReceive())
 
     def insertDanmu(self, danmu: LiveMessage[DanmuMessageData]):
         self.danmuQueue.push(danmu)

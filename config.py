@@ -1,9 +1,10 @@
 # 获得当前路径
+import datetime
 import os
 import sys
 
 from component.Chatter import OpenaiChatterConfig
-from component.DanmuReceiver import BiliOpenDanmuReceiverConfig
+from component.LiveEventReceiver import BiliOpenLiveEventReceiverConfig
 from component.SoundPlayer import PydubPlayerConfig
 from component.Speaker import EdgeSpeakerConfig
 from util.ConfigUtil import loadJson
@@ -77,9 +78,9 @@ class BiRespiConfig:
             },
             "MiniPlayer": {"playDelete": True},
         },
-        ComponentConfigKey.DanmuReceiver: {
-            "type": "BiliOpenDanmuReceiver",
-            "BiliOpenDanmuReceiver": {
+        ComponentConfigKey.LiveEventReceiver: {
+            "type": "BiliOpenLiveEventReceiver",
+            "BiliOpenLiveEventReceiver": {
                 "idCode": "",  # 主播身份码
                 "appId": 0,  # 应用id
                 "key": "",  # access_key
@@ -92,6 +93,14 @@ class BiRespiConfig:
             "password": "admin",
             "port": 8000,
             "allowNoLocalhost": False,
+        },
+        ComponentConfigKey.Logger: {
+            "formatter": "[%(asctime)s]-[%(name)s-%(levelname)s]-%(funcName)s(): %(message)s",
+            "filename": os.path.join(
+                f"log",
+                f'birespi-log-{datetime.datetime.now().strftime("%Y-%m-%d")}.log',
+            ),
+            "log_level": "debug",
         },
     }
     version: str = "0.0.0"
@@ -128,8 +137,12 @@ class BiRespiConfig:
                 componentConfig[type],
             )
 
-    def getWebUiConfig(self):
+
+    def getWebUiConfigDict(self) -> dict:
         return self.birespiConfig[ComponentConfigKey.WebUi]
+
+    def getLoggerConfigDict(self) -> dict:
+        return self.birespiConfig[ComponentConfigKey.Logger]
 
 
 class BirespiConfigHolder:
@@ -143,3 +156,7 @@ class BirespiConfigHolder:
 
 
 birespiConfigHolder = BirespiConfigHolder()
+
+
+def getConfig() -> BiRespiConfig:
+    return birespiConfigHolder.get()

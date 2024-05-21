@@ -96,14 +96,17 @@ class BiliClient:
         self.host = host
         self.gameId = ""
         self.aioHttpSession = None
-        websocket.enableTrace(True)
+        websocket.enableTrace(False)
         self.websocket = None
 
     async def run(self):
+        
         self.aioHttpSession = ClientSession()
         await self.connect()
-        asyncio.create_task(self.heartBeat())
-        asyncio.create_task(self.appheartBeat())
+        await self.heartBeat()
+        await self.appheartBeat()
+        while True:
+            await asyncio.sleep(0.1)
 
     async def reRun(self):
         try:
@@ -142,7 +145,7 @@ class BiliClient:
         loop.run_in_executor(None, self.websocket.run_forever)
         await asyncio.sleep(2)
         self.auth()
-
+        websocket._logging
         return websocket
 
     def auth(self):
@@ -184,37 +187,44 @@ class BiliClient:
         async with self.aioHttpSession.post(
             url=postUrl, headers=headerMap, data=params
         ) as response:
-            live_info = await response.json()
-        if live_info == None:
+            liveInfo = await response.json()
+        if liveInfo == None:
             print("获取直播信息失败")
             return
-        self.addr = str(live_info["data"]["websocket_info"]["wss_link"][0])
-        self.authBody = str(live_info["data"]["websocket_info"]["auth_body"])
-        self.gameId = str(live_info["data"]["game_info"]["game_id"])
-        self.roomId = str(live_info["data"]["anchor_info"]["room_id"])
-        return live_info
+        self.addr = str(liveInfo["data"]["websocket_info"]["wss_link"][0])
+        self.authBody = str(liveInfo["data"]["websocket_info"]["auth_body"])
+        self.gameId = str(liveInfo["data"]["game_info"]["game_id"])
+        self.roomId = str(liveInfo["data"]["anchor_info"]["room_id"])
+        return liveInfo
 
     async def heartBeat(self):
+        print("heartBeat start")
         while True:
-            print("heartBeat start")
-            await asyncio.ensure_future(asyncio.sleep(20))
-            print("heartBeat")
-            req = Proto()
-            req.op = 2
-            self.websocket.send(req.pack())
+            try:
+                await asyncio.sleep(20)
+                print("heartBeat")
+                req = Proto()
+                req.op = 2
+                self.websocket.send(req.pack())
+            except Exception as e:
+                print(f"heartBeat error: {e}")
 
     async def appheartBeat(self):
+        print("appheartBeat start")
         while True:
-            print("appheartBeat start")
-            await asyncio.ensure_future(asyncio.sleep(20))
-            print("appheartBeat")
-            postUrl = f"{self.host}/v2/app/heartbeat"
-            params = f'{{"game_id":"{self.gameId}"}}'
-            headerMap = self.signHeaderMap(params)
-            async with self.aioHttpSession.post(
-                url=postUrl, headers=headerMap, data=params, verify_ssl=False
-            ) as response:
-                data = await response.json()
+            try:
+
+                await asyncio.sleep(20)
+                print("appheartBeat")
+                postUrl = f"{self.host}/v2/app/heartbeat"
+                params = f'{{"game_id":"{self.gameId}"}}'
+                headerMap = self.signHeaderMap(params)
+                async with self.aioHttpSession.post(
+                    url=postUrl, headers=headerMap, data=params, verify_ssl=False
+                ) as response:
+                    data = await response.json()
+            except Exception as e:
+                print(f"appheartBeat error: {e}")
 
     def __enter__(self):
         pass

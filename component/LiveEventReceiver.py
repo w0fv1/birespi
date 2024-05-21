@@ -7,7 +7,7 @@ from component.BaseConfig import BaseConfig
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 
 
-class BaseDanmuReceiver:
+class BaseLiveEventReceiver:
     def onReceive(self, process: Callable[[LiveMessage[DanmuMessageData]], None]):
         raise NotImplementedError
 
@@ -15,7 +15,7 @@ class BaseDanmuReceiver:
         raise NotImplementedError
 
 
-class BiliOpenDanmuReceiverConfig(BaseConfig):
+class BiliOpenLiveEventReceiverConfig(BaseConfig):
     idCode: str
     appId: str
     key: str
@@ -32,7 +32,7 @@ class BiliOpenDanmuReceiverConfig(BaseConfig):
 
     @staticmethod
     def fromJson(json):
-        return BiliOpenDanmuReceiverConfig(
+        return BiliOpenLiveEventReceiverConfig(
             idCode=json["idCode"],
             appId=json["appId"],
             key=json["key"],
@@ -41,13 +41,13 @@ class BiliOpenDanmuReceiverConfig(BaseConfig):
         )
 
 
-class BiliOpenDanmuReceiver:
+class BiliOpenLiveEventReceiver(BaseLiveEventReceiver):
 
     biliClient: BiliClient
-    config: BiliOpenDanmuReceiverConfig
+    config: BiliOpenLiveEventReceiverConfig
 
     def __init__(self, configDict: dict):
-        self.config = BiliOpenDanmuReceiverConfig.fromJson(configDict)
+        self.config = BiliOpenLiveEventReceiverConfig.fromJson(configDict)
         self.biliClient = BiliClient(
             idCode=self.config.idCode,
             appId=self.config.appId,
@@ -62,7 +62,6 @@ class BiliOpenDanmuReceiver:
         def onRecv(message: dict):
             if not message.keys().__contains__("cmd"):
                 return
-            print("def onRecv(message: dict):", message)
             if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
                 danmu = LiveMessage.Danmu(
                     fromUser=message["data"]["uname"],

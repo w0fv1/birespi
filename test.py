@@ -1,8 +1,8 @@
 import asyncio
 from typing import Optional
-from component.DanmuReceiver import (
-    BaseDanmuReceiver,
-    BiliOpenDanmuReceiver,
+from component.LiveEventReceiver import (
+    BaseLiveEventReceiver,
+    BiliOpenLiveEventReceiver,
 )
 from component.Chatter import BaseChatter
 from util.Queue import FastConsumptionQueue
@@ -54,24 +54,24 @@ async def testReply():
     player.play(result)
 
 
-async def testDanmuReceiver():
-    danmuReceiver: BaseDanmuReceiver = componentManager.buildDanmuReceiver(
-        birespiConfig["danmu_receiver"]
+async def testLiveEventReceiver():
+    LiveEventReceiver: BaseLiveEventReceiver = componentManager.buildLiveEventReceiver(
+        birespiConfig["live_event_receiver"]
     )
 
     def process(danmu: Danmu):
         
 
-    danmuReceiver.onReceive(process)
-    await danmuReceiver.startReceive()
+    LiveEventReceiver.onReceive(process)
+    await LiveEventReceiver.startReceive()
 
 
 async def testReplyDanmu():
     chater: BaseChatter = componentManager.buildChatter(birespiConfig["chatter"])
     speaker: BaseSpeaker = componentManager.buildSpeaker(birespiConfig["speaker"])
     player: BasePlayer = componentManager.buildPlayer(birespiConfig["player"])
-    danmuReceiver: BaseDanmuReceiver = componentManager.buildDanmuReceiver(
-        birespiConfig["danmu_receiver"]
+    LiveEventReceiver: BaseLiveEventReceiver = componentManager.buildLiveEventReceiver(
+        birespiConfig["live_event_receiver"]
     )
     fastConsumptionQueue = FastConsumptionQueue[Danmu]()
 
@@ -113,6 +113,6 @@ async def testReplyDanmu():
 
     asyncio.create_task(wishes2Everyone())
 
-    danmuReceiver.onReceive(process)
+    LiveEventReceiver.onReceive(process)
 
-    await danmuReceiver.startReceive()
+    await LiveEventReceiver.startReceive()

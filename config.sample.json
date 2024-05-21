@@ -9,9 +9,9 @@
             "temperature": 1.2
         }
     },
-    "danmu_receiver": {
-        "type": "BiliOpenDanmuReceiver",
-        "BiliOpenDanmuReceiver": {
+    "live_event_receiver": {
+        "type": "BiliOpenLiveEventReceiver",
+        "BiliOpenLiveEventReceiver": {
             "idCode": "需要填写idCode",
             "appId": 0,
             "key": "需要填写key",

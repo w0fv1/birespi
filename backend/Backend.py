@@ -6,6 +6,8 @@ from base_component.Logger import BLogger, getLogger
 from Birespi import biRespiHolder, getBirespi
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from fastapi.responses import FileResponse, HTMLResponse
+from config import BiRespiConfig, birespiConfigHolder, getConfig
+from uvicorn.config import LOGGING_CONFIG
 
 
 class BirespiBackendConfig:
@@ -24,13 +26,32 @@ class BirespiBackendConfig:
 
 class BirespiApi:
     api = FastAPI()
-    config: BirespiBackendConfig = None
 
-    def __init__(self, config: dict) -> None:
-        self.config = BirespiBackendConfig(config)
+    def __init__(self) -> None:
+        pass
 
     def start(self) -> "BirespiApi":
-        uvicorn.run(self.api, host="localhost", port=self.config.port)
+        # 增加FileHandler
+        LOGGING_CONFIG["handlers"]["default"] = {
+            "class": "logging.FileHandler",
+            "filename": getConfig().getLoggerConfigDict()["filename"],
+        }
+        LOGGING_CONFIG["handlers"]["access"] = {
+            "class": "logging.FileHandler",
+            "filename": getConfig().getLoggerConfigDict()["filename"],
+        }
+        # "filename": os.path.join(
+        #     f"log",
+        #     f'birespi-log-{datetime.datetime.now().strftime("%Y-%m-%d")}.log',
+        # ),
+        uvicorn.run(
+            self.api,
+            host="localhost",
+            port=getConfig().getWebUiConfigDict()["port"],
+            log_level=getConfig().getLoggerConfigDict()[
+                "log_level"
+            ],  #  "log_level": "DEBUG",
+        )
         return self
 
     @api.get("/")
@@ -95,12 +116,10 @@ class BirespiApi:
 
 
 class BirespiBackend:
-    config: BirespiBackendConfig = None
     api: BirespiApi = None
 
-    def __init__(self, config: dict) -> None:
-        self.config = BirespiBackendConfig(config)
-        self.api = BirespiApi(config)
+    def __init__(self) -> None:
+        self.api = BirespiApi()
 
     def start(self):
         backendThread = threading.Thread(target=self.api.start)
