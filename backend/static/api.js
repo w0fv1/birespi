@@ -104,3 +104,23 @@ async function replyByBid(bid) {
         msg: "no error"
     };
 }
+
+
+async function sendTestDanmu(content) {
+    // post
+    const response = await fetch(`/api/test/danmu/${content}`);
+    const data = await response.json();
+
+    const code = data.code;
+
+    if (code !== 0) {
+        return {
+            code: code,
+            msg: "error"
+        };
+    }
+    return {
+        code: 0,
+        msg: "no error"
+    };
+}

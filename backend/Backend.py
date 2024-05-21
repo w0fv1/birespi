@@ -84,7 +84,7 @@ class BirespiApi:
         getBirespi().insertDanmu(
             LiveMessage[DanmuMessageData].Danmu(fromUser="admin", content=danmu)
         )
-        return {"code": 0, "Hello": "World"}
+        return {"code": 0}
 
     @api.get("/api/danmus")
     def getDanmus() -> dict:

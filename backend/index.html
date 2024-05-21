@@ -79,7 +79,12 @@
                     if (replyResult.code == 0) {
                         console.log('回复成功');
                     }
-
+                },
+                async sendTestDanmu() {
+                    const sendTestDanmuResult = await sendTestDanmu("这是一条测试弹幕");
+                    if (sendTestDanmuResult.code == 0) {
+                        console.log('发送成功');
+                    }
                 }
             };
         }
@@ -139,7 +144,7 @@
             <div class="col-3">
                 <div class="card h-100 ">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <div>弹幕</div>
+                        <div class="cursor-pointer" @click="sendTestDanmu()">弹幕</div>
                         <div>
                             <label class="form-check-label" for="flexCheckDefault">
                                 自动滚到底部
@@ -166,7 +171,8 @@
                                     <strong class="me-auto" x-text="danmu.fromUser"></strong>
                                     <small x-text="dayjs(danmu.timestamp * 1000).format('HH:mm:ss')"></small>
                                     &nbsp;
-                                    <button type="button" class="btn btn-sm" aria-label="reply" @click="reply(danmu.bId)">
+                                    <button type="button" class="btn btn-sm" aria-label="reply"
+                                        @click="reply(danmu.bId)">
                                         <i class="bi bi-reply"></i>
                                     </button>
                                     &nbsp;
