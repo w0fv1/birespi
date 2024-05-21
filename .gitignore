@@ -8,7 +8,7 @@ venv/
 # 忽略sounds目录下的的mp3文件
 
 sounds/*.mp3
-
+sound/*.mp3
 
 # IDE files
 .vscode/
@@ -28,3 +28,4 @@ tmp_test.py
 
 log/
 *.log
+
