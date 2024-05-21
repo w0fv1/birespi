@@ -2,11 +2,6 @@
 import datetime
 import os
 import sys
-
-from component.Chatter import OpenaiChatterConfig
-from component.LiveEventReceiver import BiliOpenLiveEventReceiverConfig
-from component.SoundPlayer import PydubPlayerConfig
-from component.Speaker import EdgeSpeakerConfig
 from util.ConfigUtil import loadJson
 from value.ComponentConfigKey import ComponentConfigKey
 

@@ -128,8 +128,11 @@ class BiliClient:
             if "{" not in result:
                 return
             message = json.loads(result)
-            if self.onRecv:
-                self.onRecv(message)
+            if self.onRecv != None:
+                try:
+                    self.onRecv(message)
+                except Exception as e:
+                    print(f"onRecv error: {e}")
 
         def onOpen(ws):
             print("open")

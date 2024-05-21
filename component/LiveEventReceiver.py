@@ -3,6 +3,7 @@ from typing import Callable
 import time
 
 from base_component.BiliClient import BiliClient
+from base_component.Logger import getLogger
 from component.BaseConfig import BaseConfig
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 
@@ -60,8 +61,8 @@ class BiliOpenLiveEventReceiver(BaseLiveEventReceiver):
         self.onRecvDanmu = process
 
         def onRecv(message: dict):
-            if not message.keys().__contains__("cmd"):
-                return
+            getLogger().logInfo(f"onReceive: {message}")
+
             if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
                 danmu = LiveMessage.Danmu(
                     fromUser=message["data"]["uname"],
