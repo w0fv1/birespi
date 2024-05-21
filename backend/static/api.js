@@ -176,3 +176,25 @@ async function getComponentSubtypeConfig(componentType, subtype) {
         data: data.data
     };
 }
+
+async function setComponentConfig(componentType, subtype, componentConfig) {
+
+    if (subtype === undefined || subtype === null || subtype === "") {
+        subtype = "-1"
+    }
+
+    const response = await fetch(`/api/config/component/${componentType}/subtype/${subtype}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "config": componentConfig })
+    });
+    const data = await response.json();
+
+
+    return {
+        code: 0,
+        msg: "no error"
+    };
+}

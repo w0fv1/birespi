@@ -94,7 +94,7 @@ class BiRespiConfig:
             "formatter": "[%(asctime)s]-[%(name)s-%(levelname)s]-%(funcName)s(): %(message)s",
             "filename": os.path.join(
                 f"log",
-                f'birespi-log-{datetime.datetime.now().strftime("%Y-%m-%d")}.log',
+                "birespi-log-%(today)s.log",
             ),
             "log_level": "debug",
         },
@@ -112,29 +112,14 @@ class BiRespiConfig:
     def __str__(self) -> str:
         return str(self.birespiConfig)
 
-    def setComponentConfig(self, componentConfigKeyStr: str, type: str, config: dict):
-
-        componentConfigKey: ComponentConfigKey = ComponentConfigKey.fromStr(
-            componentConfigKeyStr
-        )
-
-        if componentConfigKey not in self.birespiConfig.keys():
-            self.birespiConfig[componentConfigKey] = {}
-
-        if (
-            componentConfigKey == ComponentConfigKey.WebUi
-            or componentConfigKey == ComponentConfigKey.Logger
-        ):
-            self.birespiConfig[componentConfigKey] = config
-            return
-
-        self.birespiConfig[componentConfigKey][type] = config
-
     def loadJsonConfig(self, jsonConfig: dict):
 
-        for componentConfigKey in jsonConfig.keys():
-            componentConfig: dict = jsonConfig[componentConfigKey]
+        for componentConfigKeyStr in jsonConfig.keys():
+            componentConfig: dict = jsonConfig[componentConfigKeyStr]
 
+            componentConfigKey: ComponentConfigKey = ComponentConfigKey.fromStr(
+                componentConfigKeyStr
+            )
             type = ""
             if "type" in componentConfig.keys():
                 type = componentConfig["type"]
@@ -148,6 +133,26 @@ class BiRespiConfig:
                 config,
             )
 
+    def setComponentConfig(
+        self, componentConfigKey: ComponentConfigKey, type: str, config: dict
+    ):
+
+        if componentConfigKey not in self.birespiConfig.keys():
+            self.birespiConfig[componentConfigKey] = {}
+
+        if (
+            componentConfigKey == ComponentConfigKey.WebUi
+            or componentConfigKey == ComponentConfigKey.Logger
+        ):
+            self.birespiConfig[componentConfigKey] = config
+            return
+
+        self.birespiConfig[componentConfigKey][type] = config
+
+    def setComponentType(self, componentConfigKeyStr: str, type: str):
+        componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+        self.birespiConfig[componentConfigKey]["type"] = type
+
     def getComponentKeys(self) -> list[ComponentConfigKey]:
         return list(self.birespiConfig.keys())
 
@@ -159,10 +164,6 @@ class BiRespiConfig:
         return component["type"]
 
     def getComponentSubTypes(self, componentConfigKeyStr: str) -> list[str]:
-        print("componentConfigKey", componentConfigKeyStr)
-        print("componentConfigKey", componentConfigKeyStr)
-        print("componentConfigKey", componentConfigKeyStr)
-        print("componentConfigKey", componentConfigKeyStr)
         componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
 
         component: dict = self.birespiConfig[componentConfigKey]
@@ -210,7 +211,7 @@ class BiRespiConfig:
                 )
 
             jsonConfig[componentConfigKey.value] = componentConfig
-        return json.dumps(jsonConfig, indent=4,ensure_ascii=False)
+        return json.dumps(jsonConfig, indent=4, ensure_ascii=False)
 
     def saveJsonConfig(self):
         with open(self.jsonConfigPath, "w") as f:

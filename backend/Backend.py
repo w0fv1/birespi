@@ -4,10 +4,14 @@ import uvicorn
 from base_component.Closer import getCloser
 from base_component.Logger import BLogger, getLogger
 from Birespi import biRespiHolder, getBirespi
+from model.JsonDict import JsonDict
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from fastapi.responses import FileResponse, HTMLResponse
 from config import BiRespiConfig, birespiConfigHolder, getConfig
 from uvicorn.config import LOGGING_CONFIG
+
+from value.ComponentConfigKey import ComponentConfigKey
+from typing import Dict
 
 
 class BirespiBackendConfig:
@@ -31,15 +35,15 @@ class BirespiApi:
         pass
 
     def start(self) -> "BirespiApi":
-        # 增加FileHandler
-        LOGGING_CONFIG["handlers"]["default"] = {
-            "class": "logging.FileHandler",
-            "filename": getConfig().getLoggerConfigDict()["filename"],
-        }
-        LOGGING_CONFIG["handlers"]["access"] = {
-            "class": "logging.FileHandler",
-            "filename": getConfig().getLoggerConfigDict()["filename"],
-        }
+        # # 增加FileHandler
+        # LOGGING_CONFIG["handlers"]["default"] = {
+        #     "class": "logging.FileHandler",
+        #     "filename": getConfig().getLoggerConfigDict()["filename"],
+        # }
+        # LOGGING_CONFIG["handlers"]["access"] = {
+        #     "class": "logging.FileHandler",
+        #     "filename": getConfig().getLoggerConfigDict()["filename"],
+        # }
         # "filename": os.path.join(
         #     f"log",
         #     f'birespi-log-{datetime.datetime.now().strftime("%Y-%m-%d")}.log',
@@ -48,9 +52,9 @@ class BirespiApi:
             self.api,
             host="localhost",
             port=getConfig().getWebUiConfigDict()["port"],
-            log_level=getConfig().getLoggerConfigDict()[
-                "log_level"
-            ],  #  "log_level": "DEBUG",
+            # log_level=getConfig().getLoggerConfigDict()[
+            #     "log_level"
+            # ],  #  "log_level": "DEBUG",
         )
         return self
 
@@ -159,7 +163,7 @@ class BirespiApi:
 
             config[componentKey] = {
                 "componentSubTypes": subTypes,
-                "componentCurrentSubTypes": currentSubType,
+                "componentCurrentSubType": currentSubType,
                 "componentConfig": getConfig().getCurrentComponentConfig(
                     componentKey.value
                 ),
@@ -169,6 +173,20 @@ class BirespiApi:
             "code": 0,
             "data": {"config": config, "componentKeys": componentKeys},
         }
+
+    @api.post("/api/config/component/{componentKeyStr}/subtype/{subtype}")
+    def setComponentConfig(componentKeyStr: str, subtype: str, config: Dict) -> dict:
+        print("componentKey", componentKeyStr)
+        print("subtype", subtype)
+        print("config", config)
+        componentKey = ComponentConfigKey.fromStr(componentKeyStr)
+        getConfig().setComponentConfig(componentKey, subtype, config["config"])
+        
+        if not (subtype == "-1") and not len(getConfig().getComponentSubTypes(componentKeyStr)) == 0:
+            getConfig().setComponentType(componentKey, subtype)
+
+        getConfig().saveJsonConfig()
+        return {"code": 0}
 
 
 class BirespiBackend:

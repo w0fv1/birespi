@@ -15,7 +15,10 @@ class BLogger:
         )
 
         # Create file handler which logs even debug messages
-        filename = getConfig().getLoggerConfigDict()["filename"]
+        filename: str = getConfig().getLoggerConfigDict()["filename"]
+        filename = filename.replace(
+            "%(today)s", datetime.datetime.now().strftime("%Y-%m-%d")
+        )
         if not os.path.exists("log"):
             os.makedirs("log")
 

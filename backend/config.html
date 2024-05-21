@@ -41,14 +41,23 @@
                     const getConfigResult = await getConfig();
                     if (getConfigResult.code === 0) {
                         this.config = getConfigResult.data.config;
+                       
                     }
                 },
                 async changeComponentSubtypeConfig(componentKey, componentSubType) {
                     const getComponentSubtypeConfigResult = await getComponentSubtypeConfig(componentKey, componentSubType);
                     if (getComponentSubtypeConfigResult.code === 0) {
                         console.log(getComponentSubtypeConfigResult);
+                        this.config[componentKey].componentCurrentSubType = componentSubType;
                         this.config[componentKey].componentConfig = getComponentSubtypeConfigResult.data.componentConfig;
                     }
+                },
+                async applyComponentConfig(componentKey) {
+                    console.log(JSON.stringify(this.config[componentKey]));
+                    const componentConfig = this.config[componentKey].componentConfig;
+                    const applyComponentConfigResult = await setComponentConfig(
+                        componentKey, this.config[componentKey].componentCurrentSubType, componentConfig);
+                    
                 }
             };
         }
@@ -69,7 +78,6 @@
 </head>
 
 <body x-data="app()">
-
 
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
@@ -115,27 +123,64 @@
 
                         <template x-for="configItemKey in Object.keys(config[componentKey].componentConfig)">
                             <div>
-                                <label x-bind:for="componentKey+'-'+configItemKey" class="form-label" x-text="configItemKey"></label>
+                                <label x-bind:for="componentKey+'-'+configItemKey" class="form-label"
+                                    x-text="configItemKey"></label>
                                 <div class="input-group mb-3">
-                                    <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length > 40">
-                                        <textarea class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-text="config[componentKey].componentConfig[configItemKey]"></textarea>
+                                    <!-- <template
+                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length > 40">
+                                        <textarea class="form-control" x-bind:id="componentKey+'-'+configItemKey"
+                                            x-text="config[componentKey].componentConfig[configItemKey]"></textarea>
                                     </template>
-                                    <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length <= 40">
-                                        <input type="text" class="form-control" x-bind:id="componentKey+'-'+configItemKey" :value="config[componentKey].componentConfig[configItemKey]">
+                                    <template
+                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length <= 40">
+                                        <input type="text" class="form-control"
+                                            x-bind:id="componentKey+'-'+configItemKey"
+                                            :value="config[componentKey].componentConfig[configItemKey]">
                                     </template>
-                                    <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'boolean'">
+                                    <template
+                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'boolean'">
                                         <select class="form-control" x-bind:id="componentKey+'-'+configItemKey">
-                                            <option :selected="config[componentKey].componentConfig[configItemKey] === true" value="true">True</option>
-                                            <option :selected="config[componentKey].componentConfig[configItemKey] === false" value="false">False</option>
+                                            <option
+                                                :selected="config[componentKey].componentConfig[configItemKey] === true"
+                                                value="true">True</option>
+                                            <option
+                                                :selected="config[componentKey].componentConfig[configItemKey] === false"
+                                                value="false">False</option>
                                         </select>
                                     </template>
+                                    <template
+                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'number'">
+                                        <input type="number" class="form-control"
+                                            x-bind:id="componentKey+'-'+configItemKey"
+                                            :value="config[componentKey].componentConfig[configItemKey]">
+                                    </template> -->
+
+                                    <div class="input-group mb-3">
+                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length > 40">
+                                            <textarea class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model="config[componentKey].componentConfig[configItemKey]"></textarea>
+                                        </template>
+                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length <= 40">
+                                            <input type="text" class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model="config[componentKey].componentConfig[configItemKey]">
+                                        </template>
+                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'boolean'">
+                                            <select class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model.boolean="config[componentKey].componentConfig[configItemKey]">
+                                                <option :value="true">True</option>
+                                                <option :value="false">False</option>
+                                            </select>
+                                        </template>
+                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'number'">
+                                            <input type="number" class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model.number="config[componentKey].componentConfig[configItemKey]">
+                                        </template>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </template>
-                        
 
 
-                        <button type="button" class="btn btn-primary">应用此组件配置</button>
+
+                        <button type="button" class="btn btn-primary" x-bind:aria-label="componentKey"
+                            @click="applyComponentConfig(componentKey)">应用此组件配置</button>
 
 
                     </div>
