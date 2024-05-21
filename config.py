@@ -118,6 +118,13 @@ class BiRespiConfig:
         if componentConfigKey not in self.birespiConfig.keys():
             self.birespiConfig[componentConfigKey] = {}
 
+        if (
+            componentConfigKey == ComponentConfigKey.WebUi
+            or componentConfigKey == ComponentConfigKey.Logger
+        ):
+            self.birespiConfig[componentConfigKey] = config
+            return
+
         self.birespiConfig[componentConfigKey][type] = config
 
     def loadJsonConfig(self, jsonConfig: dict):
@@ -125,13 +132,39 @@ class BiRespiConfig:
         for componentConfigKey in jsonConfig.keys():
             componentConfig: dict = jsonConfig[componentConfigKey]
 
-            type = componentConfig["type"]
+            type = ""
+            if "type" in componentConfig.keys():
+                type = componentConfig["type"]
+
+            config = componentConfig
+            if "type" in componentConfig.keys():
+                config = componentConfig[type]
             self.setComponentConfig(
                 componentConfigKey,
                 type,
-                componentConfig[type],
+                config,
             )
 
+    def getComponents(self) -> list[ComponentConfigKey]:
+        return list(self.birespiConfig.keys())
+
+    def getComponentSubTypes(self, componentConfigKey: ComponentConfigKey) -> list[str]:
+        component: dict = self.birespiConfig[componentConfigKey]
+        componentsSubTypes = list(component.keys())
+        if "type" not in componentsSubTypes:
+            raise Exception("不是有子类别的组件")
+        componentsSubTypes.remove("type")
+        return componentsSubTypes
+
+    def getComponentConfigDict(
+        self, componentConfigKey: ComponentConfigKey, subType: str = None
+    ) -> dict:
+        if componentConfigKey == ComponentConfigKey.WebUi:
+            return self.getWebUiConfigDict()
+        if componentConfigKey == ComponentConfigKey.Logger:
+            return self.getLoggerConfigDict()
+
+        return self.birespiConfig[componentConfigKey][subType]
 
     def getWebUiConfigDict(self) -> dict:
         return self.birespiConfig[ComponentConfigKey.WebUi]
