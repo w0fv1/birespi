@@ -81,11 +81,9 @@ class BirespiApi:
 
     @api.get("/api/test/danmu/{danmu}")
     def read_root(danmu: str) -> dict:
-
         getBirespi().insertDanmu(
             LiveMessage[DanmuMessageData].Danmu(fromUser="admin", content=danmu)
         )
-
         return {"code": 0, "Hello": "World"}
 
     @api.get("/api/danmus")
@@ -97,14 +95,17 @@ class BirespiApi:
     @api.get("/api/last-talk")
     def getLastTalk() -> dict:
         lastTalk = getBirespi().getLastTalk()
-
         if lastTalk == None or len(lastTalk) == 0 or lastTalk[0] == None:
             return {"code": 1, "data": None}
-
         return {
             "code": 0,
             "data": {"lastTalkDanmu": lastTalk[0], "lastTalkBirespi": lastTalk[1]},
         }
+
+    @api.post("/api/reply/{bId}")
+    async def reply(bId: str) -> dict:
+        await getBirespi().replyByBid(bId)
+        return {"code": 0}
 
     @api.get("/api/logs")
     def getLogs() -> dict:

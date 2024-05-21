@@ -84,3 +84,23 @@ async function getLog(logFilename) {
     };
 }
 
+async function replyByBid(bid) {
+    // post
+    const response = await fetch(`/api/reply/${bid}`, {
+        method: 'POST',
+    });
+    const data = await response.json();
+
+    const code = data.code;
+
+    if (code !== 0) {
+        return {
+            code: code,
+            msg: "error"
+        };
+    }
+    return {
+        code: 0,
+        msg: "no error"
+    };
+}

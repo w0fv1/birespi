@@ -38,18 +38,25 @@ class Birespi:
                 await asyncio.sleep(1)
                 continue
             getLogger().logInfo(f"接受一条弹幕: {danmu.data.content}")
-            self.setLastTalk(danmu, "生成中.....")
-
-            answer: str = await self.componentManager.chatter.answer(
-                danmu.fromUser + "说:" + danmu.data.content
-            )
-
-            self.setLastTalk(danmu, answer)
-            sound = await self.componentManager.speaker.speak(answer)
-
-            self.componentManager.player.play(sound)
+            await self.replyDanmu(danmu)
 
             await asyncio.sleep(1)
+
+    async def replyDanmu(self, danmu: LiveMessage[DanmuMessageData]):
+        answer: str = await self.componentManager.chatter.answer(
+            danmu.fromUser + "说:" + danmu.data.content
+        )
+        self.setLastTalk(danmu, answer)
+        sound = await self.componentManager.speaker.speak(answer)
+        self.componentManager.player.play(sound)
+
+    async def replyByBid(self, bId: str):
+        danmu: LiveMessage[DanmuMessageData] = None
+        for d in self.danmuDisplayqueue:
+            if d.bId == bId:
+                danmu = d
+                break
+        await self.replyDanmu(danmu)
 
     def startWaitResponse(self):
         asyncio.run(self.waitResponse())

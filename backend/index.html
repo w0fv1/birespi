@@ -73,6 +73,13 @@
 
 
                     }, 1000);
+                },
+                async reply(bId) {
+                    const replyResult = await replyByBid(bId);
+                    if (replyResult.code == 0) {
+                        console.log('回复成功');
+                    }
+
                 }
             };
         }
@@ -159,7 +166,7 @@
                                     <strong class="me-auto" x-text="danmu.fromUser"></strong>
                                     <small x-text="dayjs(danmu.timestamp * 1000).format('HH:mm:ss')"></small>
                                     &nbsp;
-                                    <button type="button" class="btn btn-sm" aria-label="reply">
+                                    <button type="button" class="btn btn-sm" aria-label="reply" @click="reply(danmu.bId)">
                                         <i class="bi bi-reply"></i>
                                     </button>
                                     &nbsp;
