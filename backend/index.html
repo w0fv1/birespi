@@ -39,8 +39,12 @@
             return {
                 danmus: [],
                 danmuAutoScroll: true,
-                lastTalkBirespi: {},
-                lastTalkDanmu: {},
+                lastTalkBirespi: {
+                    content: '大家好呀~~'
+                },
+                lastTalkDanmu: {
+
+                },
                 init() {
 
                     setInterval(async () => {
@@ -88,9 +92,9 @@
         }
 
         .userAvatar {
-            width: 32px;
-            height: 32px;
-            padding: 4px;
+            width: 30px;
+            height: 30px;
+            padding: 2px;
             border-radius: 50%;
             border: 1px solid #ccc;
         }
@@ -189,24 +193,26 @@
                             正在回复
                         </div>
                         <div class="card-body">
-                            <!-- <template x-if="lastTalkDanmu"></template> -->
-                            <div  class="mb-1  p-2 alert alert-light" role="alert">
-                                <template x-if="!lastTalkDanmu.userAvatar">
-                                    <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
-                                </template>
-                                <template x-if="lastTalkDanmu.userAvatar">
-                                    <img class="userAvatar" x-bind:src="lastTalkDanmu.userAvatar" class="rounded me-2"
-                                        alt="用户头像">
-                                </template>
-                                <strong x-text="lastTalkDanmu.fromUser + ': '"></strong>
-                                <span x-text="lastTalkDanmu.content"></span>
-                            </div>
+                            <template x-if="Object.keys(lastTalkDanmu).length !== 0">
+                                <div class="mb-1  p-2 alert alert-light" role="alert">
+                                    <template x-if="!lastTalkDanmu.userAvatar">
+                                        <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                    </template>
+                                    <template x-if="lastTalkDanmu.userAvatar">
+                                        <img class="userAvatar" x-bind:src="lastTalkDanmu.userAvatar"
+                                            class="rounded me-2" alt="用户头像">
+                                    </template>
+                                    <strong x-text="lastTalkDanmu.fromUser + ': '"></strong>
+                                    <span x-text="lastTalkDanmu.content"></span>
+                                </div>
+                                <br>
+                            </template>
                             <div class="mb-1 p-2 alert alert-primary" role="alert">
                                 <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
                                 <strong>Birespi:&nbsp;</strong>
-                                <span x-text="lastTalkBirespi.content"></span>
+                                <span x-text="lastTalkBirespi.content">大家好呀~~</span>
                             </div>
-                        <!-- </template> -->
+
                         </div>
                     </div>
                 </div>
