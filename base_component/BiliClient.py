@@ -99,15 +99,19 @@ class BiliClient:
         self.host = host
         self.gameId = ""
         self.aioHttpSession = None
-        websocket.enableTrace(False)
+        websocket.enableTrace(True)
         self.websocket = None
 
     async def run(self):
 
         self.aioHttpSession = ClientSession()
         await self.connect()
-        await self.heartBeat()
-        await self.appheartBeat()
+        asyncio.create_task(self.heartBeat())
+        asyncio.create_task(self.appheartBeat())
+        
+        # await self.heartBeat()
+        # await self.appheartBeat()
+        print("BiliClient start")
 
     async def reRun(self):
         try:
@@ -207,19 +211,21 @@ class BiliClient:
         return liveInfo
 
     async def heartBeat(self):
+        print("heartBeat start")
         while True:
             try:
                 await asyncio.sleep(20)
                 req = Proto()
                 req.op = 2
                 self.websocket.send(req.pack())
+                print("heartBeat success")
             except Exception as e:
                 print(f"heartBeat error: {e}")
 
     async def appheartBeat(self):
+        print("appheartBeat start")
         while True:
             try:
-
                 await asyncio.sleep(20)
                 postUrl = f"{self.host}/v2/app/heartbeat"
                 params = f'{{"game_id":"{self.gameId}"}}'
@@ -228,6 +234,7 @@ class BiliClient:
                     url=postUrl, headers=headerMap, data=params, verify_ssl=False
                 ) as response:
                     data = await response.json()
+                print("appheartBeat success")
             except Exception as e:
                 print(f"appheartBeat error: {e}")
 
