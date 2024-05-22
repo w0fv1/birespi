@@ -1,3 +1,4 @@
+import datetime
 import threading
 from fastapi import Depends, FastAPI
 import uvicorn
@@ -39,26 +40,31 @@ class BirespiApi:
         pass
 
     def start(self) -> "BirespiApi":
-        # # 增加FileHandler
-        # LOGGING_CONFIG["handlers"]["default"] = {
-        #     "class": "logging.FileHandler",
-        #     "filename": getConfig().getLoggerConfigDict()["filename"],
-        # }
-        # LOGGING_CONFIG["handlers"]["access"] = {
-        #     "class": "logging.FileHandler",
-        #     "filename": getConfig().getLoggerConfigDict()["filename"],
-        # }
-        # "filename": os.path.join(
-        #     f"log",
-        #     f'birespi-log-{datetime.datetime.now().strftime("%Y-%m-%d")}.log',
-        # ),
+
+        LOGGING_CONFIG["handlers"]["file-default"] = {
+            "formatter": "default",
+            "class": "logging.FileHandler",
+            "filename": getConfig()
+            .getLoggerConfigDict()["filename"]
+            .replace("%(today)s", datetime.datetime.now().strftime("%Y-%m-%d")),
+        }
+        LOGGING_CONFIG["handlers"]["file-access"] = {
+            "formatter": "access",
+            "class": "logging.FileHandler",
+            "filename": getConfig()
+            .getLoggerConfigDict()["filename"]
+            .replace("%(today)s", datetime.datetime.now().strftime("%Y-%m-%d")),
+        }
+        LOGGING_CONFIG["loggers"]["uvicorn"]["handlers"] = ["default", "file-default"]
+        LOGGING_CONFIG["loggers"]["uvicorn.access"]["handlers"] = ["access", "file-access"]
+
         uvicorn.run(
             self.api,
             host="localhost",
             port=getConfig().getWebUiConfigDict()["port"],
-            # log_level=getConfig().getLoggerConfigDict()[
-            #     "log_level"
-            # ],  #  "log_level": "DEBUG",
+            log_level=getConfig().getLoggerConfigDict()[
+                "log_level"
+            ],  #  "log_level": "DEBUG",
         )
         return self
 

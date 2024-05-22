@@ -99,7 +99,7 @@ class BiliClient:
         self.host = host
         self.gameId = ""
         self.aioHttpSession = None
-        websocket.enableTrace(True)
+        websocket.enableTrace(False)
         self.websocket = None
 
     async def run(self):
