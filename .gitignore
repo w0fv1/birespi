@@ -29,3 +29,7 @@ tmp_test.py
 log/
 *.log
 
+# 备份
+
+bak/
+*.bak

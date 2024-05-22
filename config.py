@@ -214,6 +214,19 @@ class BiRespiConfig:
         return json.dumps(jsonConfig, indent=4, ensure_ascii=False)
 
     def saveJsonConfig(self):
+        # 获取原有的jsonConfig, 保存到bak文件夹, 以当前config-毫秒时间戳.json命名,如果没有bak文件夹,则创建
+
+        if not os.path.exists("bak"):
+            os.mkdir("bak")
+        bakPath = os.path.join(
+            "bak",
+            f"config-{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json.bak",
+        )
+        with open(bakPath, "w") as bakFile:
+            # 获取现有的config.json文件
+            with open(self.jsonConfigPath, "r") as jsonConfigFile:
+                bakFile.write(jsonConfigFile.read())
+
         with open(self.jsonConfigPath, "w") as f:
             f.write(self.getJsonConfig())
 
