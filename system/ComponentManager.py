@@ -25,9 +25,8 @@ class ComponentManager:
         for key in config:
             self.build(key)
 
-    def putConfig(self, key: str, config: dict):
-        self.config[key] = config
-        self.build(key)
+    def putConfig(self, config: dict):
+        self.config = config
 
     def build(self, key: ComponentConfigKey):
 

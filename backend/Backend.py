@@ -56,7 +56,10 @@ class BirespiApi:
             .replace("%(today)s", datetime.datetime.now().strftime("%Y-%m-%d")),
         }
         LOGGING_CONFIG["loggers"]["uvicorn"]["handlers"] = ["default", "file-default"]
-        LOGGING_CONFIG["loggers"]["uvicorn.access"]["handlers"] = ["access", "file-access"]
+        LOGGING_CONFIG["loggers"]["uvicorn.access"]["handlers"] = [
+            "access",
+            "file-access",
+        ]
 
         uvicorn.run(
             self.api,
@@ -197,6 +200,9 @@ class BirespiApi:
             and not len(getConfig().getComponentSubTypes(componentKeyStr)) == 0
         ):
             getConfig().setComponentType(componentKey, subtype)
+
+
+        getBirespi().reloadComponent(componentKey)
 
         getConfig().saveJsonConfig()
         return {"code": 0}

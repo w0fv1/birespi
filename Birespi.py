@@ -9,6 +9,7 @@ from model.Talk import Talk
 from util.Queue import FastConsumptionQueue
 from model.LiveEventMessage import LiveMessage, DanmuMessageData
 from system.ComponentManager import ComponentManager
+from value.ComponentConfigKey import ComponentConfigKey
 
 
 class Birespi:
@@ -21,6 +22,10 @@ class Birespi:
     def __init__(self) -> None:
         self.componentManager.loadComponents(getConfig().birespiConfig)
         self.componentManager.LiveEventReceiver.onReceive(self.process)
+
+    def reloadComponent(self, componentConfigKey: ComponentConfigKey):
+        self.componentManager.putConfig(getConfig().birespiConfig)
+        self.componentManager.build(componentConfigKey)
 
     def start(self) -> "Birespi":
         thread = threading.Thread(target=self.startReceive)
