@@ -12,6 +12,10 @@ from uvicorn.config import LOGGING_CONFIG
 
 from value.ComponentConfigKey import ComponentConfigKey
 from typing import Dict
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+import aiohttp
+import io
 
 
 class BirespiBackendConfig:
@@ -181,12 +185,26 @@ class BirespiApi:
         print("config", config)
         componentKey = ComponentConfigKey.fromStr(componentKeyStr)
         getConfig().setComponentConfig(componentKey, subtype, config["config"])
-        
-        if not (subtype == "-1") and not len(getConfig().getComponentSubTypes(componentKeyStr)) == 0:
+
+        if (
+            not (subtype == "-1")
+            and not len(getConfig().getComponentSubTypes(componentKeyStr)) == 0
+        ):
             getConfig().setComponentType(componentKey, subtype)
 
         getConfig().saveJsonConfig()
         return {"code": 0}
+
+    @api.get("/proxy/")
+    async def proxy_image(url: str):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    raise HTTPException(
+                        status_code=response.status, detail="Failed to download image"
+                    )
+                img_bytes = await response.read()
+                return StreamingResponse(io.BytesIO(img_bytes), media_type="image/jpeg")
 
 
 class BirespiBackend:

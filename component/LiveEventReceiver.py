@@ -70,7 +70,9 @@ class BiliOpenLiveEventReceiver(BaseLiveEventReceiver):
 
             if message["cmd"] == "LIVE_OPEN_PLATFORM_DM":
                 danmu = LiveMessage.Danmu(
+                    id=message["data"]["msg_id"],
                     fromUser=message["data"]["uname"],
+                    userAvatar=message["data"]["uface"],
                     content=message["data"]["msg"],
                 )
                 self.onRecvDanmu(danmu)
