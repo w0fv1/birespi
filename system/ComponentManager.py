@@ -9,6 +9,7 @@ from component.SoundPlayer import (
 )
 from component.Speaker import BaseSpeaker, EdgeSpeaker
 from value.ComponentConfigKey import ComponentConfigKey
+from component.Dataer import BaseDataer, ADataer
 
 
 class ComponentManager:
@@ -19,6 +20,7 @@ class ComponentManager:
     LiveEventReceiver: BaseLiveEventReceiver = BaseLiveEventReceiver()
     player: BasePlayer = BasePlayer()
     speaker: BaseSpeaker = BaseSpeaker()
+    dataer: BaseDataer = BaseDataer()
 
     def loadComponents(self, config: dict):
         self.config = config
@@ -38,6 +40,8 @@ class ComponentManager:
             self.player = self.buildPlayer(self.config[key])
         elif key == ComponentConfigKey.Speaker:
             self.speaker = self.buildSpeaker(self.config[key])
+        elif key == ComponentConfigKey.Dataer:
+            self.dataer = self.buildDataer(self.config[key])
         elif key == ComponentConfigKey.WebUi:
             pass
         elif key == ComponentConfigKey.Logger:
@@ -74,5 +78,11 @@ class ComponentManager:
     def buildSpeaker(self, config) -> BaseSpeaker:
         if config["type"] == "EdgeSpeaker":
             return EdgeSpeaker(config[config["type"]])
+        else:
+            raise Exception("Not support type")
+
+    def buildDataer(self, config) -> BaseDataer:
+        if config["type"] == "ADataer":
+            return ADataer(config[config["type"]])
         else:
             raise Exception("Not support type")

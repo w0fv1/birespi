@@ -98,6 +98,12 @@ class BiRespiConfig:
             ),
             "log_level": "debug",
         },
+        ComponentConfigKey.Dataer: {
+            "type": "ADataer",
+            "ADataer": {
+                "dataPath": "data",
+            },
+        },
     }
     version: str = "0.0.0"
     jsonConfigPath: str = None

@@ -8,6 +8,7 @@ class ComponentConfigKey(Enum):
     LiveEventReceiver = "live_event_receiver"
     WebUi = "web_ui"
     Logger = "logger"
+    Dataer = "dataer"
 
     def __str__(self) -> str:
         return self.value
@@ -27,5 +28,7 @@ class ComponentConfigKey(Enum):
             return ComponentConfigKey.WebUi
         elif str == "logger":
             return ComponentConfigKey.Logger
+        elif str == "dataer":
+            return ComponentConfigKey.Dataer
         else:
             raise Exception(f"Unknown component key |{str}|")

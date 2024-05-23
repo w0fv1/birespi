@@ -30,8 +30,8 @@ class Birespi:
     def start(self) -> "Birespi":
         thread = threading.Thread(target=self.startReceive)
         thread.start()
-        asyncio_thread = threading.Thread(target=self.startWaitResponse)
-        asyncio_thread.start()
+        asyncioThread = threading.Thread(target=self.startWaitResponse)
+        asyncioThread.start()
         return self
 
     def process(self, danmu: LiveMessage[DanmuMessageData]):
@@ -50,8 +50,20 @@ class Birespi:
             await asyncio.sleep(0.1)
 
     async def replyDanmu(self, danmu: LiveMessage[DanmuMessageData]):
+        data: str = await self.componentManager.dataer.getSimilarity(danmu.data.content)
         answer: str = await self.componentManager.chatter.answer(
-            danmu.fromUser + "说:" + danmu.data.content
+            f"""
+你可以参考的数据是: {data}
+
+当弹幕内容与数据无关时, 不要引用数据进行回答.
+当弹幕内容与数据无关时, 不要引用数据进行回答.
+
+-------
+
+{danmu.fromUser} 说: "{danmu.data.content}".
+
+请你回答弹幕
+            """
         )
         self.setLastTalk(danmu, answer)
         sound = await self.componentManager.speaker.speak(answer)
@@ -63,7 +75,8 @@ class Birespi:
             if d.bId == bId:
                 danmu = d
                 break
-        await self.replyDanmu(danmu)
+        if danmu != None:
+            await self.replyDanmu(danmu)
 
     def startWaitResponse(self):
         asyncio.run(self.waitResponse())

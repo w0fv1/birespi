@@ -33,7 +33,7 @@ class OpenaiChatterConfig(BaseConfig):
         self.temperature = temperature
 
     @staticmethod
-    def fromJson(json: dict):
+    def fromDict(json: dict):
         return OpenaiChatterConfig(
             systemPrompt=json["systemPrompt"],
             apiKey=json["apiKey"],
@@ -48,7 +48,7 @@ class OpenaiChatter(BaseChatter):
     client: AsyncOpenAI
 
     def __init__(self, configDict: dict) -> None:
-        self.config = OpenaiChatterConfig.fromJson(configDict)
+        self.config = OpenaiChatterConfig.fromDict(configDict)
         self.client = AsyncOpenAI(api_key=self.config.apiKey, base_url=self.config.host)
 
     async def answer(self, question: str) -> str:
