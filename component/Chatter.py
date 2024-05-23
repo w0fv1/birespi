@@ -47,19 +47,30 @@ class OpenaiChatter(BaseChatter):
     config: OpenaiChatterConfig = None
     client: AsyncOpenAI
 
+    cache = {}
+
     def __init__(self, configDict: dict) -> None:
         self.config = OpenaiChatterConfig.fromDict(configDict)
         self.client = AsyncOpenAI(api_key=self.config.apiKey, base_url=self.config.host)
 
     async def answer(self, question: str) -> str:
+
+        messages = [
+            {"role": "system", "content": self.config.systemPrompt},
+            {
+                "role": "user",
+                "content": question,
+            },
+        ]
+
+        messageStr = str(messages)
+
+        cache = self.getCache(messageStr)
+        if cache is not None:
+            return cache
+
         chat_completion = await self.client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": self.config.systemPrompt},
-                {
-                    "role": "user",
-                    "content": question,
-                },
-            ],
+            messages=messages,
             model=self.config.model,
             temperature=self.config.temperature,
         )
@@ -67,6 +78,17 @@ class OpenaiChatter(BaseChatter):
         for message in chat_completion.choices:
             result += message.message.content
         return result
+
+    def getCache(self, key: str) -> str:
+        # 计算key的hash值
+        keyHash = hash(key)
+        if keyHash not in self.cache:
+            return None
+        return self.cache.get(keyHash, None)
+
+    def setCache(self, key: str, value: str) -> str:
+        keyHash = hash(key)
+        self.cache[keyHash] = value
 
 
 class WebChatter(BaseChatter):
