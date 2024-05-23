@@ -92,4 +92,5 @@ class BiliOpenLiveEventReceiver(BaseLiveEventReceiver):
             uid=self.biliClient.uid,
             title="",
             cover="",
+            isConnected=self.biliClient.getStatus()["isConnected"],
         )

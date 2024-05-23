@@ -106,9 +106,11 @@ class BiliClient:
 
         self.aioHttpSession = ClientSession()
         await self.connect()
+
         asyncio.create_task(self.heartBeat())
         asyncio.create_task(self.appheartBeat())
-        
+        asyncio.create_task(self.reAlive())
+
         # await self.heartBeat()
         # await self.appheartBeat()
         print("BiliClient start")
@@ -207,8 +209,30 @@ class BiliClient:
         self.uname = str(liveInfo["data"]["anchor_info"]["uname"])
         self.uface = str(liveInfo["data"]["anchor_info"]["uface"])
         self.uid = str(liveInfo["data"]["anchor_info"]["uid"])
-        
+
         return liveInfo
+
+    async def reAlive(self):
+        print("reAlive start")
+        while True:
+            try:
+                await asyncio.sleep(10)
+
+                #  检查websocket是否存活
+                if self.websocket.sock.connected:
+                    print("websocket is alive")
+                    continue
+                print("reAlive reconnect")
+                await self.connect()
+
+                print("reAlive success")
+            except Exception as e:
+                print(f"reAlive error: {e}")
+
+    def getStatus(self):
+        return {
+            "isConnected": self.websocket.sock.connected,
+        }
 
     async def heartBeat(self):
         print("heartBeat start")

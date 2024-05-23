@@ -172,8 +172,8 @@
                                         <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
                                     </template>
                                     <template x-if="danmu.userAvatar">
-                                        <img class="userAvatar" x-bind:src="'/proxy/?url='+danmu.userAvatar" class="rounded me-2"
-                                            alt="用户头像">
+                                        <img class="userAvatar" x-bind:src="'/proxy/?url='+danmu.userAvatar"
+                                            class="rounded me-2" alt="用户头像">
                                     </template>
                                     &nbsp;
                                     <strong class="me-auto" x-text="danmu.fromUser"></strong>
@@ -217,10 +217,11 @@
                                         直播间信息
                                     </div>
                                     <div class="card-body d-flex flex-column ">
-                                        <img style="height: 64px; width: 64px;" class="userAvatar m-auto" :src="'/proxy/?url='+liveRoomInfo.uavatar" 
-                                            class="rounded m-auto" alt="用户头像">
+                                        <img style="height: 64px; width: 64px;" class="userAvatar m-auto"
+                                            :src="'/proxy/?url='+liveRoomInfo.uavatar" class="rounded m-auto"
+                                            alt="用户头像">
                                         <table class="table">
-                                            
+
                                             <tbody>
                                                 <tr>
                                                     <th scope="row"></th>
@@ -238,7 +239,22 @@
                                                     <th scope="row">直播间ID</th>
                                                     <td> <span x-text="liveRoomInfo.roomId"></span></td>
                                                 </tr>
+                                                <tr>
+                                                    <th scope="row">Birespi直播间连接状态</th>
+                                                    <td>
 
+                                                        <template x-if="liveRoomInfo.isConnected">
+                                                            <div>
+                                                                <span class="badge bg-success">已连接</span>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="!liveRoomInfo.isConnected">
+                                                            <div>
+                                                                <span class="badge bg-danger">未连接</span>
+                                                            </div>
+                                                        </template>
+                                                    </td>
+                                                </tr>
                                             </tbody>
                                         </table>
 

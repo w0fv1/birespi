@@ -1,5 +1,7 @@
 import datetime
+import signal
 import threading
+import time
 from fastapi import Depends, FastAPI
 import uvicorn
 from base_component.Closer import getCloser
@@ -17,6 +19,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 import aiohttp
 import io
+import subprocess
 
 
 class BirespiBackendConfig:
@@ -34,13 +37,27 @@ class BirespiBackendConfig:
 
 
 class BirespiApi:
+    server_process = None
     api = FastAPI()
 
     def __init__(self) -> None:
         pass
 
-    def start(self) -> "BirespiApi":
+    def restart(self):
+        getLogger().logInfo("Restarting backend server")
+        print("Restarting backend server",self.server_process )
+        if self.server_process != None:
+            getLogger().logInfo("Killing backend server")
+            self.server_process.send_signal(signal.SIGINT)
+            time.sleep(1)
+            self.server_process.terminate()
+            time.sleep(1)
+            self.server_process.kill()
+            getLogger().logInfo("Backend server killed")
+        getLogger().logInfo("Starting backend server")
+        self.start()
 
+    def start(self) -> "BirespiApi":
         LOGGING_CONFIG["handlers"]["file-default"] = {
             "formatter": "default",
             "class": "logging.FileHandler",
@@ -69,6 +86,7 @@ class BirespiApi:
                 "log_level"
             ],  #  "log_level": "DEBUG",
         )
+        
         return self
 
     @api.get("/")
@@ -189,9 +207,6 @@ class BirespiApi:
 
     @api.post("/api/config/component/{componentKeyStr}/subtype/{subtype}")
     def setComponentConfig(componentKeyStr: str, subtype: str, config: Dict) -> dict:
-        print("componentKey", componentKeyStr)
-        print("subtype", subtype)
-        print("config", config)
         componentKey = ComponentConfigKey.fromStr(componentKeyStr)
         getConfig().setComponentConfig(componentKey, subtype, config["config"])
 
@@ -201,9 +216,9 @@ class BirespiApi:
         ):
             getConfig().setComponentType(componentKey, subtype)
 
-
         getBirespi().reloadComponent(componentKey)
-
+        if componentKey == ComponentConfigKey.WebUi:
+            getBirespiBackend().api.restart()
         getConfig().saveJsonConfig()
         return {"code": 0}
 
@@ -242,3 +257,7 @@ class BirespiBackendHolder:
 
 
 birespiBackendHolder = BirespiBackendHolder()
+
+
+def getBirespiBackend() -> BirespiBackend:
+    return birespiBackendHolder.get()
