@@ -70,10 +70,7 @@
                             const lastTalkBirespi = getLastTalkResult.data.lastTalkBirespi;
                             this.lastTalkBirespi = lastTalkBirespi;
                         }
-
-
-
-                    }, 2000);
+                    }, 700);
                     const getLiveRoomInfoResult = await getLiveRoomInfo();
                     if (getLiveRoomInfoResult.code == 0) {
                         const liveRoomInfo = getLiveRoomInfoResult.data;
@@ -87,8 +84,11 @@
                         console.log('回复成功');
                     }
                 },
-                async sendTestDanmu() {
-                    const sendTestDanmuResult = await sendTestDanmu("这是一条测试弹幕");
+                async sendTestDanmu(content) {
+                    if (!content) {
+                        content = '这是一条测试弹幕';
+                    }
+                    const sendTestDanmuResult = await sendTestDanmu(content);
                     if (sendTestDanmuResult.code == 0) {
                         console.log('发送成功');
                     }
@@ -130,7 +130,7 @@
 
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Birespi后台</a>
+            <a class="navbar-brand" href="/">Birespi后台</a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -145,6 +145,11 @@
                 </ul>
             </div>
         </div>
+        <!-- 增加GitHub的连接 -->
+        <div>
+            <button class="btn btn-text btn-lg me-1" @click="window.open('https://github.com/w0fv1/birespi')"><i class="bi bi-github"></i></button>
+        </div>
+
     </nav>
 
     <main class="main d-flex flex-column">
@@ -152,7 +157,12 @@
             <div class="col-3">
                 <div class="card h-100 ">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <div class="cursor-pointer" @click="sendTestDanmu()">弹幕</div>
+                        <div>
+                            <span class="cursor-pointer" @click="sendTestDanmu()">弹幕</span>
+                            <button type="button" class="btn btn-text btn-sm" @click="
+                            sendTestDanmu( prompt('请输入弹幕内容'));">发送测试弹幕</button>
+                        </div>
+
                         <div>
                             <label class="form-check-label" for="flexCheckDefault">
                                 自动滚到底部
@@ -218,13 +228,13 @@
                                     </div>
                                     <div class="card-body d-flex flex-column ">
                                         <div class="d-flex flex-column align-items-center">
-                                            <img style="height: 64px; width: 64px;margin-bottom: 10px;"
+                                            <img style="height: 64px; width: 64px;margin-bottom: 6px;"
                                                 class="userAvatar" :src="'/proxy/?url='+liveRoomInfo.uavatar"
                                                 alt="用户头像">
-                                            <span class=" badge text-bg-secondary cursor-pointer"
-                                            @click="window.open('https://live.bilibili.com/'+liveRoomInfo.roomId)"
-                                            
-                                            >查看直播</span>
+                                            <span class="badge text-bg-secondary cursor-pointer"
+                                                @click="window.open('https://live.bilibili.com/'+liveRoomInfo.roomId)">
+                                                查看直播间
+                                            </span>
                                         </div>
 
                                         <table class="table">
@@ -244,7 +254,9 @@
                                                 </tr>
                                                 <tr>
                                                     <th scope="row">直播间ID</th>
-                                                    <td> <span x-text="liveRoomInfo.roomId"></span></td>
+                                                    <td> <a class="  cursor-pointer" x-text="liveRoomInfo.roomId"
+                                                            @click="window.open('https://live.bilibili.com/'+liveRoomInfo.roomId)"></a>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <th scope="row">Birespi直播间连接状态</th>
