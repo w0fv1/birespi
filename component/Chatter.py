@@ -77,6 +77,9 @@ class OpenaiChatter(BaseChatter):
         result = ""
         for message in chat_completion.choices:
             result += message.message.content
+
+        self.setCache(messageStr, result)
+
         return result
 
     def getCache(self, key: str) -> str:
