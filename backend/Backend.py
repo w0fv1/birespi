@@ -224,6 +224,8 @@ class BirespiApi:
 
     @api.get("/proxy/")
     async def proxy_image(url: str):
+        if not url.startswith("http"):
+            raise HTTPException(status_code=400, detail="Invalid URL")
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status != 200:
