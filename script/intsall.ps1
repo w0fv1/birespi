@@ -1,3 +1,7 @@
+$scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+Set-Location -Path $scriptDir
+Set-Location -Path (Get-Item -Path "..").FullName
+
 # 创建Python虚拟环境
 Write-Host "正在创建Python虚拟环境..."
 python -m venv venv

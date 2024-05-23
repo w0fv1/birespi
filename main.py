@@ -3,11 +3,11 @@ import time
 import warnings
 
 warnings.filterwarnings("ignore")
-from base_component.Logger import BLogger, bLoggerHolder, getLogger
+from system.Logger import BLogger, bLoggerHolder, getLogger
 import asyncio
 import threading
-from Birespi import Birespi, biRespiHolder
-from config import BiRespiConfig, birespiConfigHolder, getConfig
+from system.Birespi import Birespi, biRespiHolder
+from system.Config import BiRespiConfig, birespiConfigHolder, getConfig
 from backend.Backend import BirespiBackend, birespiBackendHolder
 from util.ConfigUtil import getArgConfigPath, loadJson
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+scriptDir=$(dirname "$0")
+cd "$scriptDir"
+cd ..
 # 创建Python虚拟环境
 echo "正在创建Python虚拟环境..."
 python -m venv venv

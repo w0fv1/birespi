@@ -1,5 +1,7 @@
 #!/bin/bash
-
+scriptDir=$(dirname "$0")
+cd "$scriptDir"
+cd ..
 # 设置虚拟环境的路径
 venvPath="./venv/bin/activate"
 echo "检查默认虚拟环境路径..."

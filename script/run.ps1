@@ -1,3 +1,8 @@
+$scriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
+Set-Location -Path $scriptDir
+Set-Location -Path (Get-Item -Path "..").FullName
+
+
 # 设置虚拟环境的路径
 $venvPath = ".\venv\Scripts\Activate.ps1"
 Write-Host "检查虚拟环境路径..."

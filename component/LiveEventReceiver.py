@@ -3,7 +3,7 @@ from typing import Callable
 import time
 
 from base_component.BiliClient import BiliClient
-from base_component.Logger import getLogger
+from system.Logger import getLogger
 from component.BaseConfig import BaseConfig
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from model.LiveRoomInfo import LiveRoomInfo

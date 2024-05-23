@@ -5,12 +5,12 @@ import time
 from fastapi import Depends, FastAPI
 import uvicorn
 from base_component.Closer import getCloser
-from base_component.Logger import BLogger, getLogger
-from Birespi import biRespiHolder, getBirespi
+from system.Logger import BLogger, getLogger
+from system.Birespi import biRespiHolder, getBirespi
 from model.JsonDict import JsonDict
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from fastapi.responses import FileResponse, HTMLResponse
-from config import BiRespiConfig, birespiConfigHolder, getConfig
+from system.Config import BiRespiConfig, birespiConfigHolder, getConfig
 from uvicorn.config import LOGGING_CONFIG
 
 from value.ComponentConfigKey import ComponentConfigKey

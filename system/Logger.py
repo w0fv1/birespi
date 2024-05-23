@@ -2,7 +2,7 @@ import inspect
 import logging
 import datetime
 import os
-from config import getConfig
+from system.Config import getConfig
 
 
 class BLogger:

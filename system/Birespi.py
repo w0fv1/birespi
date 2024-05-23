@@ -2,8 +2,8 @@ import asyncio
 from collections import deque
 import threading
 from typing import Optional
-from base_component.Logger import getLogger
-from config import getConfig
+from system.Logger import getLogger
+from system.Config import getConfig
 from model.LiveRoomInfo import LiveRoomInfo
 from model.Talk import Talk
 from util.Queue import FastConsumptionQueue
