@@ -1,4 +1,5 @@
 import inspect
+import json
 import logging
 import datetime
 import os
@@ -56,6 +57,9 @@ class BLogger:
 
     def logInfo(self, message):
         self.log.info(message)
+
+    def logJsonInfo(self, message):
+        self.log.info(json.dumps(message, ensure_ascii=False, indent=4))
 
     def logError(self, message):
         self.log.error(message)

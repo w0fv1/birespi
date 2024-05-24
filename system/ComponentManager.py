@@ -1,5 +1,9 @@
 from component.Chatter import BaseChatter, OpenaiChatter, WebChatter
-from component.LiveEventReceiver import BaseLiveEventReceiver, BiliOpenLiveEventReceiver
+from component.LiveEventReceiver import (
+    BaseLiveEventReceiver,
+    BiliOpenLiveEventReceiver,
+    ThirdLiveEventReceiver,
+)
 from component.SoundPlayer import (
     BasePlayer,
     MiniPlayer,
@@ -60,6 +64,8 @@ class ComponentManager:
     def buildLiveEventReceiver(self, config: dict) -> BaseLiveEventReceiver:
         if config["type"] == "BiliOpenLiveEventReceiver":
             return BiliOpenLiveEventReceiver(config[config["type"]])
+        elif config["type"] == "ThirdLiveEventReceiver":
+            return ThirdLiveEventReceiver(config[config["type"]])
         else:
             raise Exception("不支持的弹幕接收器类型")
 

@@ -151,7 +151,7 @@ class BirespiApi:
         return {"code": 0, "data": {"log": getLogger().getLog(logFilename)}}
 
     @api.get("/api/live-room-info")
-    def getLiveRoomInfo() -> dict:
+    async def getLiveRoomInfo() -> dict:
         return {"code": 0, "data": getBirespi().getLiveRoomInfo()}
 
     @api.get("/api/config/component-keys")

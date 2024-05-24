@@ -83,6 +83,11 @@ class BiRespiConfig:
                 "secret": "",  # access_key_secret
                 "host": "",
             },
+            "ThirdLiveEventReceiver": {
+                "username": "",
+                "password": "",
+                "roomId": 0,
+            },
         },
         ComponentConfigKey.WebUi: {
             "username": "admin",
@@ -126,18 +131,19 @@ class BiRespiConfig:
             componentConfigKey: ComponentConfigKey = ComponentConfigKey.fromStr(
                 componentConfigKeyStr
             )
-            type = ""
             if "type" in componentConfig.keys():
                 type = componentConfig["type"]
+                self.birespiConfig[componentConfigKey]["type"] = type
 
-            config = componentConfig
-            if "type" in componentConfig.keys():
-                config = componentConfig[type]
-            self.setComponentConfig(
-                componentConfigKey,
-                type,
-                config,
-            )
+            print("componentConfig",componentConfig)
+
+            for subType in componentConfig.keys():
+                if subType == "type":
+                    continue
+                print(f"subType: {subType}")
+                # print(f"componentConfig[subType]: {componentConfig[subType]}")
+                self.setComponentConfig(componentConfigKey, subType, componentConfig[subType])
+
 
     def setComponentConfig(
         self, componentConfigKey: ComponentConfigKey, type: str, config: dict
@@ -146,12 +152,12 @@ class BiRespiConfig:
         if componentConfigKey not in self.birespiConfig.keys():
             self.birespiConfig[componentConfigKey] = {}
 
-        if (
-            componentConfigKey == ComponentConfigKey.WebUi
-            or componentConfigKey == ComponentConfigKey.Logger
-        ):
-            self.birespiConfig[componentConfigKey] = config
-            return
+        # if (
+        #     componentConfigKey == ComponentConfigKey.WebUi
+        #     or componentConfigKey == ComponentConfigKey.Logger
+        # ):
+        #     self.birespiConfig[componentConfigKey] = config
+        #     return
 
         self.birespiConfig[componentConfigKey][type] = config
 

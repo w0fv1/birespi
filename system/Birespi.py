@@ -100,7 +100,7 @@ class Birespi:
         return self.lastTalk
 
     def getLiveRoomInfo(self) -> LiveRoomInfo:
-        return self.componentManager.LiveEventReceiver.getLiveRoomInfo()
+        return  self.componentManager.LiveEventReceiver.getLiveRoomInfo()
 
 
 class BirespiHolder:
