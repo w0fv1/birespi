@@ -6,8 +6,10 @@
 
 # 计划
 
-1. 1.0目标成为一个好用实用的直播间互动应答姬Bot, 面向普通用户, 目标是提高易用性, 降低门槛, 提供更多的功能
-2. 2.0将硬分叉出一个直播间互动开发框架, 1.0的应答姬bot将继续维护. 另一个分支将框架化, 面向开发者, 提供更多的开发api.
+1. 1.0目标成为一个好用实用的直播间互动应答姬Bot, 面向普通用户, 目标是提高易用性,
+   降低门槛, 提供更多的功能
+2. 2.0将硬分叉出一个直播间互动开发框架, 1.0的应答姬bot将继续维护.
+   另一个分支将框架化, 面向开发者, 提供更多的开发api.
 
 # 受众
 
@@ -89,18 +91,42 @@ copy config.example.py config.py
 
 请修改`config.example.json`, 不然应答姬无法正常运行!
 
-其中一定需要修改的值有chatter.OpenaiChatter的apiKey,host和live_event_receiver.BiliOpenLiveEventReceiver的idCode,appId,key,secret：
+config的格式为json:
 
-| 必填配置项                                  | 说明                        |
-| ------------------------------------------- | --------------------------- |
-| chatter.OpenaiChatter.apiKey                | OpenAI协议的API Key         |
-| chatter.OpenaiChatter.host                  | OpenAI协议的API Host        |
-| live_event_receiver.BiliOpenLiveEventReceiver.idCode | B站直播间ID                 |
-| live_event_receiver.BiliOpenLiveEventReceiver.appId  | B站直播间appId              |
-| live_event_receiver.BiliOpenLiveEventReceiver.key    | B站开放平台互动直播的key    |
-| live_event_receiver.BiliOpenLiveEventReceiver.secret | B站开放平台互动直播的secret |
+```json
+{
+  "chatter": { //这里是配置chatter组件的参数
+    "type": "OpenaiChatter", // 这里是chatter的类型, 目前就一个OpenaiChatter
+    "OpenaiChatter": { //这里是OpenaiChatter的配置
+      "systemPrompt": "", //这里是系统提示, 根据需要填写
+      "apiKey": "需要填写apiKey", //这里是OpenAI对话协议的API Key
+      "host": "https://api.openai.com", //这里是OpenAI对话协议的的API Host
+      "model": "gpt-3.5-turbo", //这里是OpenAI对话协议的的模型
+      "temperature": 1.2 //这里是OpenAI对话协议的的温度
+    }
+  },
+  "live_event_receiver": { //这里是配置直播事件接收器的参数
+    "type": "BiliOpenLiveEventReceiver", //这里是直播事件接收器的类型, 目前有两个BiliOpenLiveEventReceiver, 这个是官方的B站直播事件接收器, ThirdLiveEventReceiver, 这个是第三方的直播事件接收器
+    "BiliOpenLiveEventReceiver": { //这里是BiliOpenLiveEventReceiver的配置
+      "idCode": "需要填写idCode", //这里是B站直播间的身份码在https://play-live.bilibili.com/的右下角去看
+      "appId": 0, //这里是B站直播间appId, 去B站开放平台互动直播申请
+      "key": "需要填写key", //这里是B站开放平台互动直播的key
+      "secret": "需要填写secret", //这里是B站开放平台互动直播的secret
+      "host": "https://live-open.biliapi.com" //这里是B站开放平台互动直播的host,一般不需要修改
+    },
+    "ThirdLiveEventReceiver": {
+      "username": "需要填写username", //这里是需要填写username, 电话或者邮箱
+      "password": "需要填写password", //这里是需要填写你的密码
+      "roomId": 0, //这里是需要填写你的直播间ID,在直播间的url中可以找到
+      "buvid3": "需要去浏览器寻找cookie中的buvid3然后填写" //这里是需要填写你的buvid3, 在浏览器的cookie中可以找到. 在浏览器中按F12, 然后找到应用程序, cookie, 找到https://www.bilibili.com 找到buvid3, 然后复制过来
+    }
+  }
+}
+```
 
-其他配置通常情况下不需要修改, 如果有需要, 请看config.py
+其中一定需要修改的值有chatter.OpenaiChatter的apiKey,host和live_event_receiver.BiliOpenLiveEventReceiver的idCode,appId,key,secret或者live_event_receiver.ThirdLiveEventReceiver的username,password,roomId,buvid3,找到你使用的直播平台的配置,然后填写.
+
+其他配置通常情况下不需要修改, 如果有需要, 请看`system/config.py`文件, 里面有所有的配置项.
 
 ### 3. 运行
 
