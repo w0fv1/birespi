@@ -41,7 +41,7 @@
                     const getConfigResult = await getConfig();
                     if (getConfigResult.code === 0) {
                         this.config = getConfigResult.data.config;
-                       
+
                     }
                 },
                 async changeComponentSubtypeConfig(componentKey, componentSubType) {
@@ -57,7 +57,7 @@
                     const componentConfig = this.config[componentKey].componentConfig;
                     const applyComponentConfigResult = await setComponentConfig(
                         componentKey, this.config[componentKey].componentCurrentSubType, componentConfig);
-                    
+
                 }
             };
         }
@@ -93,8 +93,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/log">日志</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/data">资料库</a>
+                    </li>
                 </ul>
             </div>
+        </div>
+        <div>
+            <button class="btn btn-text btn-lg me-1" @click="window.open('https://github.com/w0fv1/birespi')"><i
+                    class="bi bi-github"></i></button>
         </div>
     </nav>
     <main class="main d-flex flex-column">
@@ -156,23 +163,33 @@
                                     </template> -->
 
                                     <div class="input-group mb-3">
-                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length > 40">
-                                            <textarea class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model="config[componentKey].componentConfig[configItemKey]"></textarea>
+                                        <template
+                                            x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length > 40">
+                                            <textarea class="form-control" x-bind:id="componentKey+'-'+configItemKey"
+                                                x-model="config[componentKey].componentConfig[configItemKey]"></textarea>
                                         </template>
-                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length <= 40">
-                                            <input type="text" class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model="config[componentKey].componentConfig[configItemKey]">
+                                        <template
+                                            x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length <= 40">
+                                            <input type="text" class="form-control"
+                                                x-bind:id="componentKey+'-'+configItemKey"
+                                                x-model="config[componentKey].componentConfig[configItemKey]">
                                         </template>
-                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'boolean'">
-                                            <select class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model.boolean="config[componentKey].componentConfig[configItemKey]">
+                                        <template
+                                            x-if="typeof config[componentKey].componentConfig[configItemKey] === 'boolean'">
+                                            <select class="form-control" x-bind:id="componentKey+'-'+configItemKey"
+                                                x-model.boolean="config[componentKey].componentConfig[configItemKey]">
                                                 <option :value="true">True</option>
                                                 <option :value="false">False</option>
                                             </select>
                                         </template>
-                                        <template x-if="typeof config[componentKey].componentConfig[configItemKey] === 'number'">
-                                            <input type="number" class="form-control" x-bind:id="componentKey+'-'+configItemKey" x-model.number="config[componentKey].componentConfig[configItemKey]">
+                                        <template
+                                            x-if="typeof config[componentKey].componentConfig[configItemKey] === 'number'">
+                                            <input type="number" class="form-control"
+                                                x-bind:id="componentKey+'-'+configItemKey"
+                                                x-model.number="config[componentKey].componentConfig[configItemKey]">
                                         </template>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </template>

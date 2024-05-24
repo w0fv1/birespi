@@ -100,8 +100,25 @@ class Birespi:
         return self.lastTalk
 
     def getLiveRoomInfo(self) -> LiveRoomInfo:
-        return  self.componentManager.LiveEventReceiver.getLiveRoomInfo()
+        return self.componentManager.LiveEventReceiver.getLiveRoomInfo()
 
+    def getComponentManager(self) -> ComponentManager:
+        return self.componentManager
+
+    def getDataFiles(self) -> list[str]:
+        return self.componentManager.dataer.getDataFiles()
+
+    def getData(self, filename: str) -> str:
+        return self.componentManager.dataer.getData(filename)
+
+    def updateData(self, filename: str, content: str):
+        self.componentManager.dataer.updateData(filename, content)
+
+    def uploadData(self, filename: str, content: str):
+        self.componentManager.dataer.uploadData(filename, content)
+
+    def deleteData(self, filename: str):
+        self.componentManager.dataer.deleteData(filename)
 
 class BirespiHolder:
     birespi: Birespi = None

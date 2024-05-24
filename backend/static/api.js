@@ -84,6 +84,92 @@ async function getLog(logFilename) {
     };
 }
 
+async function getDatas() {
+    const response = await fetch('/api/datas');
+    const data = await response.json();
+
+    const code = data.code;
+
+    if (code !== 0) {
+        return {
+            code: code,
+            msg: "error",
+            data: null
+        };
+    }
+
+    const datas = data.data;
+
+    return {
+        code: 0,
+        msg: "no error",
+        data: datas
+    };
+}
+
+async function getData(filename) {
+    const response = await fetch(`/api/data/${filename}`);
+    const data = await response.json();
+
+    const code = data.code;
+
+    if (code !== 0) {
+        return {
+            code: code,
+            msg: "error",
+            data: null
+        };
+    }
+
+    const dataD = data.data;
+
+    return {
+        code: 0,
+        msg: "no error",
+        data: dataD
+    };
+}
+
+async function saveData(filename, content) {
+    const response = await fetch(`/api/data/${filename}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "content": content })
+    });
+    const data = await response.json();
+
+    return {
+        code: 0,
+        msg: "no error"
+    };
+}
+
+async function deleteData(filename) {
+    const response = await fetch(`/api/data/${filename}`, {
+        method: 'DELETE'
+    });
+    const data = await response.json();
+
+    return {
+        code: 0,
+        msg: "no error"
+    };
+}
+// 使用表单
+async function uploadDataFile(formData) {
+    const response = await fetch(`/api/data`, {
+        method: 'POST',
+        body: formData
+    });
+    const data = await response.json();
+
+    return {
+        code: 0,
+        msg: "no error"
+    };
+}
 async function replyByBid(bid) {
     // post
     const response = await fetch(`/api/reply/${bid}`, {

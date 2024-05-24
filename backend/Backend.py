@@ -2,7 +2,7 @@ import datetime
 import signal
 import threading
 import time
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, File, UploadFile
 import uvicorn
 from base_component.Closer import getCloser
 from system.Logger import BLogger, getLogger
@@ -45,7 +45,7 @@ class BirespiApi:
 
     def restart(self):
         getLogger().logInfo("Restarting backend server")
-        print("Restarting backend server",self.server_process )
+        print("Restarting backend server", self.server_process)
         if self.server_process != None:
             getLogger().logInfo("Killing backend server")
             self.server_process.send_signal(signal.SIGINT)
@@ -86,7 +86,7 @@ class BirespiApi:
                 "log_level"
             ],  #  "log_level": "DEBUG",
         )
-        
+
         return self
 
     @api.get("/")
@@ -100,6 +100,10 @@ class BirespiApi:
     @api.get("/config")
     def index() -> FileResponse:
         return FileResponse("backend/config.html")
+
+    @api.get("/data")
+    def index() -> FileResponse:
+        return FileResponse("backend/data.html")
 
     @api.get("/static/{file_path:path}")
     def static_file(file_path: str) -> FileResponse:
@@ -149,6 +153,38 @@ class BirespiApi:
     @api.get("/api/log/{logFilename}")
     def getLog(logFilename: str) -> dict:
         return {"code": 0, "data": {"log": getLogger().getLog(logFilename)}}
+
+    @api.get("/api/datas")
+    def getDatas() -> dict:
+        return {"code": 0, "data": {"datas": getBirespi().getDataFiles()}}
+
+    @api.get("/api/data/{filename}")
+    def getData(filename: str) -> dict:
+        return {"code": 0, "data": {"data": getBirespi().getData(filename)}}
+
+    @api.put("/api/data/{filename}")
+    async def putData(filename: str, body: dict) -> dict:
+        getLogger().logInfo(f"Updating data {filename} {body}")
+        getBirespi().uploadData(filename, body["content"])
+        return {"code": 0}
+
+    @api.post("/api/data")
+    async def upload_file(file: UploadFile = File(...)):
+        contentByte = await file.read()
+        content = contentByte.decode("utf-8")
+        getBirespi().uploadData(file.filename, content)
+        return {"code": 0, "dara": {"filename": file.filename, "content": content}}
+
+    @api.delete("/api/data/{filename}")
+    async def deleteData(filename: str) -> dict:
+        getBirespi().deleteData(filename)
+        return {"code": 0}
+
+    # 表单上传一个文件
+    @api.post("/api/upload")
+    async def upload_file(file: UploadFile = File(...)):
+        content = await file.read()
+        return {"filename": file.filename, "content": content}
 
     @api.get("/api/live-room-info")
     async def getLiveRoomInfo() -> dict:
