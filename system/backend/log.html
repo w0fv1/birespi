@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birespi日志</title>
+    <script src="/static/alpine.js" defer></script>
+
+    <script src="/static/api.js"></script>
+    <script src="/static/util.js"></script>
+    <script src="/static/day.js"></script>
+    <script src="/static/bootstrap.js"></script>
+    <link href="/static/bootstrap.css" rel="stylesheet">
+    <link href="/static/bootstrap-docs.css" rel="stylesheet">
+
+    <link href="/static/style.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/bootstrap-icons.css">
+
+    <script>
+        function setMainHeight() {
+            const nav = document.querySelector('nav');
+            const main = document.querySelector('main');
+            const navHeight = nav.offsetHeight;
+            const windowHeight = window.innerHeight;
+            main.style.height = windowHeight - navHeight + 'px';
+        }
+
+        window.addEventListener('load', function () {
+            setMainHeight();
+        });
+
+        window.addEventListener('resize', function () {
+            setMainHeight();
+        });
+
+        function app() {
+            return {
+                logs: [],
+                logContent: '',
+                currentLog: '',
+                logContentAutoScroll: true,
+                async init() {
+                    const getLogsResult = await getLogs();
+                    if (getLogsResult.code === 0) {
+                        this.logs = getLogsResult.data.logs;
+                        if (this.logs.length > 0) {
+                            this.loadLogContent(this.logs[0]);
+                        }
+                    }
+                },
+                async loadLogContent(logFilename) {
+                    this.currentLog = logFilename;
+                    const getLogContentResult = await getLog(logFilename);
+                    if (getLogContentResult.code === 0) {
+                        this.logContent = getLogContentResult.data.log;
+                        if (this.logContentAutoScroll) {
+                            const logContent = document.getElementById('log_content');
+                            setTimeout(() => {
+                                logContent.scrollTop = logContent.scrollHeight;
+                            }, 100);
+                        }
+                    }
+                }
+            };
+        }
+
+    </script>
+
+    <style>
+        main {
+            padding: 24px;
+            overflow: hidden;
+            background-color: #ededed;
+        }
+
+        .log_content {
+            height: 0px;
+            overflow-y: scroll;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body x-data="app()" x-init="init()">
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Birespi后台</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/config">配置</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/log">日志</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/data">资料库</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-text btn-lg me-1" @click="window.open('https://github.com/w0fv1/birespi')"><i class="bi bi-github"></i></button>
+        </div>
+    </nav>
+
+    <main class="main d-flex flex-column">
+        <div class="row h-100">
+            <div class="col-3">
+                <div class="card h-100 ">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        日志
+
+                    </div>
+                    <div class="card-body">
+                        <template x-for="log in logs">
+                            <div class="alert alert-light cursor-pointer" role="alert" x-text="log" @click="loadLogContent(log)">
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card h-100 ">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>日志内容</div>
+                        <div>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                自动滚到底部
+                            </label>
+                            <input class="form-check-input" type="checkbox" x-model="logContentAutoScroll"
+                                x-on:click="logContentAutoScroll = ! logContentAutoScroll">
+                            <button type="button" class="btn btn-sm" aria-label="reply" @click="loadLogContent(currentLog)">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="log_content" class="card-body log_content" x-text="logContent">
+
+                    </div>
+                </div>
+            </div>
+    </main>
+</body>
+
+</html>

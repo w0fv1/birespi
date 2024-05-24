@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birespi后台</title>
+    <script src="/static/alpine.js" defer></script>
+
+    <script src="/static/api.js"></script>
+    <script src="/static/util.js"></script>
+    <script src="/static/day.js"></script>
+    <script src="/static/bootstrap.js"></script>
+    <link href="/static/bootstrap.css" rel="stylesheet">
+    <link href="/static/bootstrap-docs.css" rel="stylesheet">
+
+    <link href="/static/style.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/bootstrap-icons.css">
+    <script>
+
+        function setMainHeight() {
+            const nav = document.querySelector('nav');
+            const main = document.querySelector('main');
+            const navHeight = nav.offsetHeight;
+            const windowHeight = window.innerHeight;
+            main.style.height = windowHeight - navHeight + 'px';
+        }
+
+        window.addEventListener('load', function () {
+            setMainHeight();
+        });
+
+        window.addEventListener('resize', function () {
+            setMainHeight();
+        });
+
+        function app() {
+            return {
+                danmus: [],
+                danmuAutoScroll: true,
+                lastTalkBirespi: {
+                    content: '大家好呀~~'
+                },
+                lastTalkDanmu: {
+
+                },
+                liveRoomInfo: {
+
+                },
+                async init() {
+                    setInterval(async () => {
+                        danmuList = document.getElementById('danmu_list');
+
+                        const getDanmusResult = await getDanmus();
+                        if (getDanmusResult.code == 0) {
+
+                            const danmus = getDanmusResult.data.danmus;
+                            this.danmus = danmus;
+                            if (this.danmuAutoScroll) {
+                                danmuList.scrollTop = danmuList.scrollHeight;
+                            }
+
+                        }
+
+                        const getLastTalkResult = await getLastTalk();
+                        if (getLastTalkResult.code == 0) {
+                            const lastTalkDanmu = getLastTalkResult.data.lastTalkDanmu;
+                            this.lastTalkDanmu = lastTalkDanmu;
+                            const lastTalkBirespi = getLastTalkResult.data.lastTalkBirespi;
+                            this.lastTalkBirespi = lastTalkBirespi;
+                        }
+                    }, 700);
+                    const getLiveRoomInfoResult = await getLiveRoomInfo();
+                    if (getLiveRoomInfoResult.code == 0) {
+                        const liveRoomInfo = getLiveRoomInfoResult.data;
+                        this.liveRoomInfo = liveRoomInfo;
+                    }
+
+                },
+                async reply(bId) {
+                    const replyResult = await replyByBid(bId);
+                    if (replyResult.code == 0) {
+                        console.log('回复成功');
+                    }
+                },
+                async sendTestDanmu(content) {
+                    if (!content) {
+                        content = '这是一条测试弹幕';
+                    }
+                    const sendTestDanmuResult = await sendTestDanmu(content);
+                    if (sendTestDanmuResult.code == 0) {
+                        console.log('发送成功');
+                    }
+                },
+
+            };
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+        });
+
+
+    </script>
+
+    <style>
+        main {
+            padding: 24px;
+            overflow: hidden;
+            background-color: #ededed;
+        }
+
+        .userAvatar {
+            width: 30px;
+            height: 30px;
+            padding: 4px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
+
+        .danmu_list {
+            height: 0px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+
+<body x-data="app()">
+
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Birespi后台</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/config">配置</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/log">日志</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/data">资料库</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- 增加GitHub的连接 -->
+        <div>
+            <button class="btn btn-text btn-lg me-1" @click="window.open('https://github.com/w0fv1/birespi')"><i class="bi bi-github"></i></button>
+        </div>
+
+    </nav>
+
+    <main class="main d-flex flex-column">
+        <div class="row h-100">
+            <div class="col-3">
+                <div class="card h-100 ">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="cursor-pointer" @click="sendTestDanmu()">弹幕</span>
+                            <button type="button" class="btn btn-text btn-sm" @click="
+                            sendTestDanmu( prompt('请输入弹幕内容'));">发送测试弹幕</button>
+                        </div>
+
+                        <div>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                自动滚到底部
+                            </label>
+                            <input class="form-check-input" type="checkbox" x-model="danmuAutoScroll"
+                                x-on:click="danmuAutoScroll = ! danmuAutoScroll">
+                        </div>
+
+                    </div>
+                    <div id="danmu_list" class="card-body danmu_list">
+
+                        <template x-for="danmu in danmus">
+                            <div style="display: block; margin-bottom: 10px;" class="toast" role="alert"
+                                aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header">
+                                    <template x-if="!danmu.userAvatar">
+                                        <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                    </template>
+                                    <template x-if="danmu.userAvatar">
+                                        <img class="userAvatar" x-bind:src="'/proxy/?url='+danmu.userAvatar"
+                                            class="rounded me-2" alt="用户头像">
+                                    </template>
+                                    &nbsp;
+                                    <strong class="me-auto" x-text="danmu.fromUser"></strong>
+                                    <small x-text="dayjs(danmu.timestamp * 1000).format('HH:mm:ss')"></small>
+                                    &nbsp;
+                                    <button type="button" class="btn btn-sm" aria-label="reply"
+                                        @click="reply(danmu.bId)">
+                                        <i class="bi bi-reply"></i>
+                                    </button>
+                                    &nbsp;
+                                </div>
+                                <div class="toast-body" x-text="danmu.data.content">
+
+                                </div>
+                            </div>
+
+                        </template>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="row h-75 pb-2">
+                    <div class="card ps-0 pe-0">
+                        <div class="card-header">
+                            数据统计
+                        </div>
+                        <div class="card-body d-flex">
+                            <template x-if="liveRoomInfo&&Object.keys(liveRoomInfo).length !== 0">
+                                <iframe style="flex: 2;width: 700px;height: 100%; min-width: 500px; border-radius: 4px;"
+                                    :src="`https://www.bilibili.com/blackboard/live/live-activity-player.html?cid=`+liveRoomInfo.roomId+`&quality=0`"
+                                    frameborder="no" framespacing="0" scrolling="no" allow="autoplay; encrypted-media"
+                                    allowfullscreen="true">
+                                </iframe>
+
+                            </template>
+
+                            <div style="flex: 1;margin-left: 24px;">
+                                <div class="card">
+                                    <div class="card-header">
+                                        直播间信息
+                                    </div>
+                                    <div class="card-body d-flex flex-column ">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <img style="height: 64px; width: 64px;margin-bottom: 6px;"
+                                                class="userAvatar" :src="'/proxy/?url='+liveRoomInfo.uavatar"
+                                                alt="用户头像">
+                                            <span class="badge text-bg-secondary cursor-pointer"
+                                                @click="window.open('https://live.bilibili.com/'+liveRoomInfo.roomId)">
+                                                查看直播间
+                                            </span>
+                                        </div>
+
+                                        <table class="table">
+
+                                            <tbody>
+                                                <tr>
+                                                    <th scope="row"></th>
+                                                    <td> </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">主播名</th>
+                                                    <td> <span x-text="liveRoomInfo.uname"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">主播uid</th>
+                                                    <td> <span x-text="liveRoomInfo.uid"></span></td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">直播间ID</th>
+                                                    <td> <a class="  cursor-pointer" x-text="liveRoomInfo.roomId"
+                                                            @click="window.open('https://live.bilibili.com/'+liveRoomInfo.roomId)"></a>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">Birespi直播间连接状态</th>
+                                                    <td>
+
+                                                        <template x-if="liveRoomInfo.isConnected">
+                                                            <div>
+                                                                <span class="badge bg-success">已连接</span>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="!liveRoomInfo.isConnected">
+                                                            <div>
+                                                                <span class="badge bg-danger">未连接</span>
+                                                            </div>
+                                                        </template>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row h-25">
+                    <div class="card ps-0 pe-0">
+                        <div class="card-header">
+                            正在回复
+                        </div>
+                        <div class="card-body">
+                            <template x-if="Object.keys(lastTalkDanmu).length !== 0">
+                                <div class="mb-1  p-2 alert alert-light" role="alert">
+                                    <template x-if="!lastTalkDanmu.userAvatar">
+                                        <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                    </template>
+                                    <template x-if="lastTalkDanmu.userAvatar">
+                                        <img class="userAvatar" x-bind:src="'/proxy/?url='+lastTalkDanmu.userAvatar"
+                                            class="rounded me-2" alt="用户头像">
+                                    </template>
+                                    <strong x-text="lastTalkDanmu.fromUser + ': '"></strong>
+                                    <span x-text="lastTalkDanmu.content"></span>
+                                </div>
+                                <br>
+                            </template>
+                            <div class="mb-1 p-2 alert alert-primary" role="alert">
+                                <img class="userAvatar" src="/static/user.png" class="rounded me-2" alt="用户头像">
+                                <strong>Birespi:&nbsp;</strong>
+                                <span x-text="lastTalkBirespi.content">大家好呀~~</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </main>
+
+</body>
+
+</html>

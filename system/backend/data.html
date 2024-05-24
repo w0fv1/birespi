@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birespi资料</title>
+    <script src="/static/alpine.js" defer></script>
+
+    <script src="/static/api.js"></script>
+    <script src="/static/util.js"></script>
+    <script src="/static/day.js"></script>
+    <script src="/static/bootstrap.js"></script>
+    <link href="/static/bootstrap.css" rel="stylesheet">
+    <link href="/static/bootstrap-docs.css" rel="stylesheet">
+
+    <link href="/static/style.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/bootstrap-icons.css">
+
+    <script>
+        function setMainHeight() {
+            const nav = document.querySelector('nav');
+            const main = document.querySelector('main');
+            const navHeight = nav.offsetHeight;
+            const windowHeight = window.innerHeight;
+            main.style.height = windowHeight - navHeight + 'px';
+        }
+
+        window.addEventListener('load', function () {
+            setMainHeight();
+        });
+
+        window.addEventListener('resize', function () {
+            setMainHeight();
+        });
+
+        function app() {
+            return {
+                datas: [],
+                dataContent: '',
+                currentData: '',
+                dataContentAutoScroll: true,
+                async init() {
+                    const getDatasResult = await getDatas();
+                    if (getDatasResult.code === 0) {
+                        this.datas = getDatasResult.data.datas;
+                        if (this.datas.length > 0) {
+                            this.loadDataContent(this.datas[0]);
+                        }
+                    }
+                },
+                async loadDataContent(dataFilename) {
+                    this.currentData = dataFilename;
+                    const getDataContentResult = await getData(dataFilename);
+                    if (getDataContentResult.code === 0) {
+                        this.dataContent = getDataContentResult.data.data;
+                        if (this.dataContentAutoScroll) {
+                            const dataContent = document.getElementById('data_content');
+                            setTimeout(() => {
+                                dataContent.scrollTop = dataContent.scrollHeight;
+                            }, 100);
+                        }
+                    }
+                },
+                async saveDataContent() {
+                    const dataContent = this.dataContent;
+                    const currentData = this.currentData;
+                    const saveDataResult = await saveData(currentData, dataContent);
+                    if (saveDataResult.code === 0) {
+                        alert('保存成功');
+                        await this.loadDataContent(currentData);
+                    } else {
+                        alert('保存失败');
+                    }
+                },
+                async deleteData(dataFilename) {
+                    const deleteDataResult = await dele
+                    teData(dataFilename);
+                    if (deleteDataResult.code === 0) {
+                        alert('删除成功');
+                        await this.init();
+                    } else {
+                        alert('删除失败');
+                    }
+                },
+                async uploadDataFile() {
+                    const file = document.getElementById('data_file').files[0];
+                    if (!file) {
+                        alert('请选择文件');
+                        return;
+                    }
+                    // 检查文件大小,如果超过200kb则提示不上传
+
+                    if (file.size > 200 * 1024) {
+                        alert('文件大小超过200kb,请压缩后上传');
+                        return;
+                    }
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const uploadDataFileResult = await uploadDataFile(formData);
+                    if (uploadDataFileResult.code === 0) {
+                        alert('上传成功');
+                        await this.init();
+                    } else {
+                        alert('上传失败');
+                    }
+                }
+            };
+        }
+
+    </script>
+
+    <style>
+        main {
+            padding: 24px;
+            overflow: hidden;
+            background-color: #ededed;
+        }
+
+        .data_content {
+            height: 0px;
+            overflow-y: scroll;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body x-data="app()">
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Birespi后台</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/config">配置</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/log">日志</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/data">资料库</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <button class="btn btn-text btn-lg me-1" @click="window.open('https://github.com/w0fv1/birespi')"><i
+                    class="bi bi-github"></i></button>
+        </div>
+    </nav>
+
+    <main class="main d-flex flex-column">
+        <div class="row h-100">
+            <div class="col-3">
+                <div class="card h-100 ">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        资料库
+                        <!-- 上传文件 -->
+
+                        <div>
+                            <label for="data_file" class="btn btn-primary btn-sm">上传文件</label>
+                            <input type="file" id="data_file" class="d-none" @change="uploadDataFile">
+                        </div>
+
+                    </div>
+                    <div class="card-body">
+                        <template x-for="data in datas">
+                            <div>
+                                <div class="alert alert-light cursor-pointer d-flex justify-content-between align-items-center"
+                                    role="alert" @click="loadDataContent(data)">
+                                    <span x-text="data"></span>
+                                    <button type="button" class="btn btn-sm" aria-label="delete"
+                                        @click="deleteData(data)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="card h-100 ">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>资料内容</div>
+                        <div>
+
+                            <label class="form-check-label" for="flexCheckDefault">
+                                自动滚到底部
+                            </label>
+                            <input class="form-check-input" type="checkbox" x-model="dataContentAutoScroll"
+                                x-on:click="dataContentAutoScroll = ! dataContentAutoScroll">
+                            <button type="button" class="btn btn-sm" aria-label="reply"
+                                @click="loadDataContent(currentData)">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+
+                            <button type="button" class="btn btn-primary btn-sm" aria-label="save"
+                                @click="saveDataContent">
+                                保存&nbsp;&nbsp;
+                                <i class="bi bi-save"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body ">
+                        <textarea id="data_content" style="height: 100%;width: 100%;"
+                            @change="dataContent = $event.target.value" x-text="dataContent">
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+    </main>
+</body>
+
+</html>

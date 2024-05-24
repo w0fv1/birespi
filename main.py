@@ -8,7 +8,7 @@ import asyncio
 import threading
 from system.Birespi import Birespi, biRespiHolder
 from system.Config import BiRespiConfig, birespiConfigHolder, getConfig
-from backend.Backend import BirespiBackend, birespiBackendHolder
+from system.backend.Backend import BirespiBackend, birespiBackendHolder
 from util.ConfigUtil import getArgConfigPath, loadJson
 
 
