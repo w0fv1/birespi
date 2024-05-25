@@ -185,15 +185,9 @@ python main.py config=/path/to/config.json
 # TODO
 
 1. 增加gpt-sovits的部署和支持
-2. 增加第三方的弹幕接入
-3. 增加管理界面
-   1. 查看弹幕
-   2. 查看回复
-   3. 查看状态
-   4. 修改配置
-   5. 查看日志
-4. 更好的打包, 例如exe, docker等
-5. 更好的文档
+2. 更好的打包, 例如exe, docker等
+3. 更好的文档
+4. 形象界面
 
 # 最后
 
