@@ -284,3 +284,20 @@ async function setComponentConfig(componentType, subtype, componentConfig) {
         msg: "no error"
     };
 }
+
+async function getTaskManagerInfo() {
+    const response = await fetch('/api/task-manager/info');
+    const data = await response.json();
+
+    if (data.code !== 0) {
+        return {
+            code: code,
+            msg: "error"
+        };
+    }
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    };
+}
