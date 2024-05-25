@@ -2,19 +2,22 @@ import asyncio
 from collections import deque
 import threading
 from typing import Optional
+from model.Task import Task, TaskType
 from system.Logger import getLogger
 from system.Config import getConfig
 from model.LiveRoomInfo import LiveRoomInfo
 from model.Talk import Talk
+from system.TaskManager import TaskManager
 from util.Queue import FastConsumptionQueue
-from model.LiveEventMessage import LiveMessage, DanmuMessageData
+from model.LiveEventMessage import LiveEvent, LiveMessage, DanmuMessageData
 from system.ComponentManager import ComponentManager
 from value.ComponentConfigKey import ComponentConfigKey
 
 
 class Birespi:
     componentManager: ComponentManager = ComponentManager()
-    danmuQueue = FastConsumptionQueue[LiveMessage[DanmuMessageData]]()
+
+    taskManager: TaskManager = TaskManager()
     danmuDisplayqueue: deque[LiveMessage[DanmuMessageData]] = deque()
     lastTalk: tuple[Talk, Talk] = (None, None)
     liveRoomInfo: LiveRoomInfo = None
@@ -28,31 +31,14 @@ class Birespi:
         self.componentManager.build(componentConfigKey)
 
     def start(self) -> "Birespi":
-        thread = threading.Thread(target=self.startReceive)
-        thread.start()
-        asyncioThread = threading.Thread(target=self.startWaitResponse)
-        asyncioThread.start()
-        return self
+        async def replyDanmu(danmuTask: Task[LiveMessage[DanmuMessageData]]):
+            danmu: LiveMessage[DanmuMessageData] = danmuTask.taskData.getData()
 
-    def process(self, danmu: LiveMessage[DanmuMessageData]):
-        self.insertDanmu(danmu)
-
-    async def waitResponse(self):
-        while True:
-            danmu: Optional[LiveMessage[DanmuMessageData]] = self.danmuQueue.pop()
-            if danmu == None:
-                # getLogger().logInfo(f"等待弹幕....")
-                await asyncio.sleep(1)
-                continue
-            getLogger().logInfo(f"接受一条弹幕: {danmu.data.content}")
-            await self.replyDanmu(danmu)
-
-            await asyncio.sleep(0.1)
-
-    async def replyDanmu(self, danmu: LiveMessage[DanmuMessageData]):
-        data: str = await self.componentManager.dataer.getSimilarity(danmu.data.content)
-        answer: str = await self.componentManager.chatter.answer(
-            f"""
+            data: str = await self.componentManager.dataer.getSimilarity(
+                danmu.data.content
+            )
+            answer: str = await self.componentManager.chatter.answer(
+                f"""
 你可以参考的数据是: {data}
 
 当弹幕内容与数据无关时, 不要引用数据进行回答.
@@ -64,10 +50,20 @@ class Birespi:
 
 请你回答弹幕
             """
-        )
-        self.setLastTalk(danmu, answer)
-        sound = await self.componentManager.speaker.speak(answer)
-        self.componentManager.player.play(sound)
+            )
+            self.setLastTalk(danmu, answer)
+            sound = await self.componentManager.speaker.speak(answer)
+            self.componentManager.player.play(sound)
+
+        self.taskManager.putWorkFuntion(TaskType.ReplyDanmu, replyDanmu)
+
+        thread = threading.Thread(target=self.startReceive)
+        thread.start()
+
+        thread = threading.Thread(target=self.startWork)
+        thread.start()
+
+        return self
 
     async def replyByBid(self, bId: str):
         danmu: LiveMessage[DanmuMessageData] = None
@@ -76,16 +72,20 @@ class Birespi:
                 danmu = d
                 break
         if danmu != None:
-            await self.replyDanmu(danmu)
-
-    def startWaitResponse(self):
-        asyncio.run(self.waitResponse())
+            await self.taskManager.addTask(Task.ReplyDanmu(danmu))
 
     def startReceive(self):
         asyncio.run(self.componentManager.LiveEventReceiver.startReceive())
 
+    def startWork(self):
+        asyncio.run(self.taskManager.start())
+
+    def process(self, danmu: LiveMessage):
+        if danmu.event == LiveEvent.Danmu:
+            self.insertDanmu(danmu)
+
     def insertDanmu(self, danmu: LiveMessage[DanmuMessageData]):
-        self.danmuQueue.push(danmu)
+        self.taskManager.addTask(Task.ReplyDanmu(danmu))
         self.danmuDisplayqueue.append(danmu)
         if len(self.danmuDisplayqueue) > 100:
             self.danmuDisplayqueue.popleft()
@@ -119,6 +119,7 @@ class Birespi:
 
     def deleteData(self, filename: str):
         self.componentManager.dataer.deleteData(filename)
+
 
 class BirespiHolder:
     birespi: Birespi = None

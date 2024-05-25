@@ -91,24 +91,24 @@ class BirespiApi:
 
     @api.get("/")
     def index() -> FileResponse:
-        return FileResponse("backend/index.html")
+        return FileResponse("system/backend/index.html")
 
     @api.get("/log")
     def index() -> FileResponse:
-        return FileResponse("backend/log.html")
+        return FileResponse("system/backend/log.html")
 
     @api.get("/config")
     def index() -> FileResponse:
-        return FileResponse("backend/config.html")
+        return FileResponse("system/backend/config.html")
 
     @api.get("/data")
     def index() -> FileResponse:
-        return FileResponse("backend/data.html")
+        return FileResponse("system/backend/data.html")
 
     @api.get("/static/{file_path:path}")
     def static_file(file_path: str) -> FileResponse:
 
-        return FileResponse(f"backend/static/{file_path}")
+        return FileResponse(f"system/backend/static/{file_path}")
 
     @api.get("/api/0")
     def read_root() -> dict:
