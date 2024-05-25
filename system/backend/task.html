@@ -39,6 +39,8 @@
             return {
                 tasks: [],
                 currentTask: {},
+                info: {},
+                command: "",
                 async init() {
                     setInterval(async () => {
                         const getTaskManagerInfoResult = await getTaskManagerInfo();
@@ -46,10 +48,32 @@
                         if (getTaskManagerInfoResult.code === 0) {
                             this.tasks = getTaskManagerInfoResult.data.tasks;
                             this.currentTask = getTaskManagerInfoResult.data.currentTask;
+                            this.info = getTaskManagerInfoResult.data.info;
                             console.log(this.tasks);
                             console.log(this.currentTask);
                         }
                     }, 1000);
+                },
+                async pauseTask() {
+                    const pauseTaskResult = await pauseTask(
+                        !this.info.isPaused
+                    );
+                    console.log(pauseTaskResult);
+                    if (pauseTaskResult.code === 0) {
+                        this.info = pauseTaskResult.data.info;
+
+                    } else {
+
+                    }
+                },
+                async sendCommand(command) {
+                    const sendCommandResult = await addCommandTask(command);
+                    console.log(sendCommandResult);
+                    if (sendCommandResult.code === 0) {
+                        this.command = "";
+                    } else {
+
+                    }
                 }
             };
         }
@@ -113,7 +137,9 @@
                         </div>
                     </div>
                     <div class="card-body ">
-                        <template x-if="currentTask.taskTitle">
+                        <template x-if="
+                        currentTask &&
+                        Object.keys(currentTask).length>0">
                             <div>
                                 <div class="accordion">
 
@@ -172,7 +198,46 @@
                     </div>
                     <div class="card-body">
 
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">暂停任务处理</h5>
+                                <p class="card-text">
+                                    暂停后, 任务将不再继续处理, 任务会累积.
+                                </p>
+                                <template x-if="info.isPaused">
+                                    <div>
+                                        <div class="alert alert-danger" role="alert">
+                                            当前状态: 暂停中
+                                        </div>
+                                        <button @click="pauseTask()" class="btn btn-primary">取消暂停</button>
+                                    </div>
+                                </template>
+                                <template x-if="!info.isPaused">
+                                    <div>
+                                        <div class="alert alert-success" role="alert">
+                                            当前状态: 运行中
+                                        </div>
+                                        <button @click="pauseTask()" class="btn btn-danger">暂停</button>
+                                    </div>
+                                </template>
 
+
+                            </div>
+                        </div>
+                        <br>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">发送指令</h5>
+                                <p class="card-text">
+                                    应答姬将会按照指令回应.
+                                </p>
+                                <textarea class="form-control" rows="3" x-model="command"></textarea>
+                                <br>
+                                <button class="btn btn-primary" @click="sendCommand(command)">发送指令</button>
+
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -39,6 +39,7 @@ class Birespi:
                 danmu.data.content
             )
             answer: str = await self.componentManager.chatter.answer(
+                getConfig().getSystemPrompt(),
                 f"""
 你可以参考的数据是: {data}
 
@@ -50,14 +51,32 @@ class Birespi:
 {danmu.fromUser} 说: "{danmu.data.content}".
 
 请你回答弹幕
-            """
+            """,
             )
             self.setLastTalk(danmu, answer)
             sound = await self.componentManager.speaker.speak(answer)
             self.componentManager.player.play(sound)
 
-        self.taskManager.putWorkFuntion(TaskType.ReplyDanmu, replyDanmu)
+        async def execCommand(commandTask: Task[str]):
+            command: str = commandTask.taskData.getData()
 
+            print(f"command: {command}")
+            data: str = await self.componentManager.dataer.getSimilarity(command)
+            answer: str = await self.componentManager.chatter.answer(
+                getConfig().getCommandPrompt(),
+                f"""
+你可以参考的数据是: {data}
+
+你接受到的指令是: {command}
+
+请你根据指令进行回答
+            """,
+            )
+            sound = await self.componentManager.speaker.speak(answer)
+            self.componentManager.player.play(sound)
+
+        self.taskManager.putWorkFuntion(TaskType.ReplyDanmu, replyDanmu)
+        self.taskManager.putWorkFuntion(TaskType.ExecCommand, execCommand)
         thread = threading.Thread(target=self.startReceive)
         thread.start()
 
@@ -127,6 +146,14 @@ class Birespi:
     def getAllTasks(self) -> list[Task]:
         return self.taskManager.getAllTasks()
 
+    def getTaskManagerInfo(self) -> dict:
+        return self.taskManager.getInfo()
+    
+    def setTaskManagerPaused(self, paused: bool):
+        self.taskManager.setPaused(paused)
+
+    def addCommandTask(self, command: str):
+        self.taskManager.addTask(Task.Command(command))
 
 class BirespiHolder:
     birespi: Birespi = None

@@ -53,10 +53,10 @@ class OpenaiChatter(BaseChatter):
         self.config = OpenaiChatterConfig.fromDict(configDict)
         self.client = AsyncOpenAI(api_key=self.config.apiKey, base_url=self.config.host)
 
-    async def answer(self, question: str) -> str:
+    async def answer(self, systemPrompt: str, question: str) -> str:
 
         messages = [
-            {"role": "system", "content": self.config.systemPrompt},
+            {"role": "system", "content": systemPrompt},
             {
                 "role": "user",
                 "content": question,

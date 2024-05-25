@@ -9,6 +9,7 @@ from model.LiveEventMessage import DanmuMessageData, LiveMessage
 
 class TaskType(Enum):
     ReplyDanmu = "ReplyDanmu"
+    ExecCommand = "ExecCommand"
 
 
 T = TypeVar("T")
@@ -17,6 +18,28 @@ T = TypeVar("T")
 class TaskData(BaseModel, Generic[T]):
     def getData(self) -> T:
         pass
+
+
+class DanmuTaskData(TaskData[LiveMessage]):
+    danmu: LiveMessage
+
+    def __init__(self, danmu: LiveMessage[DanmuMessageData]):
+        super().__init__(danmu=danmu)
+        self.danmu = danmu
+
+    def getData(self) -> LiveMessage[DanmuMessageData]:
+        return self.danmu
+
+
+class CommandTaskData(TaskData[str]):
+    command: str
+
+    def __init__(self, command: str):
+        super().__init__(command=command)
+        self.command = command
+
+    def getData(self) -> dict:
+        return self.command
 
 
 class DanmuTaskData(TaskData[LiveMessage]):
@@ -58,9 +81,15 @@ class Task(BaseModel, Generic[T]):
     ) -> "Task[LiveMessage[DanmuMessageData]]":
         return Task(TaskType.ReplyDanmu, DanmuTaskData(danmu), 1)
 
+    @staticmethod
+    def Command(command: str) -> "Task[LiveMessage[DanmuMessageData]]":
+        return Task(TaskType.ExecCommand, CommandTaskData(command), 2)
+
     def getTaskTitle(self) -> str:
         if self.taskType == TaskType.ReplyDanmu:
             return "回复弹幕任务"
+        if self.taskType == TaskType.ExecCommand:
+            return "执行指令任务"
         return "未知任务"
 
     def toDisplayDict(self) -> dict:

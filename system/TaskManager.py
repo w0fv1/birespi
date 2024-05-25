@@ -12,11 +12,19 @@ class TaskManager:
     workFunctionMap: Dict[TaskType, Callable[[Task], None]] = {}
 
     currentTask: Task = None
+    isPaused: bool = False
 
     def __init__(self):
         pass
 
     def addTask(self, task: Task):
+
+        if self.isWorking and len(self.taskQueue) > 2 and task.priority <= 1:
+            getLogger().logWarning(
+                "TaskManager: TaskManager is working, cannot add task"
+            )
+            return
+
         insertIndex = len(self.taskQueue)
         for i in range(len(self.taskQueue)):
             if self.taskQueue[i].priority < task.priority:
@@ -53,6 +61,10 @@ class TaskManager:
                 getLogger().logWarning("TaskManager: TaskManager is working")
                 await asyncio.sleep(1)
                 continue
+            if self.isPaused:
+                getLogger().logWarning("TaskManager: TaskManager is paused")
+                await asyncio.sleep(1)
+                continue
             getLogger().logInfo("TaskManager: Getting task")
             task = self.getTask()
             await self.process(task)
@@ -70,7 +82,6 @@ class TaskManager:
         self.currentTask = task
         print(f"TaskManager: Processing task, self currentTask: {self.currentTask}")
 
-
         workFunction = self.workFunctionMap.get(task.taskType)
         if workFunction is not None:
             getLogger().logInfo(
@@ -82,9 +93,19 @@ class TaskManager:
                 f"TaskManager: No work function for task type {task.taskType}"
             )
         self.isWorking = False
+        self.currentTask = None
+
+    def setPaused(self, isPaused: bool):
+        self.isPaused = isPaused
 
     def getCurrentTask(self):
         return self.currentTask
 
     def getAllTasks(self):
         return list(self.taskQueue)
+
+    def getInfo(self) -> dict:
+        return {
+            "isPaused": self.isPaused,
+            "taskCount": len(self.taskQueue),
+        }

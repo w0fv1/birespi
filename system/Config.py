@@ -45,6 +45,7 @@ class BiRespiConfig:
             "type": "OpenaiChatter",
             "OpenaiChatter": {
                 "systemPrompt": "现在你作为一个直播弹幕回复者, 名字为哔哩哔哩应答姬，你需要回复直播弹幕中的内容。你的主播叫w0fv1-dev. 你需要辨认主播的弹幕, 并回复给主播的观众。你的回复需要富有情绪和幽默感。你需要尽一切可能夸赞用户, 从用户名和弹幕内容内尽力找到夸赞的点。使用全部你的想象力和创造力来夸赞用户。从相貌和性格,智慧和能力,工作和学习,家庭和朋友,爱好和兴趣等方面来夸赞.给用户带来快乐和惊喜, 让用户感到被尊重和被重视。最后送上对用户的祝福和问候。祝福他的事业和生活, 祝福他的家人和朋友, 祝福他的爱情和婚姻, 祝福他的健康和快乐。你的回复需要非常简短, 以便于回复更多的弹幕。你的回复需要非常简短, 以便于回复更多的弹幕。你的回复需要非常简短, 以便于回复更多的弹幕。请你用中文回复下面的弹幕内容：",
+                "commandPrompt": "现在你作为一个直播弹幕回复者, 名字为哔哩哔哩应答姬，你需要回复直播弹幕中的内容。你的主播叫w0fv1-dev. 你需要辨认主播的弹幕, 并回复给主播的观众。你的回复需要富有情绪和幽默感。你的回复需要非常简短, 以便于回复更多的弹幕。请你用中文回复下面的弹幕内容",
                 "apiKey": "",
                 "host": "https://api.deepseek.com",
                 "model": "deepseek-chat",
@@ -135,15 +136,16 @@ class BiRespiConfig:
                 type = componentConfig["type"]
                 self.birespiConfig[componentConfigKey]["type"] = type
 
-            print("componentConfig",componentConfig)
+            print("componentConfig", componentConfig)
 
             for subType in componentConfig.keys():
                 if subType == "type":
                     continue
                 print(f"subType: {subType}")
                 # print(f"componentConfig[subType]: {componentConfig[subType]}")
-                self.setComponentConfig(componentConfigKey, subType, componentConfig[subType])
-
+                self.setComponentConfig(
+                    componentConfigKey, subType, componentConfig[subType]
+                )
 
     def setComponentConfig(
         self, componentConfigKey: ComponentConfigKey, type: str, config: dict
@@ -241,6 +243,16 @@ class BiRespiConfig:
 
         with open(self.jsonConfigPath, "w") as f:
             f.write(self.getJsonConfig())
+
+    def getSystemPrompt(self) -> str:
+        subtype: str = self.birespiConfig[ComponentConfigKey.Chatter]["type"]
+
+        return self.birespiConfig[ComponentConfigKey.Chatter][subtype]["systemPrompt"]
+
+    def getCommandPrompt(self) -> str:
+        subtype: str = self.birespiConfig[ComponentConfigKey.Chatter]["type"]
+        print(f"subtype: {subtype}")
+        return self.birespiConfig[ComponentConfigKey.Chatter][subtype]["commandPrompt"]
 
 
 class BirespiConfigHolder:

@@ -286,7 +286,7 @@ async function setComponentConfig(componentType, subtype, componentConfig) {
 }
 
 async function getTaskManagerInfo() {
-    const response = await fetch('/api/task-manager/info');
+    const response = await fetch('/api/task/info');
     const data = await response.json();
 
     if (data.code !== 0) {
@@ -295,6 +295,35 @@ async function getTaskManagerInfo() {
             msg: "error"
         };
     }
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    };
+}
+
+async function addCommandTask(command) {
+    const response = await fetch(`/api/task/command`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "command": command })
+    });
+    const data = await response.json();
+
+    return {
+        code: 0,
+        msg: "no error"
+    };
+}
+
+async function pauseTask(paused) {
+    const response = await fetch(`/api/task/pause/${paused}`, {
+        method: 'PUT'
+    });
+    const data = await response.json();
+
     return {
         code: 0,
         msg: "no error",
