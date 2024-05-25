@@ -97,6 +97,7 @@ config的格式为json:
     "type": "OpenaiChatter", // 这里是chatter的类型, 目前就一个OpenaiChatter
     "OpenaiChatter": { //这里是OpenaiChatter的配置
       "systemPrompt": "", //这里是系统提示, 根据需要填写
+      "commandPrompt": "",//这里是命令提示, 当你发送给应答姬任务的时候, 她将根据任务prompt进行任务,根据需要填写
       "apiKey": "需要填写apiKey", //这里是OpenAI对话协议的API Key
       "host": "https://api.openai.com", //这里是OpenAI对话协议的的API Host
       "model": "gpt-3.5-turbo", //这里是OpenAI对话协议的的模型
