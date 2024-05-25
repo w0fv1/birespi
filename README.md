@@ -197,3 +197,5 @@ python main.py config=/path/to/config.json
 # 最后
 
 本项目测试不完全, 如果有任何问题, 请提issue, 谢谢!
+
+作者放弃一切权利, 任何人可以自由使用, 修改, 分发, 但是请保留原作者信息, 谢谢!
