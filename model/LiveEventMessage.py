@@ -56,8 +56,12 @@ class LiveMessage(BaseModel, Generic[T]):
             id = str(uuid.uuid1())
         if timestamp == 0.0:
             timestamp = time.time()
+        bId = str(uuid.uuid1()) + "-" + str(uuid.uuid4())
+        bTimestamp = time.time()
 
         super().__init__(
+            bId=bId,
+            bTimestamp=bTimestamp,
             event=event,
             id=id,
             timestamp=timestamp,
@@ -65,11 +69,10 @@ class LiveMessage(BaseModel, Generic[T]):
             userAvatar=userAvatar,
             data=data,
         )
-        self.bId = str(uuid.uuid1()) + "-" + str(uuid.uuid4())
-        self.bTimestamp = time.time()
+        self.bId = bId
+        self.bTimestamp = bTimestamp
         self.id = id
         self.timestamp = timestamp
-
         self.event = event
         self.fromUser = fromUser
         self.userAvatar = userAvatar
@@ -84,12 +87,12 @@ class LiveMessage(BaseModel, Generic[T]):
         content: str = "",
     ) -> "LiveMessage[DanmuMessageData]":
         return LiveMessage(
-            LiveEvent.Danmu,
-            id,
-            timestamp,
-            fromUser,
-            userAvatar,
-            DanmuMessageData(content),
+            event=LiveEvent.Danmu,
+            id=id,
+            timestamp=timestamp,
+            fromUser=fromUser,
+            userAvatar=userAvatar,
+            data=DanmuMessageData(content),
         )
 
     def __str__(self):

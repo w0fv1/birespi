@@ -7,9 +7,11 @@ from system.Logger import getLogger
 
 
 class TaskManager:
-    taskQueue = deque[Task]()
-    isWorking = False
-    workFunctionMap: Dict[TaskType, Callable[[Task], None]]  = {}
+    taskQueue: deque = deque[Task]()
+    isWorking: bool = False
+    workFunctionMap: Dict[TaskType, Callable[[Task], None]] = {}
+
+    currentTask: Task = None
 
     def __init__(self):
         pass
@@ -65,6 +67,9 @@ class TaskManager:
             )
             return
         self.isWorking = True
+        self.currentTask = task
+        print(f"TaskManager: Processing task, self currentTask: {self.currentTask}")
+
 
         workFunction = self.workFunctionMap.get(task.taskType)
         if workFunction is not None:
@@ -77,3 +82,9 @@ class TaskManager:
                 f"TaskManager: No work function for task type {task.taskType}"
             )
         self.isWorking = False
+
+    def getCurrentTask(self):
+        return self.currentTask
+
+    def getAllTasks(self):
+        return list(self.taskQueue)

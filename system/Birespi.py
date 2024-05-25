@@ -34,6 +34,7 @@ class Birespi:
         async def replyDanmu(danmuTask: Task[LiveMessage[DanmuMessageData]]):
             danmu: LiveMessage[DanmuMessageData] = danmuTask.taskData.getData()
 
+            print(f"ReplyDanmu: {danmu}")
             data: str = await self.componentManager.dataer.getSimilarity(
                 danmu.data.content
             )
@@ -119,6 +120,12 @@ class Birespi:
 
     def deleteData(self, filename: str):
         self.componentManager.dataer.deleteData(filename)
+
+    def getCurrentTask(self) -> Optional[Task]:
+        return self.taskManager.getCurrentTask()
+
+    def getAllTasks(self) -> list[Task]:
+        return self.taskManager.getAllTasks()
 
 
 class BirespiHolder:

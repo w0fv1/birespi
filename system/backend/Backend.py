@@ -271,6 +271,23 @@ class BirespiApi:
                 img_bytes = await response.read()
                 return StreamingResponse(io.BytesIO(img_bytes), media_type="image/jpeg")
 
+    @api.get("/api/task-manager/info")
+    def getTaskManagerInfo() -> dict:
+        currentTask = getBirespi().getCurrentTask()
+        currentTaskDict = None
+        if currentTask != None:
+            currentTaskDict = currentTask.toDisplayDict()
+
+        return {
+            "code": 0,
+            "data": {
+                "tasks": map(
+                    lambda x: x.toDisplayDict(), getBirespi().taskManager.getAllTasks()
+                ),
+                "currentTask": currentTaskDict,
+            },
+        }
+
 
 class BirespiBackend:
     api: BirespiApi = None

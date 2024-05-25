@@ -1,25 +1,29 @@
-import enum
+from enum import Enum
+import json
 from typing import TypeVar, Generic
+import uuid
 
+from pydantic import BaseModel
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 
 
-class TaskType(enum.Enum):
+class TaskType(Enum):
     ReplyDanmu = "ReplyDanmu"
 
 
 T = TypeVar("T")
 
 
-class TaskData(Generic[T]):
+class TaskData(BaseModel, Generic[T]):
     def getData(self) -> T:
         pass
 
 
-class DanmuTaskData(TaskData[LiveMessage[DanmuMessageData]]):
-    danmu: LiveMessage[DanmuMessageData]
+class DanmuTaskData(TaskData[LiveMessage]):
+    danmu: LiveMessage
 
     def __init__(self, danmu: LiveMessage[DanmuMessageData]):
+        super().__init__(danmu=danmu)
         self.danmu = danmu
 
     def getData(self) -> LiveMessage[DanmuMessageData]:
@@ -29,8 +33,8 @@ class DanmuTaskData(TaskData[LiveMessage[DanmuMessageData]]):
 # 基于TaskData的泛型
 
 
-class Task(Generic[T]):
-
+class Task(BaseModel, Generic[T]):
+    id: str = ""
     taskType: TaskType
     taskData: TaskData[T]
     priority: int = (
@@ -38,9 +42,14 @@ class Task(Generic[T]):
     )
     # 1为普通任务，10为最紧急任务,5为一般紧急任务
 
-    def __init__(self, task_type: TaskType, task_data: TaskData[T], priority: int = 0):
-        self.taskType = task_type
-        self.taskData = task_data
+    def __init__(self, taskType: TaskType, taskData: TaskData[T], priority: int = 0):
+        id = str(uuid.uuid4())
+        super().__init__(taskType=taskType, taskData=taskData, priority=priority, id=id)
+        self.id = id
+        self.taskType = taskType
+        self.taskData = taskData
+        print(f"Task: {self.taskData.getData()}")
+
         self.priority = priority
 
     @staticmethod
@@ -48,3 +57,18 @@ class Task(Generic[T]):
         danmu: LiveMessage[DanmuMessageData],
     ) -> "Task[LiveMessage[DanmuMessageData]]":
         return Task(TaskType.ReplyDanmu, DanmuTaskData(danmu), 1)
+
+    def getTaskTitle(self) -> str:
+        if self.taskType == TaskType.ReplyDanmu:
+            return "回复弹幕任务"
+        return "未知任务"
+
+    def toDisplayDict(self) -> dict:
+        return {
+            "id": self.id,
+            "taskType": self.taskType.value,
+            "priority": self.priority,
+            "taskTitle": self.getTaskTitle(),
+            "taskData": self.taskData.getData(),
+            "taskDetail": self,
+        }
