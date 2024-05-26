@@ -194,8 +194,14 @@ class BiRespiConfig:
             return self.getWebUiConfigDict()
         if componentConfigKey == ComponentConfigKey.Logger:
             return self.getLoggerConfigDict()
+        if componentConfigKey == ComponentConfigKey.LiveEventReceiver:
+            return self.getEventExporterConfigDict()
 
+        if "type" not in self.birespiConfig[componentConfigKey].keys():
+            return self.birespiConfig[componentConfigKey]
+        
         type = self.birespiConfig[componentConfigKey]["type"]
+
 
         return self.birespiConfig[componentConfigKey][type]
 
@@ -207,6 +213,11 @@ class BiRespiConfig:
             return self.getWebUiConfigDict()
         if componentConfigKey == ComponentConfigKey.Logger:
             return self.getLoggerConfigDict()
+        if componentConfigKey == ComponentConfigKey.LiveEventReceiver:
+            return self.getEventExporterConfigDict()
+        
+        if type == "":
+            type = self.birespiConfig[componentConfigKey]
 
         return self.birespiConfig[componentConfigKey][type]
 
@@ -215,6 +226,9 @@ class BiRespiConfig:
 
     def getLoggerConfigDict(self) -> dict:
         return self.birespiConfig[ComponentConfigKey.Logger]
+
+    def getEventExporterConfigDict(self) -> dict:
+        return self.birespiConfig[ComponentConfigKey.EventExporter]
 
     def getJsonConfig(self) -> dict:
         jsonConfig = {}
