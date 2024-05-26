@@ -54,7 +54,6 @@ class TaskManager:
         getLogger().logInfo("TaskManager started")
         while True:
             if len(self.taskQueue) == 0:
-                getLogger().logInfo("TaskManager: No task to process")
                 await asyncio.sleep(1)
                 continue
             if self.isWorking:

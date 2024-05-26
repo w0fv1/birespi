@@ -1,6 +1,6 @@
 from enum import Enum
 import json
-from typing import TypeVar, Generic
+from typing import Any, Dict, TypeVar, Generic
 import uuid
 
 from pydantic import BaseModel
@@ -19,6 +19,9 @@ class TaskData(BaseModel, Generic[T]):
     def getData(self) -> T:
         pass
 
+    def getDataDict(self) -> Dict[str, Any]:
+        pass
+
 
 class DanmuTaskData(TaskData[LiveMessage]):
     danmu: LiveMessage
@@ -29,6 +32,9 @@ class DanmuTaskData(TaskData[LiveMessage]):
 
     def getData(self) -> LiveMessage[DanmuMessageData]:
         return self.danmu
+
+    def getDataDict(self) -> Dict[str, Any]:
+        return self.danmu.toDict()
 
 
 class CommandTaskData(TaskData[str]):
@@ -38,19 +44,15 @@ class CommandTaskData(TaskData[str]):
         super().__init__(command=command)
         self.command = command
 
-    def getData(self) -> dict:
+    def getData(self) -> str:
         return self.command
 
+    def getDataDict(self)  -> Dict[str, Any]:
+        print("2222222222222222222222222222")
+        return {"command": self.command}
 
-class DanmuTaskData(TaskData[LiveMessage]):
-    danmu: LiveMessage
 
-    def __init__(self, danmu: LiveMessage[DanmuMessageData]):
-        super().__init__(danmu=danmu)
-        self.danmu = danmu
 
-    def getData(self) -> LiveMessage[DanmuMessageData]:
-        return self.danmu
 
 
 # 基于TaskData的泛型
@@ -79,17 +81,17 @@ class Task(BaseModel, Generic[T]):
     def ReplyDanmu(
         danmu: LiveMessage[DanmuMessageData],
     ) -> "Task[LiveMessage[DanmuMessageData]]":
-        return Task(TaskType.ReplyDanmu, DanmuTaskData(danmu), 1)
+        return Task(taskType=TaskType.ReplyDanmu, taskData=DanmuTaskData(danmu), priority=1)
 
     @staticmethod
-    def Command(command: str) -> "Task[LiveMessage[DanmuMessageData]]":
-        return Task(TaskType.ExecCommand, CommandTaskData(command), 2)
+    def Command(command: str) -> "Task[str]":
+        return Task(taskType=TaskType.ExecCommand, taskData=CommandTaskData(command), priority=2)
 
     def getTaskTitle(self) -> str:
         if self.taskType == TaskType.ReplyDanmu:
-            return "回复弹幕任务"
+            return f'回复来自{self.taskData.getData().fromUser}弹幕"{self.taskData.getData().data.content}"的任务'
         if self.taskType == TaskType.ExecCommand:
-            return "执行指令任务"
+            return f"执行指令{self.taskData.getData().command}的任务"
         return "未知任务"
 
     def toDisplayDict(self) -> dict:
@@ -98,6 +100,6 @@ class Task(BaseModel, Generic[T]):
             "taskType": self.taskType.value,
             "priority": self.priority,
             "taskTitle": self.getTaskTitle(),
-            "taskData": self.taskData.getData(),
-            "taskDetail": self,
+            "taskData": self.taskData.getData().model_dump(),
+            "taskDetail": self.model_dump(),
         }

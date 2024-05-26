@@ -219,7 +219,7 @@ class BiliClient:
                 await asyncio.sleep(10)
 
                 #  检查websocket是否存活
-                if self.websocket == None or self.websocket.sock.connected:
+                if self.websocket == None or self.websocket.sock == None or self.websocket.sock.connected:
                     print("websocket is alive")
                     continue
                 print("reAlive reconnect")

@@ -1,10 +1,13 @@
 from enum import Enum
 
+import json
 from typing import TypeVar, Generic
 from pydantic import BaseModel
 
 import uuid
 import time
+
+from util.JsonUtil import EnumEncoder
 
 
 class LiveEvent(Enum):
@@ -95,5 +98,24 @@ class LiveMessage(BaseModel, Generic[T]):
             data=DanmuMessageData(content),
         )
 
-    def __str__(self):
-        return f"LiveMessage(event={self.event}, fromUser={self.fromUser}, data={self.data})"
+
+
+    def toDict(self) -> str:
+
+        return json.dumps({
+            "bId": self.bId,
+            "bTimestamp": self.bTimestamp,
+            "id": self.id,
+            "timestamp": self.timestamp,
+            "event": self.event,
+            "fromUser": self.fromUser,
+            "userAvatar": self.userAvatar,
+            "data": self.data.model_dump(),
+        }, ensure_ascii=False, cls=EnumEncoder, indent=4)
+
+
+# Example Usage
+if __name__ == "__main__":
+
+    msg = LiveMessage.Danmu(fromUser="user1", content="Hello World!")
+    print(msg.toJSON())

@@ -110,6 +110,7 @@ class BiRespiConfig:
                 "dataPath": "data",
             },
         },
+        ComponentConfigKey.EventExporter: {"host": "localhost", "port": 8765},
     }
     version: str = "0.0.0"
     jsonConfigPath: str = None

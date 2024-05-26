@@ -2,6 +2,7 @@ import asyncio
 from collections import deque
 import threading
 from typing import Optional
+from model.ExportEvent import ExportEvent
 from model.Task import Task, TaskType
 from system.Logger import getLogger
 from system.Config import getConfig
@@ -24,7 +25,7 @@ class Birespi:
 
     def __init__(self) -> None:
         self.componentManager.loadComponents(getConfig().birespiConfig)
-        self.componentManager.LiveEventReceiver.onReceive(self.process)
+        self.componentManager.liveEventReceiver.onReceive(self.process)
 
     def reloadComponent(self, componentConfigKey: ComponentConfigKey):
         self.componentManager.putConfig(getConfig().birespiConfig)
@@ -53,8 +54,13 @@ class Birespi:
 请你回答弹幕
             """,
             )
+
             self.setLastTalk(danmu, answer)
             sound = await self.componentManager.speaker.speak(answer)
+            exportEvent: ExportEvent = ExportEvent.Danmu(
+                message=answer, sound=sound, liveMessage=danmu, task=danmuTask
+            )
+            await self.componentManager.eventExporter.send(exportEvent.toDict())
             self.componentManager.player.play(sound)
 
         async def execCommand(commandTask: Task[str]):
@@ -73,6 +79,10 @@ class Birespi:
             """,
             )
             sound = await self.componentManager.speaker.speak(answer)
+            exportEvent: ExportEvent = ExportEvent.Command(
+                message=answer, sound=sound, task=commandTask
+            )
+            await self.componentManager.eventExporter.send(exportEvent.toDict())
             self.componentManager.player.play(sound)
 
         self.taskManager.putWorkFuntion(TaskType.ReplyDanmu, replyDanmu)
@@ -82,7 +92,11 @@ class Birespi:
 
         thread = threading.Thread(target=self.startWork)
         thread.start()
+        print("Birespi word started")
+        serverThread = threading.Thread(target=self.startEventExporter)
+        serverThread.start()
 
+        print("Birespi EventExporter started")
         return self
 
     async def replyByBid(self, bId: str):
@@ -95,10 +109,13 @@ class Birespi:
             await self.taskManager.addTask(Task.ReplyDanmu(danmu))
 
     def startReceive(self):
-        asyncio.run(self.componentManager.LiveEventReceiver.startReceive())
+        asyncio.run(self.componentManager.liveEventReceiver.startReceive())
 
     def startWork(self):
         asyncio.run(self.taskManager.start())
+
+    def startEventExporter(self):
+        asyncio.run(self.componentManager.eventExporter.start())
 
     def process(self, danmu: LiveMessage):
         if danmu.event == LiveEvent.Danmu:
@@ -120,7 +137,7 @@ class Birespi:
         return self.lastTalk
 
     def getLiveRoomInfo(self) -> LiveRoomInfo:
-        return self.componentManager.LiveEventReceiver.getLiveRoomInfo()
+        return self.componentManager.liveEventReceiver.getLiveRoomInfo()
 
     def getComponentManager(self) -> ComponentManager:
         return self.componentManager
@@ -148,12 +165,13 @@ class Birespi:
 
     def getTaskManagerInfo(self) -> dict:
         return self.taskManager.getInfo()
-    
+
     def setTaskManagerPaused(self, paused: bool):
         self.taskManager.setPaused(paused)
 
     def addCommandTask(self, command: str):
         self.taskManager.addTask(Task.Command(command))
+
 
 class BirespiHolder:
     birespi: Birespi = None

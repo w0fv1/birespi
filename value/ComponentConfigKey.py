@@ -9,6 +9,7 @@ class ComponentConfigKey(Enum):
     WebUi = "web_ui"
     Logger = "logger"
     Dataer = "dataer"
+    EventExporter = "event_exporter"
 
     def __str__(self) -> str:
         return self.value
@@ -30,5 +31,7 @@ class ComponentConfigKey(Enum):
             return ComponentConfigKey.Logger
         elif str == "dataer":
             return ComponentConfigKey.Dataer
+        elif str == "event_exporter":
+            return ComponentConfigKey.EventExporter
         else:
             raise Exception(f"Unknown component key |{str}|")

@@ -14,6 +14,7 @@ from component.SoundPlayer import (
 from component.Speaker import BaseSpeaker, EdgeSpeaker
 from value.ComponentConfigKey import ComponentConfigKey
 from component.Dataer import BaseDataer, ADataer
+from component.EventExporter import EventExporter
 
 
 class ComponentManager:
@@ -21,10 +22,13 @@ class ComponentManager:
     config: dict = {}
 
     chatter: BaseChatter = BaseChatter()
-    LiveEventReceiver: BaseLiveEventReceiver = BaseLiveEventReceiver()
+    liveEventReceiver: BaseLiveEventReceiver = BaseLiveEventReceiver()
     player: BasePlayer = BasePlayer()
     speaker: BaseSpeaker = BaseSpeaker()
     dataer: BaseDataer = BaseDataer()
+    eventExporter: EventExporter = None
+    
+
 
     def loadComponents(self, config: dict):
         self.config = config
@@ -39,13 +43,15 @@ class ComponentManager:
         if key == ComponentConfigKey.Chatter:
             self.chatter = self.buildChatter(self.config[key])
         elif key == ComponentConfigKey.LiveEventReceiver:
-            self.LiveEventReceiver = self.buildLiveEventReceiver(self.config[key])
+            self.liveEventReceiver = self.buildLiveEventReceiver(self.config[key])
         elif key == ComponentConfigKey.Player:
             self.player = self.buildPlayer(self.config[key])
         elif key == ComponentConfigKey.Speaker:
             self.speaker = self.buildSpeaker(self.config[key])
         elif key == ComponentConfigKey.Dataer:
             self.dataer = self.buildDataer(self.config[key])
+        elif key == ComponentConfigKey.EventExporter:
+            self.eventExporter = self.buildEventExporter(self.config[key])
         elif key == ComponentConfigKey.WebUi:
             pass
         elif key == ComponentConfigKey.Logger:
@@ -92,3 +98,7 @@ class ComponentManager:
             return ADataer(config[config["type"]])
         else:
             raise Exception("Not support type")
+
+    def buildEventExporter(self, config) -> EventExporter:
+        self.eventExporter = EventExporter(config)
+        return self.eventExporter
