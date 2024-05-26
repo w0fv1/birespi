@@ -12,7 +12,7 @@ from system.backend.Backend import BirespiBackend, birespiBackendHolder
 from util.ConfigUtil import getArgConfigPath, loadJson
 
 
-version = "0.6.1"
+version = "0.6.2"
 
 
 def main():
