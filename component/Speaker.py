@@ -36,6 +36,8 @@ class EdgeSpeaker(BaseSpeaker):
         self.config = EdgeSpeakerConfig.fromJson(configDict)
 
     async def speak(self, content: str) -> str:
+        if not os.path.exists(self.config.outputPath):
+            os.makedirs(self.config.outputPath)
         # 获取随机uuid
         uuid = "".join(random.sample(string.ascii_letters + string.digits, 8))
         output_file = os.path.join(self.config.outputPath, f"{uuid}.mp3")
