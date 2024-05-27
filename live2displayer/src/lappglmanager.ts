@@ -1,23 +1,23 @@
 /**
- * Copyright(c) Live2D Inc. All rights reserved.
+ * 版权所有(c) Live2D Inc. 保留所有权利。
  *
- * Use of this source code is governed by the Live2D Open Software license
- * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * 本源代码的使用受Live2D开放软件许可证的约束，
+ * 该许可证可以在以下网址找到：https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html。
  */
 
-export let canvas: HTMLCanvasElement = null;
-export let gl: WebGLRenderingContext = null;
-export let s_instance: LAppGlManager = null;
+export let canvas: HTMLCanvasElement = null; // 声明HTMLCanvasElement类型的canvas变量
+export let gl: WebGLRenderingContext = null; // 声明WebGLRenderingContext类型的gl变量
+export let s_instance: LAppGlManager = null; // 声明LAppGlManager实例变量
 
 /**
- * Cubism SDKのサンプルで使用するWebGLを管理するクラス
+ * 管理Cubism SDK示例中使用的WebGL的类
  */
 export class LAppGlManager {
   /**
-   * クラスのインスタンス（シングルトン）を返す。
-   * インスタンスが生成されていない場合は内部でインスタンスを生成する。
+   * 返回类的实例（单例模式）。
+   * 如果实例尚未生成，则在内部生成实例。
    *
-   * @return クラスのインスタンス
+   * @return 类的实例
    */
   public static getInstance(): LAppGlManager {
     if (s_instance == null) {
@@ -28,7 +28,7 @@ export class LAppGlManager {
   }
 
   /**
-   * クラスのインスタンス（シングルトン）を解放する。
+   * 释放类的实例（单例模式）。
    */
   public static releaseInstance(): void {
     if (s_instance != null) {
@@ -39,25 +39,25 @@ export class LAppGlManager {
   }
 
   constructor() {
-    // キャンバスの作成
+    // 创建canvas元素
     canvas = document.createElement('canvas');
 
-    // glコンテキストを初期化
+    // 初始化WebGL上下文
     // @ts-ignore
     gl = canvas.getContext('webgl2');
 
     if (!gl) {
-      // gl初期化失敗
-      alert('Cannot initialize WebGL. This browser does not support.');
+      // WebGL初始化失败
+      alert('无法初始化WebGL。此浏览器不支持。');
       gl = null;
 
       document.body.innerHTML =
-        'This browser does not support the <code>&lt;canvas&gt;</code> element.';
+        '此浏览器不支持<code>&lt;canvas&gt;</code>元素。';
     }
   }
 
   /**
-   * 解放する。
+   * 释放资源。
    */
   public release(): void {}
 }

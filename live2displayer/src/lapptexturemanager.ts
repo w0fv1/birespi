@@ -1,28 +1,28 @@
 /**
- * Copyright(c) Live2D Inc. All rights reserved.
+ * 版权所有(c) Live2D Inc. 保留所有权利。
  *
- * Use of this source code is governed by the Live2D Open Software license
- * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * 本源代码的使用受Live2D开放软件许可证的约束，
+ * 该许可证可以在以下网址找到：https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html。
  */
 
-import { csmVector, iterator } from '@framework/type/csmvector';
+import { csmVector, iterator } from '@framework/type/csmvector'; // 从框架中导入csmVector和iterator
 
-import { gl } from './lappglmanager';
+import { gl } from './lappglmanager'; // 从lappglmanager模块导入gl对象
 
 /**
- * テクスチャ管理クラス
- * 画像読み込み、管理を行うクラス。
+ * 纹理管理类
+ * 负责图片加载和管理。
  */
 export class LAppTextureManager {
   /**
-   * コンストラクタ
+   * 构造函数
    */
   constructor() {
-    this._textures = new csmVector<TextureInfo>();
+    this._textures = new csmVector<TextureInfo>(); // 初始化纹理信息的容器
   }
 
   /**
-   * 解放する。
+   * 释放所有纹理资源。
    */
   public release(): void {
     for (
@@ -30,24 +30,25 @@ export class LAppTextureManager {
       ite.notEqual(this._textures.end());
       ite.preIncrement()
     ) {
-      gl.deleteTexture(ite.ptr().id);
+      gl.deleteTexture(ite.ptr().id); // 删除每个纹理
     }
-    this._textures = null;
+    this._textures = null; // 清空纹理容器
   }
 
   /**
-   * 画像読み込み
+   * 加载图片
    *
-   * @param fileName 読み込む画像ファイルパス名
-   * @param usePremultiply Premult処理を有効にするか
-   * @return 画像情報、読み込み失敗時はnullを返す
+   * @param fileName 要加载的图片文件路径
+   * @param usePremultiply 是否启用Premult处理
+   * @param callback 加载完成后的回调函数
+   * @return 图片信息，加载失败时返回null
    */
   public createTextureFromPngFile(
     fileName: string,
     usePremultiply: boolean,
     callback: (textureInfo: TextureInfo) => void
   ): void {
-    // search loaded texture already
+    // 查找是否已经加载过该纹理
     for (
       let ite: iterator<TextureInfo> = this._textures.begin();
       ite.notEqual(this._textures.end());
@@ -57,9 +58,8 @@ export class LAppTextureManager {
         ite.ptr().fileName == fileName &&
         ite.ptr().usePremultply == usePremultiply
       ) {
-        // 2回目以降はキャッシュが使用される(待ち時間なし)
-        // WebKitでは同じImageのonloadを再度呼ぶには再インスタンスが必要
-        // 詳細：https://stackoverflow.com/a/5024181
+        // 如果已加载，则使用缓存
+        // 重新实例化Image以调用onload
         ite.ptr().img = new Image();
         ite
           .ptr()
@@ -71,18 +71,18 @@ export class LAppTextureManager {
       }
     }
 
-    // データのオンロードをトリガーにする
+    // 创建新图片对象并加载
     const img = new Image();
     img.addEventListener(
       'load',
       (): void => {
-        // テクスチャオブジェクトの作成
+        // 创建纹理对象
         const tex: WebGLTexture = gl.createTexture();
 
-        // テクスチャを選択
+        // 绑定纹理
         gl.bindTexture(gl.TEXTURE_2D, tex);
 
-        // テクスチャにピクセルを書き込む
+        // 设置纹理参数
         gl.texParameteri(
           gl.TEXTURE_2D,
           gl.TEXTURE_MIN_FILTER,
@@ -90,12 +90,12 @@ export class LAppTextureManager {
         );
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-        // Premult処理を行わせる
+        // 启用Premult处理
         if (usePremultiply) {
           gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 1);
         }
 
-        // テクスチャにピクセルを書き込む
+        // 将图片数据写入纹理
         gl.texImage2D(
           gl.TEXTURE_2D,
           0,
@@ -105,12 +105,13 @@ export class LAppTextureManager {
           img
         );
 
-        // ミップマップを生成
+        // 生成mipmap
         gl.generateMipmap(gl.TEXTURE_2D);
 
-        // テクスチャをバインド
+        // 解绑纹理
         gl.bindTexture(gl.TEXTURE_2D, null);
 
+        // 创建纹理信息对象
         const textureInfo: TextureInfo = new TextureInfo();
         if (textureInfo != null) {
           textureInfo.fileName = fileName;
@@ -119,34 +120,33 @@ export class LAppTextureManager {
           textureInfo.id = tex;
           textureInfo.img = img;
           textureInfo.usePremultply = usePremultiply;
-          this._textures.pushBack(textureInfo);
+          this._textures.pushBack(textureInfo); // 将纹理信息添加到容器中
         }
 
-        callback(textureInfo);
+        callback(textureInfo); // 调用回调函数
       },
       { passive: true }
     );
-    img.src = fileName;
+    img.src = fileName; // 设置图片源以触发加载
   }
 
   /**
-   * 画像の解放
+   * 释放所有纹理
    *
-   * 配列に存在する画像全てを解放する。
+   * 释放容器中所有的图片资源。
    */
   public releaseTextures(): void {
     for (let i = 0; i < this._textures.getSize(); i++) {
-      this._textures.set(i, null);
+      this._textures.set(i, null); // 清空每个纹理信息
     }
 
-    this._textures.clear();
+    this._textures.clear(); // 清空容器
   }
 
   /**
-   * 画像の解放
+   * 释放指定纹理
    *
-   * 指定したテクスチャの画像を解放する。
-   * @param texture 解放するテクスチャ
+   * @param texture 要释放的纹理
    */
   public releaseTextureByTexture(texture: WebGLTexture): void {
     for (let i = 0; i < this._textures.getSize(); i++) {
@@ -154,39 +154,38 @@ export class LAppTextureManager {
         continue;
       }
 
-      this._textures.set(i, null);
-      this._textures.remove(i);
+      this._textures.set(i, null); // 清空指定纹理信息
+      this._textures.remove(i); // 从容器中移除
       break;
     }
   }
 
   /**
-   * 画像の解放
+   * 释放指定文件路径的纹理
    *
-   * 指定した名前の画像を解放する。
-   * @param fileName 解放する画像ファイルパス名
+   * @param fileName 要释放的图片文件路径
    */
   public releaseTextureByFilePath(fileName: string): void {
     for (let i = 0; i < this._textures.getSize(); i++) {
       if (this._textures.at(i).fileName == fileName) {
-        this._textures.set(i, null);
-        this._textures.remove(i);
+        this._textures.set(i, null); // 清空指定文件路径的纹理信息
+        this._textures.remove(i); // 从容器中移除
         break;
       }
     }
   }
 
-  _textures: csmVector<TextureInfo>;
+  _textures: csmVector<TextureInfo>; // 纹理信息的容器
 }
 
 /**
- * 画像情報構造体
+ * 图片信息结构体
  */
 export class TextureInfo {
-  img: HTMLImageElement; // 画像
-  id: WebGLTexture = null; // テクスチャ
-  width = 0; // 横幅
-  height = 0; // 高さ
-  usePremultply: boolean; // Premult処理を有効にするか
-  fileName: string; // ファイル名
+  img: HTMLImageElement; // 图片对象
+  id: WebGLTexture = null; // 纹理ID
+  width = 0; // 图片宽度
+  height = 0; // 图片高度
+  usePremultply: boolean; // 是否启用Premult处理
+  fileName: string; // 图片文件路径
 }

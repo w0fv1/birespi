@@ -1,46 +1,46 @@
 /**
- * Copyright(c) Live2D Inc. All rights reserved.
+ * 版权所有(c) Live2D Inc. 保留所有权利。
  *
- * Use of this source code is governed by the Live2D Open Software license
- * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * 本源代码的使用受Live2D开放软件许可证的约束，
+ * 该许可证可以在以下网址找到：https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html。
  */
 
-import { CubismMatrix44 } from '@framework/math/cubismmatrix44';
-import { CubismViewMatrix } from '@framework/math/cubismviewmatrix';
+import { CubismMatrix44 } from '@framework/math/cubismmatrix44'; // 导入CubismMatrix44模块
+import { CubismViewMatrix } from '@framework/math/cubismviewmatrix'; // 导入CubismViewMatrix模块
 
-import * as LAppDefine from './lappdefine';
-import { LAppDelegate } from './lappdelegate';
-import { canvas, gl } from './lappglmanager';
-import { LAppLive2DManager } from './lapplive2dmanager';
-import { LAppPal } from './lapppal';
-import { LAppSprite } from './lappsprite';
-import { TextureInfo } from './lapptexturemanager';
-import { TouchManager } from './touchmanager';
+import * as LAppDefine from './lappdefine'; // 导入LAppDefine模块
+import { LAppDelegate } from './lappdelegate'; // 导入LAppDelegate模块
+import { canvas, gl } from './lappglmanager'; // 从lappglmanager模块导入canvas和gl对象
+import { LAppLive2DManager } from './lapplive2dmanager'; // 导入LAppLive2DManager模块
+import { LAppPal } from './lapppal'; // 导入LAppPal模块
+import { LAppSprite } from './lappsprite'; // 导入LAppSprite类
+import { TextureInfo } from './lapptexturemanager'; // 导入TextureInfo类
+import { TouchManager } from './touchmanager'; // 导入TouchManager类
 
 /**
- * 描画クラス。
+ * 渲染类
  */
 export class LAppView {
   /**
-   * コンストラクタ
+   * 构造函数
    */
   constructor() {
-    this._programId = null;
-    this._back = null;
-    this._gear = null;
+    this._programId = null; // 着色器程序ID
+    this._back = null; // 背景精灵
+    this._gear = null; // 齿轮精灵
 
-    // タッチ関係のイベント管理
+    // 管理触摸相关的事件
     this._touchManager = new TouchManager();
 
-    // デバイス座標からスクリーン座標に変換するための
+    // 用于将设备坐标转换为屏幕坐标的矩阵
     this._deviceToScreen = new CubismMatrix44();
 
-    // 画面の表示の拡大縮小や移動の変換を行う行列
+    // 用于处理屏幕显示的缩放和移动的矩阵
     this._viewMatrix = new CubismViewMatrix();
   }
 
   /**
-   * 初期化する。
+   * 初始化
    */
   public initialize(): void {
     const { width, height } = canvas;
@@ -51,24 +51,24 @@ export class LAppView {
     const bottom: number = LAppDefine.ViewLogicalLeft;
     const top: number = LAppDefine.ViewLogicalRight;
 
-    this._viewMatrix.setScreenRect(left, right, bottom, top); // デバイスに対応する画面の範囲。 Xの左端、Xの右端、Yの下端、Yの上端
-    this._viewMatrix.scale(LAppDefine.ViewScale, LAppDefine.ViewScale);
+    this._viewMatrix.setScreenRect(left, right, bottom, top); // 设置屏幕范围，X的左端、X的右端、Y的下端、Y的上端
+    this._viewMatrix.scale(LAppDefine.ViewScale, LAppDefine.ViewScale); // 设置缩放比例
 
-    this._deviceToScreen.loadIdentity();
+    this._deviceToScreen.loadIdentity(); // 加载单位矩阵
     if (width > height) {
       const screenW: number = Math.abs(right - left);
-      this._deviceToScreen.scaleRelative(screenW / width, -screenW / width);
+      this._deviceToScreen.scaleRelative(screenW / width, -screenW / width); // 设置比例
     } else {
       const screenH: number = Math.abs(top - bottom);
-      this._deviceToScreen.scaleRelative(screenH / height, -screenH / height);
+      this._deviceToScreen.scaleRelative(screenH / height, -screenH / height); // 设置比例
     }
-    this._deviceToScreen.translateRelative(-width * 0.5, -height * 0.5);
+    this._deviceToScreen.translateRelative(-width * 0.5, -height * 0.5); // 设置平移
 
-    // 表示範囲の設定
-    this._viewMatrix.setMaxScale(LAppDefine.ViewMaxScale); // 限界拡張率
-    this._viewMatrix.setMinScale(LAppDefine.ViewMinScale); // 限界縮小率
+    // 设置显示范围
+    this._viewMatrix.setMaxScale(LAppDefine.ViewMaxScale); // 设置最大缩放比例
+    this._viewMatrix.setMinScale(LAppDefine.ViewMinScale); // 设置最小缩放比例
 
-    // 表示できる最大範囲
+    // 设置显示的最大范围
     this._viewMatrix.setMaxScreenRect(
       LAppDefine.ViewLogicalMaxLeft,
       LAppDefine.ViewLogicalMaxRight,
@@ -78,47 +78,53 @@ export class LAppView {
   }
 
   /**
-   * 解放する
+   * 释放资源
    */
   public release(): void {
     this._viewMatrix = null;
     this._touchManager = null;
     this._deviceToScreen = null;
 
-    this._gear.release();
-    this._gear = null;
+    if (this._gear) {
+      this._gear.release();
+      this._gear = null;
+    }
 
-    this._back.release();
-    this._back = null;
+    if (this._back) {
+      this._back.release();
+      this._back = null;
+    }
 
-    gl.deleteProgram(this._programId);
-    this._programId = null;
+    if (this._programId) {
+      gl.deleteProgram(this._programId);
+      this._programId = null;
+    }
   }
 
   /**
-   * 描画する。
+   * 渲染
    */
   public render(): void {
-    gl.useProgram(this._programId);
+    gl.useProgram(this._programId); // 使用着色器程序
 
     if (this._back) {
-      this._back.render(this._programId);
+      this._back.render(this._programId); // 渲染背景
     }
     if (this._gear) {
-      this._gear.render(this._programId);
+      this._gear.render(this._programId); // 渲染齿轮
     }
 
-    gl.flush();
+    gl.flush(); // 刷新渲染
 
     const live2DManager: LAppLive2DManager = LAppLive2DManager.getInstance();
 
-    live2DManager.setViewMatrix(this._viewMatrix);
+    live2DManager.setViewMatrix(this._viewMatrix); // 设置视图矩阵
 
-    live2DManager.onUpdate();
+    live2DManager.onUpdate(); // 更新模型
   }
 
   /**
-   * 画像の初期化を行う。
+   * 初始化图片
    */
   public initializeSprite(): void {
     const width: number = canvas.width;
@@ -129,17 +135,17 @@ export class LAppView {
 
     let imageName = '';
 
-    // 背景画像初期化
+    // 初始化背景图片
     imageName = LAppDefine.BackImageName;
 
-    // 非同期なのでコールバック関数を作成
+    // 异步加载图片，使用回调函数
     const initBackGroundTexture = (textureInfo: TextureInfo): void => {
       const x: number = width * 0.5;
       const y: number = height * 0.5;
 
       const fwidth = textureInfo.width * 2.0;
       const fheight = height * 0.95;
-      this._back = new LAppSprite(x, y, fwidth, fheight, textureInfo.id);
+      this._back = new LAppSprite(x, y, fwidth, fheight, textureInfo.id); // 创建背景精灵
     };
 
     textureManager.createTextureFromPngFile(
@@ -148,14 +154,14 @@ export class LAppView {
       initBackGroundTexture
     );
 
-    // 歯車画像初期化
+    // 初始化齿轮图片
     imageName = LAppDefine.GearImageName;
     const initGearTexture = (textureInfo: TextureInfo): void => {
       const x = width - textureInfo.width * 0.5;
       const y = height - textureInfo.height * 0.5;
       const fwidth = textureInfo.width;
       const fheight = textureInfo.height;
-      this._gear = new LAppSprite(x, y, fwidth, fheight, textureInfo.id);
+      this._gear = new LAppSprite(x, y, fwidth, fheight, textureInfo.id); // 创建齿轮精灵
     };
 
     textureManager.createTextureFromPngFile(
@@ -164,17 +170,17 @@ export class LAppView {
       initGearTexture
     );
 
-    // シェーダーを作成
+    // 创建着色器
     if (this._programId == null) {
       this._programId = LAppDelegate.getInstance().createShader();
     }
   }
 
   /**
-   * タッチされた時に呼ばれる。
+   * 触摸开始事件
    *
-   * @param pointX スクリーンX座標
-   * @param pointY スクリーンY座標
+   * @param pointX 屏幕X坐标
+   * @param pointY 屏幕Y坐标
    */
   public onTouchesBegan(pointX: number, pointY: number): void {
     this._touchManager.touchesBegan(
@@ -184,10 +190,10 @@ export class LAppView {
   }
 
   /**
-   * タッチしているときにポインタが動いたら呼ばれる。
+   * 触摸移动事件
    *
-   * @param pointX スクリーンX座標
-   * @param pointY スクリーンY座標
+   * @param pointX 屏幕X坐标
+   * @param pointY 屏幕Y坐标
    */
   public onTouchesMoved(pointX: number, pointY: number): void {
     const viewX: number = this.transformViewX(this._touchManager.getX());
@@ -203,85 +209,85 @@ export class LAppView {
   }
 
   /**
-   * タッチが終了したら呼ばれる。
+   * 触摸结束事件
    *
-   * @param pointX スクリーンX座標
-   * @param pointY スクリーンY座標
+   * @param pointX 屏幕X坐标
+   * @param pointY 屏幕Y坐标
    */
   public onTouchesEnded(pointX: number, pointY: number): void {
-    // タッチ終了
+    // 触摸结束
     const live2DManager: LAppLive2DManager = LAppLive2DManager.getInstance();
     live2DManager.onDrag(0.0, 0.0);
 
     {
-      // シングルタップ
+      // 单次触摸
       const x: number = this._deviceToScreen.transformX(
         this._touchManager.getX()
-      ); // 論理座標変換した座標を取得。
+      ); // 获取逻辑坐标转换后的X坐标
       const y: number = this._deviceToScreen.transformY(
         this._touchManager.getY()
-      ); // 論理座標変化した座標を取得。
+      ); // 获取逻辑坐标转换后的Y坐标
 
       if (LAppDefine.DebugTouchLogEnable) {
         LAppPal.printMessage(`[APP]touchesEnded x: ${x} y: ${y}`);
       }
       live2DManager.onTap(x, y);
 
-      // 歯車にタップしたか
+      // 判断是否点击了齿轮
       if (
         this._gear.isHit(
           pointX * window.devicePixelRatio,
           pointY * window.devicePixelRatio
         )
       ) {
-        live2DManager.nextScene();
+        live2DManager.nextScene(); // 切换到下一个场景
       }
     }
   }
 
   /**
-   * X座標をView座標に変換する。
+   * 将X坐标转换为View坐标
    *
-   * @param deviceX デバイスX座標
+   * @param deviceX 设备X坐标
    */
   public transformViewX(deviceX: number): number {
-    const screenX: number = this._deviceToScreen.transformX(deviceX); // 論理座標変換した座標を取得。
-    return this._viewMatrix.invertTransformX(screenX); // 拡大、縮小、移動後の値。
+    const screenX: number = this._deviceToScreen.transformX(deviceX); // 获取逻辑坐标转换后的X坐标
+    return this._viewMatrix.invertTransformX(screenX); // 获取缩放、移动后的X坐标
   }
 
   /**
-   * Y座標をView座標に変換する。
+   * 将Y坐标转换为View坐标
    *
-   * @param deviceY デバイスY座標
+   * @param deviceY 设备Y坐标
    */
   public transformViewY(deviceY: number): number {
-    const screenY: number = this._deviceToScreen.transformY(deviceY); // 論理座標変換した座標を取得。
-    return this._viewMatrix.invertTransformY(screenY);
+    const screenY: number = this._deviceToScreen.transformY(deviceY); // 获取逻辑坐标转换后的Y坐标
+    return this._viewMatrix.invertTransformY(screenY); // 获取缩放、移动后的Y坐标
   }
 
   /**
-   * X座標をScreen座標に変換する。
-   * @param deviceX デバイスX座標
+   * 将X坐标转换为Screen坐标
+   * @param deviceX 设备X坐标
    */
   public transformScreenX(deviceX: number): number {
-    return this._deviceToScreen.transformX(deviceX);
+    return this._deviceToScreen.transformX(deviceX); // 转换为屏幕X坐标
   }
 
   /**
-   * Y座標をScreen座標に変換する。
+   * 将Y坐标转换为Screen坐标
    *
-   * @param deviceY デバイスY座標
+   * @param deviceY 设备Y坐标
    */
   public transformScreenY(deviceY: number): number {
-    return this._deviceToScreen.transformY(deviceY);
+    return this._deviceToScreen.transformY(deviceY); // 转换为屏幕Y坐标
   }
 
-  _touchManager: TouchManager; // タッチマネージャー
-  _deviceToScreen: CubismMatrix44; // デバイスからスクリーンへの行列
-  _viewMatrix: CubismViewMatrix; // viewMatrix
-  _programId: WebGLProgram; // シェーダID
-  _back: LAppSprite; // 背景画像
-  _gear: LAppSprite; // ギア画像
-  _changeModel: boolean; // モデル切り替えフラグ
-  _isClick: boolean; // クリック中
+  _touchManager: TouchManager; // 触摸管理器
+  _deviceToScreen: CubismMatrix44; // 设备到屏幕的矩阵
+  _viewMatrix: CubismViewMatrix; // 视图矩阵
+  _programId: WebGLProgram; // 着色器程序ID
+  _back: LAppSprite; // 背景精灵
+  _gear: LAppSprite; // 齿轮精灵
+  _changeModel: boolean; // 模型切换标志
+  _isClick: boolean; // 点击标志
 }
