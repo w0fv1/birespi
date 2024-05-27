@@ -13,29 +13,29 @@ currentSystem = sys.platform
 
 def getFfprobePath():
     if currentSystem == "win32":
-        return os.path.join(currentPath, "lib", "ff_windows", "ffprobe.exe")
+        return os.path.join("lib", "ff_windows", "ffprobe.exe")
     elif currentSystem == "linux":
-        return os.path.join(currentPath, "ffmpeg", "ff_linux", "ffprobe")
+        return os.path.join("ffmpeg", "ff_linux", "ffprobe")
     elif currentSystem == "darwin":
-        return os.path.join(currentPath, "ffmpeg", "ff_mac", "ffprobe")
+        return os.path.join("ffmpeg", "ff_mac", "ffprobe")
 
 
 def getFfplayerPath():
     if currentSystem == "win32":
-        return os.path.join(currentPath, "lib", "ff_windows", "ffplay.exe")
+        return os.path.join("lib", "ff_windows", "ffplay.exe")
     elif currentSystem == "linux":
-        return os.path.join(currentPath, "ffmpeg", "ff_linux", "ffplay")
+        return os.path.join("ffmpeg", "ff_linux", "ffplay")
     elif currentSystem == "darwin":
-        return os.path.join(currentPath, "ffmpeg", "ff_mac", "ffplay")
+        return os.path.join("ffmpeg", "ff_mac", "ffplay")
 
 
 def getFfmpegPath():
     if currentSystem == "win32":
-        return os.path.join(currentPath, "lib", "ff_windows", "ffmpeg.exe")
+        return os.path.join("lib", "ff_windows", "ffmpeg.exe")
     elif currentSystem == "linux":
-        return os.path.join(currentPath, "ffmpeg", "ff_linux", "ffmpeg")
+        return os.path.join("ffmpeg", "ff_linux", "ffmpeg")
     elif currentSystem == "darwin":
-        return os.path.join(currentPath, "ffmpeg", "ff_mac", "ffmpeg")
+        return os.path.join("ffmpeg", "ff_mac", "ffmpeg")
 
 
 class BiRespiConfig:
@@ -56,7 +56,7 @@ class BiRespiConfig:
             "type": "EdgeSpeaker",
             "EdgeSpeaker": {
                 "voice": "zh-CN-XiaoxiaoNeural",
-                "outputPath": os.path.join(currentPath, "sound"),
+                "outputPath": "sound",
             },
         },
         ComponentConfigKey.Player: {
@@ -137,10 +137,11 @@ class BiRespiConfig:
             if "type" in componentConfig.keys():
                 type = componentConfig["type"]
                 self.birespiConfig[componentConfigKey]["type"] = type
-            
-            if "enable" in self.birespiConfig[componentConfigKey].keys():
-                self.birespiConfig[componentConfigKey]["enable"] = componentConfig["enable"]
 
+            if "enable" in self.birespiConfig[componentConfigKey].keys():
+                self.birespiConfig[componentConfigKey]["enable"] = componentConfig[
+                    "enable"
+                ]
 
             for subType in componentConfig.keys():
                 if subType == "type":
@@ -190,7 +191,6 @@ class BiRespiConfig:
             return self.getLoggerConfigDict()
         if componentConfigKey == ComponentConfigKey.LiveEventReceiver:
             return self.getEventExporterConfigDict()
-        
 
         if "type" not in self.birespiConfig[componentConfigKey].keys():
             return self.birespiConfig[componentConfigKey]
@@ -264,7 +264,8 @@ class BiRespiConfig:
 
     def enablePlayer(self) -> bool:
         return self.birespiConfig[ComponentConfigKey.Player]["enable"]
-    
+
+
 class BirespiConfigHolder:
     birespiConfig: BiRespiConfig = None
 
