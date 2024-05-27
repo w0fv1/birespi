@@ -47,12 +47,8 @@ class CommandTaskData(TaskData[str]):
     def getData(self) -> str:
         return self.command
 
-    def getDataDict(self)  -> Dict[str, Any]:
-        print("2222222222222222222222222222")
+    def getDataDict(self) -> Dict[str, Any]:
         return {"command": self.command}
-
-
-
 
 
 # 基于TaskData的泛型
@@ -73,25 +69,27 @@ class Task(BaseModel, Generic[T]):
         self.id = id
         self.taskType = taskType
         self.taskData = taskData
-        print(f"Task: {self.taskData.getData()}")
-
         self.priority = priority
 
     @staticmethod
     def ReplyDanmu(
         danmu: LiveMessage[DanmuMessageData],
     ) -> "Task[LiveMessage[DanmuMessageData]]":
-        return Task(taskType=TaskType.ReplyDanmu, taskData=DanmuTaskData(danmu), priority=1)
+        return Task(
+            taskType=TaskType.ReplyDanmu, taskData=DanmuTaskData(danmu), priority=1
+        )
 
     @staticmethod
     def Command(command: str) -> "Task[str]":
-        return Task(taskType=TaskType.ExecCommand, taskData=CommandTaskData(command), priority=2)
+        return Task(
+            taskType=TaskType.ExecCommand, taskData=CommandTaskData(command), priority=2
+        )
 
     def getTaskTitle(self) -> str:
         if self.taskType == TaskType.ReplyDanmu:
             return f'回复来自{self.taskData.getData().fromUser}弹幕"{self.taskData.getData().data.content}"的任务'
         if self.taskType == TaskType.ExecCommand:
-            return f"执行指令{self.taskData.getData().command}的任务"
+            return f"执行指令{self.taskData.getData()}的任务"
         return "未知任务"
 
     def toDisplayDict(self) -> dict:
@@ -100,6 +98,6 @@ class Task(BaseModel, Generic[T]):
             "taskType": self.taskType.value,
             "priority": self.priority,
             "taskTitle": self.getTaskTitle(),
-            "taskData": self.taskData.getData().model_dump(),
+            "taskData": self.taskData.getData(),
             "taskDetail": self.model_dump(),
         }

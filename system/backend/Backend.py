@@ -20,6 +20,7 @@ from fastapi.responses import StreamingResponse
 import aiohttp
 import io
 import subprocess
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class BirespiBackendConfig:
@@ -45,7 +46,6 @@ class BirespiApi:
 
     def restart(self):
         getLogger().logInfo("Restarting backend server")
-        print("Restarting backend server", self.server_process)
         if self.server_process != None:
             getLogger().logInfo("Killing backend server")
             self.server_process.send_signal(signal.SIGINT)
@@ -77,7 +77,13 @@ class BirespiApi:
             "access",
             "file-access",
         ]
-
+        self.api.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
         uvicorn.run(
             self.api,
             host="localhost",

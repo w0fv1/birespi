@@ -47,7 +47,6 @@ class ADataer(BaseDataer):
     config: DataerConfig = None
 
     def __init__(self, config: dict) -> None:
-        print(config, type(config), config)
         self.config = DataerConfig.fromDict(config)
         self.loadDatas()
 
@@ -56,7 +55,6 @@ class ADataer(BaseDataer):
         # 读取dataPath文件夹下所有文件的内容，存入self.data
 
         for file in os.listdir(self.config.dataPath):
-            print(type(file), file)
             self.loadData(file)
 
     def loadData(self, filename: str):

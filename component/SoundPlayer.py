@@ -51,11 +51,9 @@ class WindowsPlayer(BasePlayer):
         if soundPath.endswith(".mp3"):
             finalSoundPath = soundPath.replace(".mp3", ".wav")
             self.convert_mp3_to_wav(soundPath, finalSoundPath)
+        winsound.PlaySound(finalSoundPath, winsound.SND_FILENAME)
         if self.config.playDelete:
             os.remove(finalSoundPath)
-
-        winsound.PlaySound(finalSoundPath, winsound.SND_FILENAME)
-
 
 class MiniPlayer(BasePlayer):
 
@@ -134,6 +132,6 @@ class PydubPlayer(BasePlayer):
             AudioSegment.converter = self.config.ffmpegPath
         sound = AudioSegment.from_file(soundPath)
         play(sound)
-        if self.config.playDelete:
-            # 调用系统命令删除文件sound
-            os.remove(soundPath)
+        # if self.config.playDelete:
+        #     # 调用系统命令删除文件sound
+        #     os.remove(soundPath)

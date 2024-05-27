@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from model.LiveEventMessage import LiveMessage
 from model.Task import Task
+import os
 
 
 class EventType(Enum):
@@ -64,13 +65,14 @@ class ExportEvent(BaseModel):
         )
 
     def toDict(self):
-        
+
         # 判断liveMessage 是否为None
         return {
             "eventType": self.eventType.value,
             "message": self.message,
-            "sound": self.sound,
+            "soundPath": self.sound,
+            "sound": self.sound.split(os.sep)[-1] if self.sound else None,
             "liveMessage": self.liveMessage.model_dump() if self.liveMessage else None,
             "task": self.task.model_dump() if self.task else None,
-            "taskData": self.task.taskData.model_dump()
+            "taskData": self.task.taskData.model_dump(),
         }

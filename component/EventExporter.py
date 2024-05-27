@@ -11,6 +11,7 @@ import time
 from system.Logger import getLogger
 from util.JsonUtil import EnumEncoder
 from fastapi import Depends, FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 
 class EventExporterConfig:
@@ -42,7 +43,13 @@ class EventExporter:
 
     def startSoundFileApi(self):
         app = FastAPI()
-
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
         @app.get("/sound/{filename}")
         async def getSound(filename: str):
             return FileResponse(f"sound/{filename}")
@@ -50,14 +57,12 @@ class EventExporter:
         uvicorn.run(app, host=self.config.host, port=self.config.port - 1)
 
     async def _handler(self, websocket):
-        print("Websocket connected")
+        getLogger().logInfo("Websocket connected")
         self.websocketList.append(websocket)
         async for message in websocket:
-            print(f"Received: {message}")
             await websocket.send(message)
 
     async def send(self, message: dict):
-        print(f"Sending message {message} to all websockets")
         for websocket in self.websocketList:
             if websocket.open:
                 await websocket.send(

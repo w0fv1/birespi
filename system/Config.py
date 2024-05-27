@@ -61,6 +61,7 @@ class BiRespiConfig:
         },
         ComponentConfigKey.Player: {
             "type": "PydubPlayer",
+            "enable": True,
             "PydubPlayer": {
                 "ffprobePath": getFfprobePath(),
                 "ffplayPath": getFfplayerPath(),
@@ -136,14 +137,14 @@ class BiRespiConfig:
             if "type" in componentConfig.keys():
                 type = componentConfig["type"]
                 self.birespiConfig[componentConfigKey]["type"] = type
+            
+            if "enable" in self.birespiConfig[componentConfigKey].keys():
+                self.birespiConfig[componentConfigKey]["enable"] = componentConfig["enable"]
 
-            print("componentConfig", componentConfig)
 
             for subType in componentConfig.keys():
                 if subType == "type":
                     continue
-                print(f"subType: {subType}")
-                # print(f"componentConfig[subType]: {componentConfig[subType]}")
                 self.setComponentConfig(
                     componentConfigKey, subType, componentConfig[subType]
                 )
@@ -154,13 +155,6 @@ class BiRespiConfig:
 
         if componentConfigKey not in self.birespiConfig.keys():
             self.birespiConfig[componentConfigKey] = {}
-
-        # if (
-        #     componentConfigKey == ComponentConfigKey.WebUi
-        #     or componentConfigKey == ComponentConfigKey.Logger
-        # ):
-        #     self.birespiConfig[componentConfigKey] = config
-        #     return
 
         self.birespiConfig[componentConfigKey][type] = config
 
@@ -196,12 +190,12 @@ class BiRespiConfig:
             return self.getLoggerConfigDict()
         if componentConfigKey == ComponentConfigKey.LiveEventReceiver:
             return self.getEventExporterConfigDict()
+        
 
         if "type" not in self.birespiConfig[componentConfigKey].keys():
             return self.birespiConfig[componentConfigKey]
-        
-        type = self.birespiConfig[componentConfigKey]["type"]
 
+        type = self.birespiConfig[componentConfigKey]["type"]
 
         return self.birespiConfig[componentConfigKey][type]
 
@@ -215,7 +209,7 @@ class BiRespiConfig:
             return self.getLoggerConfigDict()
         if componentConfigKey == ComponentConfigKey.LiveEventReceiver:
             return self.getEventExporterConfigDict()
-        
+
         if type == "":
             type = self.birespiConfig[componentConfigKey]
 
@@ -266,10 +260,11 @@ class BiRespiConfig:
 
     def getCommandPrompt(self) -> str:
         subtype: str = self.birespiConfig[ComponentConfigKey.Chatter]["type"]
-        print(f"subtype: {subtype}")
         return self.birespiConfig[ComponentConfigKey.Chatter][subtype]["commandPrompt"]
 
-
+    def enablePlayer(self) -> bool:
+        return self.birespiConfig[ComponentConfigKey.Player]["enable"]
+    
 class BirespiConfigHolder:
     birespiConfig: BiRespiConfig = None
 

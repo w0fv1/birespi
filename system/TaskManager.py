@@ -79,7 +79,9 @@ class TaskManager:
             return
         self.isWorking = True
         self.currentTask = task
-        print(f"TaskManager: Processing task, self currentTask: {self.currentTask}")
+        getLogger().logInfo(
+            f"TaskManager: Processing task, self currentTask: {self.currentTask}"
+        )
 
         workFunction = self.workFunctionMap.get(task.taskType)
         if workFunction is not None:

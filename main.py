@@ -20,11 +20,11 @@ def main():
         jsonConfigPath=getArgConfigPath(), version=version
     )
     birespiConfigHolder.set(birespiConfig)
-    print(getConfig().getJsonConfig())
+
     getConfig().saveJsonConfig()
     logger: BLogger = BLogger()
     bLoggerHolder.set(logger)
-
+    getLogger().logInfo(getConfig().getJsonConfig())
     getLogger().logInfo(f"Starting BiRespi {version}...")
 
     birespi: Birespi = Birespi()

@@ -114,8 +114,3 @@ class LiveMessage(BaseModel, Generic[T]):
         }, ensure_ascii=False, cls=EnumEncoder, indent=4)
 
 
-# Example Usage
-if __name__ == "__main__":
-
-    msg = LiveMessage.Danmu(fromUser="user1", content="Hello World!")
-    print(msg.toJSON())

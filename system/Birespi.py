@@ -35,7 +35,7 @@ class Birespi:
         async def replyDanmu(danmuTask: Task[LiveMessage[DanmuMessageData]]):
             danmu: LiveMessage[DanmuMessageData] = danmuTask.taskData.getData()
 
-            print(f"ReplyDanmu: {danmu}")
+            getLogger().logInfo(f"ReplyDanmu: {danmu}")
             data: str = await self.componentManager.dataer.getSimilarity(
                 danmu.data.content
             )
@@ -61,12 +61,13 @@ class Birespi:
                 message=answer, sound=sound, liveMessage=danmu, task=danmuTask
             )
             await self.componentManager.eventExporter.send(exportEvent.toDict())
-            self.componentManager.player.play(sound)
+            if (getConfig().enablePlayer()):
+                self.componentManager.player.play(sound)
 
         async def execCommand(commandTask: Task[str]):
             command: str = commandTask.taskData.getData()
 
-            print(f"command: {command}")
+            getLogger().logInfo(f"Exec command: {command}")
             data: str = await self.componentManager.dataer.getSimilarity(command)
             answer: str = await self.componentManager.chatter.answer(
                 getConfig().getCommandPrompt(),
@@ -83,8 +84,9 @@ class Birespi:
                 message=answer, sound=sound, task=commandTask
             )
             await self.componentManager.eventExporter.send(exportEvent.toDict())
-            self.componentManager.player.play(sound)
-
+            if (getConfig().enablePlayer()):
+                self.componentManager.player.play(sound)
+                
         self.taskManager.putWorkFuntion(TaskType.ReplyDanmu, replyDanmu)
         self.taskManager.putWorkFuntion(TaskType.ExecCommand, execCommand)
         thread = threading.Thread(target=self.startReceive)
@@ -92,11 +94,11 @@ class Birespi:
 
         thread = threading.Thread(target=self.startWork)
         thread.start()
-        print("Birespi word started")
+        getLogger().logInfo("Birespi work started")
         serverThread = threading.Thread(target=self.startEventExporter)
         serverThread.start()
 
-        print("Birespi EventExporter started")
+        getLogger().logInfo("Birespi EventExporter started")
         return self
 
     async def replyByBid(self, bId: str):
