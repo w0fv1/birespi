@@ -1,0 +1,102 @@
+<html>
+
+<head>
+  <script src="./js/live2dcubismcore.min.js"></script>
+  <script src="./js/live2d.min.js"></script>
+  <script src="./js/pixi.min.js"></script>
+  <script src="./js/cubism4.min.js"></script>
+  <script src="./js/jquery-3.1.1.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="./js/normalize.css">
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <button id="btn">Talk</button>
+  <script type="text/javascript">
+    const config = {
+      width: 300,
+      height: 400,
+      backgroundColor: 0x00000000,
+      backgroundAlpha: 0,
+      modelPath: './models/pachan/pachan.model3.json',
+      canvasId: 'canvas'
+    }
+    // 模型路径
+    const modelPath = config.modelPath;
+
+    // 导入Live2D库和PIXI库
+    const live2d = PIXI.live2d;
+
+    const canvas = document.getElementById(config.canvasId);
+    canvas.width = config.width;
+    canvas.height = config.height;
+    let model = null;
+
+    // 使用异步函数加载和显示模型
+    (async function main() {
+      // 创建PIXI应用
+      const app = new PIXI.Application({
+        view: canvas, // 将画布绑定到HTML中的canvas元素
+        autoStart: true, // 自动启动应用
+        width: config.width, // 设置宽度为800px
+        height: config.height, // 设置高度为600px
+        backgroundColor: config.backgroundColor, // 设置背景颜色为黑色
+        backgroundAlpha: config.backgroundAlpha, // 设置背景透明度为0
+
+      });
+
+      // 异步加载模型
+      const models = await Promise.all([
+        live2d.Live2DModel.from(modelPath) // 从指定路径加载Live2D模型
+      ]);
+
+      // 遍历加载的模型，并添加到舞台上
+      models.forEach((model) => {
+        app.stage.addChild(model);
+        const scaleX = config.width / model.width;
+        const scaleY = config.height / model.height;
+        model.scale.set(Math.min(scaleX, scaleY)); // 按比例缩放模型
+        model.y = 600 * 0.1; // 设置模型的y坐标位置
+      });
+
+      model = models[0];
+
+      // 点击事件
+      document.getElementById('btn').addEventListener('click', () => {
+        model.speak("./Keira.wav")
+      });
+
+    })();
+    let eventSource;
+
+    function connectEventSource() {
+      eventSource = new EventSource('/event-stream');
+
+      eventSource.onopen = function () {
+        console.log('EventSource connected.');
+      };
+
+      eventSource.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        console.log(data);
+        model.speak(`/birespi-api/sound/${data.sound}`)
+      };
+
+      eventSource.onerror = function () {
+        console.error('EventSource failed. Reconnecting in 1 second...');
+        eventSource.close();
+        setTimeout(connectEventSource, 1000); // 1秒后重连
+      };
+    }
+
+    // 初始连接
+    connectEventSource();
+
+  </script>
+  <style>
+  </style>
+</body>
+
+</html>
