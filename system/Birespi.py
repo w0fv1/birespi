@@ -115,7 +115,10 @@ class Birespi:
         asyncio.run(self.taskManager.start())
 
     def startEventExporter(self):
+        serverThread = threading.Thread(target=self.componentManager.eventExporter.startSoundFileApi)
+        serverThread.start()
         asyncio.run(self.componentManager.eventExporter.start())
+        
 
     def process(self, danmu: LiveMessage):
         if danmu.event == LiveEvent.Danmu:

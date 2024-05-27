@@ -111,8 +111,11 @@ class BirespiApi:
 
     @api.get("/static/{file_path:path}")
     def static_file(file_path: str) -> FileResponse:
-
         return FileResponse(f"system/backend/static/{file_path}")
+
+    @api.get("/sound/{filename}")
+    async def getSound(filename: str):
+        return FileResponse(f"sound/{filename}")
 
     @api.get("/api/0")
     def read_root() -> dict:

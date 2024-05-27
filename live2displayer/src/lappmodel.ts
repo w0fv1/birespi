@@ -971,9 +971,6 @@ export class LAppModel extends CubismUserModel {
     this._idParamBodyAngleX = CubismFramework.getIdManager().getId(
       CubismDefaultParameterId.ParamBodyAngleX,
     );
-    this._idParamMouthOpenY = CubismFramework.getIdManager().getId(
-      CubismDefaultParameterId.ParamMouthOpenY,
-    );
 
     if (LAppDefine.MOCConsistencyValidationEnable) {
       this._mocConsistency = true;
@@ -1016,14 +1013,4 @@ export class LAppModel extends CubismUserModel {
   _wavFileHandler: LAppWavFileHandler; // wav文件处理器
   _consistency: boolean; // MOC3一致性检查管理
 
-  _idParamMouthOpenY: CubismIdHandle; // 参数ID: ParamMouthOpenY
-
-  // 增加的控制嘴巴开合的函数
-  public setMouthOpen(value: number): void {
-    if (value < 0) value = 0;
-    if (value > 100) value = 100;
-
-    const mouthOpenValue = value / 100.0; // 将范围转换为0.0到1.0
-    this._model.addParameterValueById(this._idParamMouthOpenY, mouthOpenValue);
-  }
 }

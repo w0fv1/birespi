@@ -2,12 +2,15 @@
 
 import asyncio
 import json
+from fastapi.responses import FileResponse
+import uvicorn
 from websockets.server import serve
 import threading
 import time
 
 from system.Logger import getLogger
 from util.JsonUtil import EnumEncoder
+from fastapi import Depends, FastAPI, File, UploadFile
 
 
 class EventExporterConfig:
@@ -36,6 +39,15 @@ class EventExporter:
                 f"Event exporter websocket server started at {self.config.host}:{self.config.port}"
             )
             await asyncio.Future()  # run forever
+
+    def startSoundFileApi(self):
+        app = FastAPI()
+
+        @app.get("/sound/{filename}")
+        async def getSound(filename: str):
+            return FileResponse(f"sound/{filename}")
+
+        uvicorn.run(app, host=self.config.host, port=self.config.port - 1)
 
     async def _handler(self, websocket):
         print("Websocket connected")
