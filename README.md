@@ -1,4 +1,4 @@
-# Birespi 哔哩哔哩应答姬 V0.6.2 [建设中...]
+# Birespi 哔哩哔哩应答姬 V0.7.2 [建设中...]
 
 哔哩哔哩应答姬是一个基于AI的自动语音回复直播间弹幕的Bot.
 
@@ -20,6 +20,7 @@
 - RAG资料库
 - 良好的后台管理界面
 - 支持多种直播平台
+- 接入Live2D显示
 
 # 如何使用
 
@@ -127,6 +128,10 @@ config的格式为json:
 
 其他配置通常情况下不需要修改, 如果有需要, 请看`system/config.py`文件, 里面有所有的配置项.
 
+### 3. Live2D配置与安装
+
+Live2D模块是可选的, 如果需要使用Live2D, 请进入`live2displayer`目录, 然后按照`live2displayer/README.md`的说明进行安装.
+
 ### 3. 运行
 
 #### 脚本运行:
@@ -182,15 +187,25 @@ python main.py config=/path/to/config.json
 
 可访问`http://localhost:8000`进入后台
 
+### 5. Live2D
+
+如果需要使用Live2D, 请进入`live2displayer`目录, 然后按照`live2displayer/README.md`的说明进行运行.
+
 # TODO
 
 1. 增加gpt-sovits的部署和支持
 2. 更好的打包, 例如exe, docker等
 3. 更好的文档
-4. 形象界面
+4. 补充单元测试
+
+# Q&A
+
+1. 为什么将Live2Displayer单独分离?
+
+因为在设想中, Live2Displayer是一个独立的前端模块, 可以单独部署, 也可以单独运行, 也可以单独开发, 所以将其分离.
 
 # 最后
 
-本项目测试不完全, 如果有任何问题, 请提issue, 谢谢!
+本项目测试不完全, 仅在Windows11&Python 3.12.3进行了测试, 如果有任何问题, 请提issue, 谢谢!
 
 作者放弃一切权利, 任何人可以自由使用, 修改, 分发, 但是请保留原作者信息, 谢谢!
