@@ -8,9 +8,12 @@
   <script src="./static/cubism4.min.js"></script>
   <script src="./static/jquery-3.1.1.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="./static/alpine.js"></script>
+  <script src="./static/alpine.js" defer></script>
 
   <link rel="stylesheet" type="text/css" href="./static/normalize.css">
+
+  <script src="./static/popper.min.js"></script>
+  <script src="./static/tippy.min.js"></script>
   <style>
     main {
       height: 100vh;
@@ -18,6 +21,10 @@
       background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
       display: flex;
       flex-direction: row;
+    }
+
+    .tippy-content {
+      font-size: 24px !important;
     }
 
     .cover {
@@ -93,8 +100,8 @@
     }
 
     .danmu-avatar {
-      width: 30px;
-      height: 30px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background-color: #fbc2eb;
       border: #c8e2f2 8px solid;
@@ -136,11 +143,15 @@
     }
   </style>
   <script>
+
     function app() {
       return {
         model: null,
         danmus: [],
+        currentSpeakContent: '',
+        tippyInstance: null,
         async init() {
+
           const config = {
             width: 400,
             height: 600,
@@ -182,11 +193,39 @@
           this.connectEventSource();
 
         },
-        speak() {
+        initSpeak() {
           if (this.model) {
             this.model.speak("./test.wav");
             $('#cover').hide();
+            this.tippyInstance = tippy('#canvas', {
+              content: "你好！",
+              placement: 'top',
+              offset: [0, -80], // 调整偏移量，使tooltip在元素内部的中上方显示
+              showOnCreate: true,
+              arrow: true,
+            });
+            const tippyInstance = this.tippyInstance[0];
+            // 每秒使tippyInstance的x坐标减少1
+
+            document.addEventListener('mousemove', function (e) {
+
+              let tippyInstanceRect = tippyInstance.popper.getBoundingClientRect();
+              let tippyInstanceX = tippyInstanceRect.x;
+              let offsetX = e.pageX - tippyInstanceX;
+              let newOffsetX = offsetX * 0.1;
+              if (newOffsetX < -100) {
+                newOffsetX = -100;
+              }
+              tippyInstance.setProps({
+                offset: [newOffsetX, -80]
+              });
+              tippyInstance.show();
+
+            })
+
+
           }
+
         },
         connectEventSource() {
           let eventSource = new EventSource('/event-stream');
@@ -202,11 +241,28 @@
                 bId: data.liveMessage.bId,
                 bTimestamp: data.liveMessage.timestamp,
                 username: data.liveMessage.fromUser,
-                useravatar: data.liveMessage.userAvatar,
+                userAvatar: data.liveMessage.userAvatar,
                 content: data.liveMessage.data.content
               });
-              this.model.speak(`/birespi-api/sound/${data.sound}`);
-              // 滚动到底部
+              let instance
+              if (this.currentSpeakContent === "") {
+                this.currentSpeakContent = data.message;
+
+                this.tippyInstance[0].setContent(this.currentSpeakContent);
+                this.tippyInstance[0].show();
+                setTimeout(() => {
+                  this.tippyInstance[0].hide();
+                }, 5000);
+              }
+
+              this.model.speak(`/birespi-api/sound/${data.sound}`, {
+                onFinish: () => {
+                  console.log('speak finished');
+                  this.currentSpeakContent = "";
+                  console.log("finished", this.currentSpeakContent);
+                }
+              });
+              console.log(this.currentSpeakContent);
 
             }
           };
@@ -257,7 +313,7 @@
         <div class="danmu-list">
           <template x-for="danmu in danmus">
             <div class="danmu-item">
-              <div class="danmu-avatar" :style="{ 'background-image': 'url(' + danmu.useravatar + ')' }"></div>
+              <img class="danmu-avatar" :src="'/proxy/?url='+danmu.userAvatar" alt="">
               <div class="danmu-content">
                 <div class="danmu-username" x-text="danmu.username"></div>
                 <div class="danmu-text" x-text="danmu.content"></div>
@@ -273,9 +329,9 @@
       </div>
     </div>
   </main>
-  <div id="cover" class="cover" @click="speak()">
+  <div id="cover" class="cover" @click="initSpeak()">
     <div class="cover-center">
-      <h1>请点击</h1>
+      <h1>请点击页面</h1>
       <span>如果不点击，模型将不会说话</span>
     </div>
   </div>
