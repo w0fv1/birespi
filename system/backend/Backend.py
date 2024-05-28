@@ -253,6 +253,7 @@ class BirespiApi:
 
             config[componentKey] = {
                 "componentSubTypes": subTypes,
+                "enable": getConfig().isComponentEnable(componentKey.value),
                 "componentCurrentSubType": currentSubType,
                 "componentConfig": getConfig().getCurrentComponentConfig(
                     componentKey.value
@@ -280,6 +281,33 @@ class BirespiApi:
             getBirespiBackend().api.restart()
         getConfig().saveJsonConfig()
         return {"code": 0}
+
+    @api.put("/api/config/component/{componentKeyStr}/enable")
+    def enableComponent(componentKeyStr: str) -> dict:
+
+        getConfig().enableComponent(componentKeyStr)
+        componentKeys = getConfig().getComponentKeys()
+        config = {}
+
+        for componentKey in componentKeys:
+            currentSubType: str = getConfig().getComponentCurrentType(
+                componentKey.value
+            )
+            subTypes: list[str] = getConfig().getComponentSubTypes(componentKey.value)
+
+            config[componentKey] = {
+                "componentSubTypes": subTypes,
+                "enable": getConfig().isComponentEnable(componentKey.value),
+                "componentCurrentSubType": currentSubType,
+                "componentConfig": getConfig().getCurrentComponentConfig(
+                    componentKey.value
+                ),
+            }
+
+        return {
+            "code": 0,
+            "data": {"config": config, "componentKeys": componentKeys},
+        }
 
     @api.get("/proxy/")
     async def proxy_image(url: str):

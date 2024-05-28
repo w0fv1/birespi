@@ -58,7 +58,13 @@
                     const applyComponentConfigResult = await setComponentConfig(
                         componentKey, this.config[componentKey].componentCurrentSubType, componentConfig);
 
-                }
+                },
+                async enableComponent(componentKey) {
+                    const enableComponentResult = await enableComponent(componentKey);
+                    if (enableComponentResult.code === 0) {
+                        this.config = enableComponentResult.data.config;
+                    }
+                },
             };
         }
 
@@ -113,8 +119,17 @@
             <div>
                 <div class="card"
                     style="width: 80%;max-width: 1200px; min-width: 800px; margin-left: auto; margin-right: auto;">
-                    <div class="card-header" x-text="componentKey">
-                        配置标题
+                    <div class="card-header">
+                        <span x-text="componentKey"></span>
+                        <span x-text="config[componentKey].enable|| config[componentKey].enable==null?'(已启用)':'(已禁用)'
+                        "></span>
+
+                        <template x-if="config[componentKey].enable">
+                            <button class="btn btn-danger btn-sm" @click="enableComponent(componentKey)">禁用</button>
+                        </template>
+                        <template x-if="!config[componentKey].enable&&config[componentKey].enable!=null">
+                            <button class="btn btn-success btn-sm" @click="enableComponent(componentKey)">启用 </button>
+                        </template>
                     </div>
                     <div class="card-body" style="width: 100%;">
                         <template x-if="(config[componentKey].componentSubTypes).length !== 0">
@@ -136,34 +151,7 @@
                                 <label x-bind:for="componentKey+'-'+configItemKey" class="form-label"
                                     x-text="configItemKey"></label>
                                 <div class="input-group mb-3">
-                                    <!-- <template
-                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length > 40">
-                                        <textarea class="form-control" x-bind:id="componentKey+'-'+configItemKey"
-                                            x-text="config[componentKey].componentConfig[configItemKey]"></textarea>
-                                    </template>
-                                    <template
-                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'string' && config[componentKey].componentConfig[configItemKey].length <= 40">
-                                        <input type="text" class="form-control"
-                                            x-bind:id="componentKey+'-'+configItemKey"
-                                            :value="config[componentKey].componentConfig[configItemKey]">
-                                    </template>
-                                    <template
-                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'boolean'">
-                                        <select class="form-control" x-bind:id="componentKey+'-'+configItemKey">
-                                            <option
-                                                :selected="config[componentKey].componentConfig[configItemKey] === true"
-                                                value="true">True</option>
-                                            <option
-                                                :selected="config[componentKey].componentConfig[configItemKey] === false"
-                                                value="false">False</option>
-                                        </select>
-                                    </template>
-                                    <template
-                                        x-if="typeof config[componentKey].componentConfig[configItemKey] === 'number'">
-                                        <input type="number" class="form-control"
-                                            x-bind:id="componentKey+'-'+configItemKey"
-                                            :value="config[componentKey].componentConfig[configItemKey]">
-                                    </template> -->
+
 
                                     <div class="input-group mb-3">
                                         <template

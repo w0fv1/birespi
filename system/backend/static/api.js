@@ -264,6 +264,22 @@ async function getConfig() {
     };
 }
 
+async function enableComponent(componentType) {
+
+
+    const response = await fetch(`/api/config/component/${componentType}/enable`, {
+        method: 'PUT'
+    });
+    const data = await response.json();
+
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    };
+}
+
+
 async function getComponentSubtypeConfig(componentType, subtype) {
     const response = await fetch(`/api/config/component/${componentType}/subtype/${subtype}`);
     const data = await response.json();

@@ -112,6 +112,6 @@ class TaskManager:
         return {
             "isPaused": self.isPaused,
             "taskCount": len(self.taskQueue),
-            "currentTask": self.currentTask.getTaskTitle(),
+            "currentTask": self.currentTask.getTaskTitle() if self.currentTask is not None else None,
             "finishedTaskCount": self.finishedTaskCount,
         }

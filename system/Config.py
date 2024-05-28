@@ -166,6 +166,13 @@ class BiRespiConfig:
     def getComponentKeys(self) -> list[ComponentConfigKey]:
         return list(self.birespiConfig.keys())
 
+    def enableComponent(self, componentConfigKeyStr: str):
+        componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+        if "enable" not in self.birespiConfig[componentConfigKey].keys():
+            
+            return
+        self.birespiConfig[componentConfigKey]["enable"] = not  self.birespiConfig[componentConfigKey]["enable"]
+
     def getComponentCurrentType(self, componentConfigKeyStr: str) -> str:
         componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
         component: dict = self.birespiConfig[componentConfigKey]
@@ -180,7 +187,11 @@ class BiRespiConfig:
         componentsSubTypes = list(component.keys())
         if "type" not in componentsSubTypes:
             return []
-        componentsSubTypes.remove("type")
+        if "type" in componentsSubTypes:
+            componentsSubTypes.remove("type")
+
+        if "enable" in componentsSubTypes:
+            componentsSubTypes.remove("enable")
         return componentsSubTypes
 
     def getCurrentComponentConfig(self, componentConfigKeyStr: str) -> dict:
@@ -214,6 +225,12 @@ class BiRespiConfig:
             type = self.birespiConfig[componentConfigKey]
 
         return self.birespiConfig[componentConfigKey][type]
+
+    def isComponentEnable(self, componentConfigKeyStr: str) -> bool:
+        componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
+        if "enable" not in self.birespiConfig[componentConfigKey].keys():
+            return None
+        return self.birespiConfig[componentConfigKey]["enable"]
 
     def getWebUiConfigDict(self) -> dict:
         return self.birespiConfig[ComponentConfigKey.WebUi]
