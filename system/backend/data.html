@@ -75,8 +75,7 @@
                     }
                 },
                 async deleteData(dataFilename) {
-                    const deleteDataResult = await dele
-                    teData(dataFilename);
+                    const deleteDataResult = await deleteData(dataFilename);
                     if (deleteDataResult.code === 0) {
                         alert('删除成功');
                         await this.init();
