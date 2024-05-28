@@ -1,102 +1,284 @@
+<!DOCTYPE html>
 <html>
 
 <head>
-  <script src="./js/live2dcubismcore.min.js"></script>
-  <script src="./js/live2d.min.js"></script>
-  <script src="./js/pixi.min.js"></script>
-  <script src="./js/cubism4.min.js"></script>
-  <script src="./js/jquery-3.1.1.min.js"></script>
+  <script src="./static/live2dcubismcore.min.js"></script>
+  <script src="./static/live2d.min.js"></script>
+  <script src="./static/pixi.min.js"></script>
+  <script src="./static/cubism4.min.js"></script>
+  <script src="./static/jquery-3.1.1.min.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="./static/alpine.js"></script>
 
-  <link rel="stylesheet" type="text/css" href="./js/normalize.css">
+  <link rel="stylesheet" type="text/css" href="./static/normalize.css">
+  <style>
+    main {
+      height: 100vh;
+      overflow: hidden;
+      background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+      display: flex;
+      flex-direction: row;
+    }
+
+    .cover {
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      cursor: pointer;
+    }
+
+    .cover-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #ededed;
+    }
+
+    .live2d-canvas-container {
+      width: fit-content;
+      border-radius: 20px;
+      background-color: #fff;
+      border: #bbcbdd 2px solid;
+    }
+
+    .danmu-container {
+      height: calc(100vh - 200px);
+      margin-bottom: 100px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 20px;
+      background-color: #ffffff;
+      border: #bbcbdd 2px solid;
+      padding-bottom: 20px;
+      min-width: 800px;
+    }
+
+    .danmu-header {
+      background-color: #f1f5f9;
+      border-radius: 12px 12px 0 0;
+      border-bottom: #bbcbdd 2px solid;
+      padding: 16px;
+      color: #1283c7;
+      font-size: large;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      /* Ensures the header is above the content */
+    }
+
+
+    .danmu-list {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+
+    }
+
+    .danmu-item {
+      margin: 10px;
+      padding: 20px;
+      border-radius: 14px;
+      background-color: #e7f2f9;
+      display: flex;
+      flex-direction: row;
+      border: #3584b5 2px solid;
+    }
+
+    .danmu-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #fbc2eb;
+      border: #c8e2f2 8px solid;
+    }
+
+    .danmu-content {
+      margin-left: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+    }
+
+    .danmu-username {
+      color: #1283c7;
+      font-size: large;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .danmu-text {
+      color: #1c1c1c;
+      font-weight: 500;
+    }
+
+    .left-container {
+      flex: 2;
+      height: 100vh;
+      padding: 100px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .right-container {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+  <script>
+    function app() {
+      return {
+        model: null,
+        danmus: [],
+        async init() {
+          const config = {
+            width: 400,
+            height: 600,
+            backgroundColor: 0x00000000,
+            backgroundAlpha: 0,
+            modelPath: './models/pachan/pachan.model3.json',
+            canvasId: 'canvas'
+          }
+
+          const modelPath = config.modelPath;
+          const live2d = PIXI.live2d;
+          const canvas = document.getElementById(config.canvasId);
+          canvas.width = config.width;
+          canvas.height = config.height;
+
+          const app = new PIXI.Application({
+            view: canvas,
+            autoStart: true,
+            width: config.width,
+            height: config.height,
+            backgroundColor: config.backgroundColor,
+            backgroundAlpha: config.backgroundAlpha,
+          });
+
+          const models = await Promise.all([
+            live2d.Live2DModel.from(modelPath)
+          ]);
+
+          models.forEach((model) => {
+            app.stage.addChild(model);
+            const scaleX = config.width / model.width;
+            const scaleY = config.height / model.height;
+            model.scale.set(Math.min(scaleX, scaleY));
+            model.y = 600 * 0.1;
+          });
+
+          this.model = models[0];
+          this.loadDanmus();
+          this.connectEventSource();
+
+        },
+        speak() {
+          if (this.model) {
+            this.model.speak("./test.wav");
+            $('#cover').hide();
+          }
+        },
+        connectEventSource() {
+          let eventSource = new EventSource('/event-stream');
+          eventSource.onopen = () => {
+            console.log('EventSource connected.');
+          };
+          eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log(data);
+
+            if (data.eventType === 'Danmu') {
+              this.addDanmu({
+                bId: data.liveMessage.bId,
+                bTimestamp: data.liveMessage.timestamp,
+                username: data.liveMessage.fromUser,
+                useravatar: data.liveMessage.userAvatar,
+                content: data.liveMessage.data.content
+              });
+              this.model.speak(`/birespi-api/sound/${data.sound}`);
+              // 滚动到底部
+
+            }
+          };
+          eventSource.onerror = () => {
+            console.error('EventSource failed. Reconnecting in 1 second...');
+            eventSource.close();
+            setTimeout(() => this.connectEventSource(), 1000);
+          };
+        },
+        addDanmu(danmu) {
+          this.danmus.push(danmu);
+          if (this.danmus.length > 100) {
+            this.danmus.shift();
+          }
+          this.saveDanmus();
+          setTimeout(() => {
+            // jq 
+            $('.danmu-list').scrollTop($('.danmu-list')[0].scrollHeight);
+          }, 10);
+        },
+        saveDanmus() {
+          localStorage.setItem('danmus', JSON.stringify(this.danmus));
+        },
+        loadDanmus() {
+          const savedDanmus = localStorage.getItem('danmus');
+          if (savedDanmus) {
+            this.danmus = JSON.parse(savedDanmus);
+            setTimeout(() => {
+              // jq 
+              $('.danmu-list').scrollTop($('.danmu-list')[0].scrollHeight);
+            }, 10);
+          }
+
+        }
+      }
+    }
+  </script>
+
 </head>
 
-<body>
-  <canvas id="canvas"></canvas>
-  <button id="btn">Talk</button>
-  <script type="text/javascript">
-    const config = {
-      width: 300,
-      height: 400,
-      backgroundColor: 0x00000000,
-      backgroundAlpha: 0,
-      modelPath: './models/pachan/pachan.model3.json',
-      canvasId: 'canvas'
-    }
-    // 模型路径
-    const modelPath = config.modelPath;
-
-    // 导入Live2D库和PIXI库
-    const live2d = PIXI.live2d;
-
-    const canvas = document.getElementById(config.canvasId);
-    canvas.width = config.width;
-    canvas.height = config.height;
-    let model = null;
-
-    // 使用异步函数加载和显示模型
-    (async function main() {
-      // 创建PIXI应用
-      const app = new PIXI.Application({
-        view: canvas, // 将画布绑定到HTML中的canvas元素
-        autoStart: true, // 自动启动应用
-        width: config.width, // 设置宽度为800px
-        height: config.height, // 设置高度为600px
-        backgroundColor: config.backgroundColor, // 设置背景颜色为黑色
-        backgroundAlpha: config.backgroundAlpha, // 设置背景透明度为0
-
-      });
-
-      // 异步加载模型
-      const models = await Promise.all([
-        live2d.Live2DModel.from(modelPath) // 从指定路径加载Live2D模型
-      ]);
-
-      // 遍历加载的模型，并添加到舞台上
-      models.forEach((model) => {
-        app.stage.addChild(model);
-        const scaleX = config.width / model.width;
-        const scaleY = config.height / model.height;
-        model.scale.set(Math.min(scaleX, scaleY)); // 按比例缩放模型
-        model.y = 600 * 0.1; // 设置模型的y坐标位置
-      });
-
-      model = models[0];
-
-      // 点击事件
-      document.getElementById('btn').addEventListener('click', () => {
-        model.speak("./Keira.wav")
-      });
-
-    })();
-    let eventSource;
-
-    function connectEventSource() {
-      eventSource = new EventSource('/event-stream');
-
-      eventSource.onopen = function () {
-        console.log('EventSource connected.');
-      };
-
-      eventSource.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-        console.log(data);
-        model.speak(`/birespi-api/sound/${data.sound}`)
-      };
-
-      eventSource.onerror = function () {
-        console.error('EventSource failed. Reconnecting in 1 second...');
-        eventSource.close();
-        setTimeout(connectEventSource, 1000); // 1秒后重连
-      };
-    }
-
-    // 初始连接
-    connectEventSource();
-
-  </script>
-  <style>
-  </style>
+<body x-data="app()" x-init="init()">
+  <main>
+    <div class="left-container">
+      <div class="danmu-container">
+        <div class="danmu-header">
+          <span>弹幕</span>
+        </div>
+        <div class="danmu-list">
+          <template x-for="danmu in danmus">
+            <div class="danmu-item">
+              <div class="danmu-avatar" :style="{ 'background-image': 'url(' + danmu.useravatar + ')' }"></div>
+              <div class="danmu-content">
+                <div class="danmu-username" x-text="danmu.username"></div>
+                <div class="danmu-text" x-text="danmu.content"></div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+    <div class="right-container">
+      <div class="live2d-canvas-container">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+  </main>
+  <div id="cover" class="cover" @click="speak()">
+    <div class="cover-center">
+      <h1>请点击</h1>
+      <span>如果不点击，模型将不会说话</span>
+    </div>
+  </div>
 </body>
 
 </html>
