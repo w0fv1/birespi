@@ -229,6 +229,24 @@ async function getLiveRoomInfo() {
     };
 }
 
+async function getBirespiInfo() {
+    // post
+    const response = await fetch(`/api/birespi-info`);
+    const data = await response.json();
+
+    if (data.code !== 0) {
+        return {
+            code: code,
+            msg: "error"
+        };
+    }
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    };
+}
+
 async function getConfig() {
     const response = await fetch('/api/config');
     const data = await response.json();

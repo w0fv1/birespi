@@ -143,6 +143,12 @@ class Birespi:
 
     def getLiveRoomInfo(self) -> LiveRoomInfo:
         return self.componentManager.liveEventReceiver.getLiveRoomInfo()
+    
+    def getExportContentedWebsocketCount(self) -> int:
+        return self.componentManager.eventExporter.contentedSocketCount()
+    
+    def getTaskInfo(self) -> dict:
+        return self.taskManager.getInfo()
 
     def getComponentManager(self) -> ComponentManager:
         return self.componentManager

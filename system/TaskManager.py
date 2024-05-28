@@ -14,6 +14,8 @@ class TaskManager:
     currentTask: Task = None
     isPaused: bool = False
 
+    finishedTaskCount: int = 0
+
     def __init__(self):
         pass
 
@@ -95,6 +97,7 @@ class TaskManager:
             )
         self.isWorking = False
         self.currentTask = None
+        self.finishedTaskCount += 1
 
     def setPaused(self, isPaused: bool):
         self.isPaused = isPaused
@@ -109,4 +112,6 @@ class TaskManager:
         return {
             "isPaused": self.isPaused,
             "taskCount": len(self.taskQueue),
+            "currentTask": self.currentTask.getTaskTitle(),
+            "finishedTaskCount": self.finishedTaskCount,
         }

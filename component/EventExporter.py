@@ -50,6 +50,7 @@ class EventExporter:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
         @app.get("/sound/{filename}")
         async def getSound(filename: str):
             return FileResponse(f"sound/{filename}")
@@ -69,6 +70,13 @@ class EventExporter:
                     json.dumps(message, ensure_ascii=False, cls=EnumEncoder)
                 )
 
+    def contentedSocketCount(self):
+        count = 0
+        for websocket in self.websocketList:
+            if websocket.open:
+                count += 1
+        return count
+    
 
 async def run_server(eventExporter):
     await eventExporter.start()

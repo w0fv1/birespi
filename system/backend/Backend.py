@@ -203,6 +203,16 @@ class BirespiApi:
     async def getLiveRoomInfo() -> dict:
         return {"code": 0, "data": getBirespi().getLiveRoomInfo()}
 
+    @api.get("/api/birespi-info")
+    async def getBiRespiInfo() -> dict:
+        return {
+            "code": 0,
+            "data": {
+                "exportContentedWebsocketCount": getBirespi().getExportContentedWebsocketCount(),
+                "taskInfo": getBirespi().getTaskInfo(),
+            },
+        }
+
     @api.get("/api/config/component-keys")
     def getComponentKeys() -> dict:
         return {"code": 0, "data": {"componentKeys": getConfig().getComponentKeys()}}

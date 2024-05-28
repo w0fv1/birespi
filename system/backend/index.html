@@ -48,6 +48,9 @@
                 liveRoomInfo: {
 
                 },
+                birespiInfo: {
+
+                },
                 async init() {
                     setInterval(async () => {
                         danmuList = document.getElementById('danmu_list');
@@ -70,12 +73,18 @@
                             const lastTalkBirespi = getLastTalkResult.data.lastTalkBirespi;
                             this.lastTalkBirespi = lastTalkBirespi;
                         }
+                        const getLiveRoomInfoResult = await getLiveRoomInfo();
+                        if (getLiveRoomInfoResult.code == 0) {
+                            const liveRoomInfo = getLiveRoomInfoResult.data;
+                            this.liveRoomInfo = liveRoomInfo;
+                        }
+                        const getBirespiInfoResult = await getBirespiInfo();
+                        if (getBirespiInfoResult.code == 0) {
+                            const birespiInfo = getBirespiInfoResult.data;
+                            this.birespiInfo = birespiInfo;
+                        }
                     }, 700);
-                    const getLiveRoomInfoResult = await getLiveRoomInfo();
-                    if (getLiveRoomInfoResult.code == 0) {
-                        const liveRoomInfo = getLiveRoomInfoResult.data;
-                        this.liveRoomInfo = liveRoomInfo;
-                    }
+
 
                 },
                 async reply(bId) {
@@ -153,7 +162,8 @@
         </div>
         <!-- 增加GitHub的连接 -->
         <div>
-            <button class="btn btn-text btn-lg me-1" @click="window.open('https://github.com/w0fv1/birespi')"><i class="bi bi-github"></i></button>
+            <button class="btn btn-text btn-lg me-1" @click="window.open('https://github.com/w0fv1/birespi')"><i
+                    class="bi bi-github"></i></button>
         </div>
 
     </nav>
@@ -267,7 +277,6 @@
                                                 <tr>
                                                     <th scope="row">Birespi直播间连接状态</th>
                                                     <td>
-
                                                         <template x-if="liveRoomInfo.isConnected">
                                                             <div>
                                                                 <span class="badge bg-success">已连接</span>
@@ -278,6 +287,35 @@
                                                                 <span class="badge bg-danger">未连接</span>
                                                             </div>
                                                         </template>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th scope="row">当前任务数量</th>
+                                                    <td>
+                                                        <span x-text="birespiInfo.taskInfo.taskCount"></span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">当前任务状态</th>
+                                                    <td>
+                                                        <template x-if="birespiInfo.taskInfo.isPaused">
+                                                            <div>
+                                                                <span class="badge bg-warning">暂停中</span>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="!birespiInfo.taskInfo.isPaused">
+                                                            <div>
+                                                                <span class="badge bg-success">运行中</span>
+                                                            </div>
+                                                        </template>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">数据导出链接数量</th>
+                                                    <td>
+                                                        <span class="badge bg-success"
+                                                            x-text="birespiInfo.exportContentedWebsocketCount"></span>
                                                     </td>
                                                 </tr>
                                             </tbody>
