@@ -6,8 +6,10 @@
 
 # 计划
 
-1. 1.0目标成为一个好用实用的无人直播间互动应答姬Bot, 无人直播姬, 面向普通用户, 目标是提高易用性, 降低门槛, 提供更多的功能
-2. 2.0将硬分叉出一个直播间互动开发框架, 1.0的应答姬bot将继续维护. 另一个分支将框架化, 面向开发者, 提供更多的开发api.
+1. 1.0目标成为一个好用实用的无人直播间互动应答姬Bot, 无人直播姬, 面向普通用户,
+   目标是提高易用性, 降低门槛, 提供更多的功能
+2. 2.0将硬分叉出一个直播间互动开发框架, 1.0的应答姬bot将继续维护.
+   另一个分支将框架化, 面向开发者, 提供更多的开发api.
 
 # 受众
 
@@ -21,6 +23,24 @@
 - 良好的后台管理界面
 - 支持多种直播平台
 - 接入Live2D显示
+
+# 演示图片
+
+## 后台演示图片
+
+![后台主页演示图片](https://github.com/w0fv1/birespi/blob/main/static/backend-index-demo.png?raw=true)
+
+![后台配置页演示图片](https://github.com/w0fv1/birespi/blob/main/static/backend-config-demo.png?raw=true)
+
+![后台日志页演示图片](https://github.com/w0fv1/birespi/blob/main/static/backend-log-demo.png?raw=true)
+
+![后台资料库页演示图片](https://github.com/w0fv1/birespi/blob/main/static/backend-data-demo.png?raw=true)
+
+![后台任务页演示图片](https://github.com/w0fv1/birespi/blob/main/static/backend-task-demo.png?raw=true)
+
+## Live2D演示图片
+
+![Live2D演示图片](https://github.com/w0fv1/birespi/blob/main/static/live2displayer-demo.png?raw=true)
 
 # 如何使用
 
@@ -98,7 +118,7 @@ config的格式为json:
     "type": "OpenaiChatter", // 这里是chatter的类型, 目前就一个OpenaiChatter
     "OpenaiChatter": { //这里是OpenaiChatter的配置
       "systemPrompt": "", //这里是系统提示, 根据需要填写
-      "commandPrompt": "",//这里是命令提示, 当你发送给应答姬任务的时候, 她将根据任务prompt进行任务,根据需要填写
+      "commandPrompt": "", //这里是命令提示, 当你发送给应答姬任务的时候, 她将根据任务prompt进行任务,根据需要填写
       "apiKey": "需要填写apiKey", //这里是OpenAI对话协议的API Key
       "host": "https://api.openai.com", //这里是OpenAI对话协议的的API Host
       "model": "gpt-3.5-turbo", //这里是OpenAI对话协议的的模型
@@ -126,11 +146,13 @@ config的格式为json:
 
 其中一定需要修改的值有chatter.OpenaiChatter的apiKey,host和live_event_receiver.BiliOpenLiveEventReceiver的idCode,appId,key,secret或者live_event_receiver.ThirdLiveEventReceiver的username,password,roomId,buvid3,找到你使用的直播平台的配置,然后填写.
 
-其他配置通常情况下不需要修改, 如果有需要, 请看`system/config.py`文件, 里面有所有的配置项.
+其他配置通常情况下不需要修改, 如果有需要, 请看`system/config.py`文件,
+里面有所有的配置项.
 
 ### 3. Live2D配置与安装
 
-Live2D模块是可选的, 如果需要使用Live2D, 请进入`live2displayer`目录, 然后按照`live2displayer/README.md`的说明进行安装.
+Live2D模块是可选的, 如果需要使用Live2D, 请进入`live2displayer`目录,
+然后按照`live2displayer/README.md`的说明进行安装.
 
 ### 3. 运行
 
@@ -189,7 +211,8 @@ python main.py config=/path/to/config.json
 
 ### 5. Live2D
 
-如果需要使用Live2D, 请进入`live2displayer`目录, 然后按照`live2displayer/README.md`的说明进行运行.
+如果需要使用Live2D, 请进入`live2displayer`目录,
+然后按照`live2displayer/README.md`的说明进行运行.
 
 # TODO
 
@@ -202,10 +225,12 @@ python main.py config=/path/to/config.json
 
 1. 为什么将Live2Displayer单独分离?
 
-因为在设想中, Live2Displayer是一个独立的前端模块, 可以单独部署, 也可以单独运行, 也可以单独开发, 所以将其分离.
+因为在设想中, Live2Displayer是一个独立的前端模块, 可以单独部署, 也可以单独运行,
+也可以单独开发, 所以将其分离.
 
 # 最后
 
-本项目测试不完全, 仅在Windows11&Python 3.12.3进行了测试, 如果有任何问题, 请提issue, 谢谢!
+本项目测试不完全, 仅在Windows11&Python 3.12.3进行了测试, 如果有任何问题,
+请提issue, 谢谢!
 
 作者放弃一切权利, 任何人可以自由使用, 修改, 分发, 但是请保留原作者信息, 谢谢!
