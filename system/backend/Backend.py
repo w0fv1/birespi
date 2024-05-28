@@ -131,6 +131,26 @@ class BirespiApi:
     def version() -> dict:
         return {"code": 0, "version": "0.1.2"}
 
+    @api.get("/api/index-info")
+    def indexInfo() -> dict:
+        danmus: list[LiveMessage[DanmuMessageData]] = list(getBirespi().getDanmus())
+        lastTalk = getBirespi().getLastTalk()
+        if lastTalk == None or len(lastTalk) == 0 or lastTalk[0] == None:
+            lastTalk = [None, None]
+        return {
+            "code": 0,
+            "data": {
+                "danmus": danmus,
+                "lastTalkDanmu": lastTalk[0],
+                "lastTalkBirespi": lastTalk[1],
+                "roomInfo": getBirespi().getLiveRoomInfo(),
+                "birespiInfo": {
+                    "exportContentedWebsocketCount": getBirespi().getExportContentedWebsocketCount(),
+                    "taskInfo": getBirespi().getTaskInfo(),
+                },
+            },
+        }
+
     @api.get("/api/test/danmu/{danmu}")
     def read_root(danmu: str) -> dict:
         getBirespi().insertDanmu(
@@ -182,7 +202,7 @@ class BirespiApi:
         return {"code": 0}
 
     @api.post("/api/data")
-    async def upload_file(file: UploadFile = File(...)):
+    async def uploadFile(file: UploadFile = File(...)):
         contentByte = await file.read()
         content = contentByte.decode("utf-8")
         getBirespi().uploadData(file.filename, content)

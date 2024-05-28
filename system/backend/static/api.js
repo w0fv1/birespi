@@ -1,3 +1,13 @@
+async function getIndexInfo() {
+    const response = await fetch('/api/index-info');
+    const data = await response.json();
+    return {
+        code: 0,
+        msg: "no error",
+        data: data.data
+    }
+}
+
 async function getDanmus() {
 
     const response = await fetch('/api/danmus');

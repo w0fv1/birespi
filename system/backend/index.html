@@ -53,36 +53,55 @@
                 },
                 async init() {
                     setInterval(async () => {
-                        danmuList = document.getElementById('danmu_list');
+                        
 
-                        const getDanmusResult = await getDanmus();
-                        if (getDanmusResult.code == 0) {
 
-                            const danmus = getDanmusResult.data.danmus;
+                        const danmuList = document.getElementById('danmu_list');
+
+                        // const getDanmusResult = await getDanmus();
+                        // if (getDanmusResult.code == 0) {
+
+                        //     const danmus = getDanmusResult.data.danmus;
+                        //     this.danmus = danmus;
+                        //     if (this.danmuAutoScroll) {
+                        //         danmuList.scrollTop = danmuList.scrollHeight;
+                        //     }
+
+                        // }
+
+                        // const getLastTalkResult = await getLastTalk();
+                        // if (getLastTalkResult.code == 0) {
+                        //     const lastTalkDanmu = getLastTalkResult.data.lastTalkDanmu;
+                        //     this.lastTalkDanmu = lastTalkDanmu;
+                        //     const lastTalkBirespi = getLastTalkResult.data.lastTalkBirespi;
+                        //     this.lastTalkBirespi = lastTalkBirespi;
+                        // }
+                        // const getLiveRoomInfoResult = await getLiveRoomInfo();
+                        // if (getLiveRoomInfoResult.code == 0) {
+                        //     const liveRoomInfo = getLiveRoomInfoResult.data;
+                        //     this.liveRoomInfo = liveRoomInfo;
+                        // }
+                        // const getBirespiInfoResult = await getBirespiInfo();
+                        // if (getBirespiInfoResult.code == 0) {
+                        //     const birespiInfo = getBirespiInfoResult.data;
+                        //     this.birespiInfo = birespiInfo;
+                        // }
+                   
+                        const getIndexInfoResult = await getIndexInfo();
+                        if (getIndexInfoResult.code == 0) {
+                            const indexInfo = getIndexInfoResult.data;
+                            console.log(indexInfo);
+                            this.lastTalkDanmu =  indexInfo.lastTalkDanmu;
+                            this.lastTalkBirespi = indexInfo.lastTalkBirespi;
+                            this.liveRoomInfo = indexInfo.roomInfo;
+                            const danmus = indexInfo.danmus;
                             this.danmus = danmus;
                             if (this.danmuAutoScroll) {
                                 danmuList.scrollTop = danmuList.scrollHeight;
                             }
-
+                            this.birespiInfo = indexInfo.birespiInfo;
                         }
-
-                        const getLastTalkResult = await getLastTalk();
-                        if (getLastTalkResult.code == 0) {
-                            const lastTalkDanmu = getLastTalkResult.data.lastTalkDanmu;
-                            this.lastTalkDanmu = lastTalkDanmu;
-                            const lastTalkBirespi = getLastTalkResult.data.lastTalkBirespi;
-                            this.lastTalkBirespi = lastTalkBirespi;
-                        }
-                        const getLiveRoomInfoResult = await getLiveRoomInfo();
-                        if (getLiveRoomInfoResult.code == 0) {
-                            const liveRoomInfo = getLiveRoomInfoResult.data;
-                            this.liveRoomInfo = liveRoomInfo;
-                        }
-                        const getBirespiInfoResult = await getBirespiInfo();
-                        if (getBirespiInfoResult.code == 0) {
-                            const birespiInfo = getBirespiInfoResult.data;
-                            this.birespiInfo = birespiInfo;
-                        }
+                   
                     }, 700);
 
 
