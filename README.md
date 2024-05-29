@@ -255,4 +255,5 @@ python main.py config=/path/to/config.json
 
 但是对于项目中依赖的其他项目代码, 请自行甄别使用,分发范围等其他问题, 作者不负任何责任.
 
+闲聊可加QQ群:  [w0fv1.dev / 编程小屋](https://qm.qq.com/q/tqTsZ39nGM). 但有项目相关的反馈请发Issue.
 
