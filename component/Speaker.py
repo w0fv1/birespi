@@ -1,4 +1,5 @@
 import asyncio
+import time
 import random
 import string
 import edge_tts
@@ -34,6 +35,7 @@ class EdgeSpeaker(BaseSpeaker):
     def __init__(self, configDict: dict) -> None:
         super().__init__()
         self.config = EdgeSpeakerConfig.fromJson(configDict)
+        self.deleteExpired()
 
     async def speak(self, content: str) -> str:
         if not os.path.exists(self.config.outputPath):
@@ -44,3 +46,11 @@ class EdgeSpeaker(BaseSpeaker):
         communicate = edge_tts.Communicate(content, self.config.voice)
         await communicate.save(output_file)
         return output_file
+
+    def deleteExpired(self):
+        # 删除超过一天时间的过期文件
+        for file in os.listdir(self.config.outputPath):
+            file_path = os.path.join(self.config.outputPath, file)
+            if os.path.isfile(file_path):
+                if os.path.getmtime(file_path) < time.time() - 24 * 60 * 60:
+                    os.remove(file_path)
