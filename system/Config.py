@@ -262,12 +262,12 @@ class BiRespiConfig:
             "bak",
             f"config-{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json.bak",
         )
-        with open(bakPath, "w") as bakFile:
+        with open(bakPath, "w", encoding='utf-8') as bakFile:
             # 获取现有的config.json文件
             with open(self.jsonConfigPath, "r") as jsonConfigFile:
                 bakFile.write(jsonConfigFile.read())
 
-        with open(self.jsonConfigPath, "w") as f:
+        with open(self.jsonConfigPath, "w", encoding='utf-8') as f:
             f.write(self.getJsonConfig())
 
     def getSystemPrompt(self) -> str:

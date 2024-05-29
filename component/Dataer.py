@@ -58,7 +58,7 @@ class ADataer(BaseDataer):
             self.loadData(file)
 
     def loadData(self, filename: str):
-        with open(f"{self.config.dataPath}/{filename}", "r") as f:
+        with open(f"{self.config.dataPath}/{filename}", "r", encoding='utf-8') as f:
             content: str = f.read()
             self.data[filename] = content
 
@@ -74,16 +74,16 @@ class ADataer(BaseDataer):
         return os.listdir(self.config.dataPath)
 
     def getData(self, filename: str) -> str:
-        with open(f"{self.config.dataPath}/{filename}", "r") as f:
+        with open(f"{self.config.dataPath}/{filename}", "r", encoding='utf-8') as f:
             return f.read()
 
     def updateData(self, filename: str, content: str) -> str:
-        with open(f"{self.config.dataPath}/{filename}", "w") as f:
+        with open(f"{self.config.dataPath}/{filename}", "w", encoding='utf-8') as f:
             f.write(content)
             self.loadData(filename)
 
     def uploadData(self, filename: str, content: str) -> str:
-        with open(f"{self.config.dataPath}/{filename}", "w") as f:
+        with open(f"{self.config.dataPath}/{filename}", "w", encoding='utf-8') as f:
             f.write(content)
             self.loadData(filename)
 

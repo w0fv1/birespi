@@ -77,7 +77,7 @@ class BLogger:
         return os.listdir("log")
 
     def getLog(self, filename: str) -> str:
-        with open(f"log/{filename}", "r") as f:
+        with open(f"log/{filename}", "r", encoding='utf-8') as f:
             return f.read()
 
 
