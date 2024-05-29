@@ -2,22 +2,25 @@ import express from 'express';
 import ejs from 'ejs';
 import { fileURLToPath } from 'url';
 import path from 'path';
-
 import { WebSocket } from 'ws';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import open from 'open';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const config = {
+  port: 3000,
   birespiEventExporterUrl: "http://localhost:8765",
   birespiBackendUrl: "http://localhost:8000",
 }
 
-app.listen(3000, () => {
-  console.log("Application started and Listening on port 3000");
-  console.log("请打开浏览器，访问 http://localhost:3000 ");
-});
+app.listen(
+  config.port
+  , () => {
+    console.log("服务已启动，监听端口：" + config.port);
+    console.log("请打开浏览器访问：http://localhost:" + config.port);
+  });
 app.use(express.static(__dirname));
 
 app.engine('html', ejs.__express);
@@ -116,3 +119,8 @@ function sendEventToAll(data) {
 }
 
 connectBirespi();
+
+setTimeout(() => {
+  // 打开浏览器打开页面
+  open('http://localhost:' + config.port);
+}, 1000);

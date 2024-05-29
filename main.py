@@ -10,6 +10,7 @@ from system.Birespi import Birespi, biRespiHolder
 from system.Config import BiRespiConfig, birespiConfigHolder, getConfig
 from system.backend.Backend import BirespiBackend, birespiBackendHolder
 from util.ConfigUtil import getArgConfigPath, loadJson
+import webbrowser
 
 
 version = "0.8.2"
@@ -42,6 +43,9 @@ def main():
     getLogger().logInfo("Birespi BirespiBackend started.")
     birespi.start()
     getLogger().logInfo("Birespi started.🎉🎉🎉🎉")
+    # 启动浏览器打开页面
+    webbrowser.open(birespiBackend.getBackendPageUrl())
+
     threading.Event().wait()
 
 

@@ -385,6 +385,9 @@ class BirespiBackend:
         backendThread.setDaemon(True)
         backendThread.start()
 
+    def getBackendPageUrl(self) -> str:
+        return f"http://localhost:{getConfig().getWebUiConfigDict()['port']}/"
+
 
 class BirespiBackendHolder:
     birespiBackend: BirespiBackend = None
