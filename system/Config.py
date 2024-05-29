@@ -264,8 +264,8 @@ class BiRespiConfig:
         )
         with open(bakPath, "w", encoding='utf-8') as bakFile:
             # 获取现有的config.json文件
-            with open(self.jsonConfigPath, "r") as jsonConfigFile:
-                bakFile.write(jsonConfigFile.read())
+            with open(self.jsonConfigPath, "r", encoding='utf-8') as jsonConfigFile:
+                bakFile.write(jsonConfigFile.read(encoding='utf-8'))
 
         with open(self.jsonConfigPath, "w", encoding='utf-8') as f:
             f.write(self.getJsonConfig())
