@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import sys
+import time
 from util.ConfigUtil import loadJson
 from value.ComponentConfigKey import ComponentConfigKey
 
@@ -169,9 +170,12 @@ class BiRespiConfig:
     def enableComponent(self, componentConfigKeyStr: str):
         componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
         if "enable" not in self.birespiConfig[componentConfigKey].keys():
-            
+
             return
-        self.birespiConfig[componentConfigKey]["enable"] = not  self.birespiConfig[componentConfigKey]["enable"]
+        self.birespiConfig[componentConfigKey]["enable"] = not self.birespiConfig[
+            componentConfigKey
+        ]["enable"]
+        self.saveJsonConfig()
 
     def getComponentCurrentType(self, componentConfigKeyStr: str) -> str:
         componentConfigKey = ComponentConfigKey.fromStr(componentConfigKeyStr)
@@ -262,13 +266,20 @@ class BiRespiConfig:
             "bak",
             f"config-{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json.bak",
         )
-        with open(bakPath, "w", encoding='utf-8') as bakFile:
+        with open(bakPath, "w", encoding="utf-8") as bakFile:
             # 获取现有的config.json文件
-            with open(self.jsonConfigPath, "r", encoding='utf-8') as jsonConfigFile:
+            with open(self.jsonConfigPath, "r", encoding="utf-8") as jsonConfigFile:
                 bakFile.write(jsonConfigFile.read())
 
-        with open(self.jsonConfigPath, "w", encoding='utf-8') as f:
+        with open(self.jsonConfigPath, "w", encoding="utf-8") as f:
             f.write(self.getJsonConfig())
+
+    def deleteExpiredBak(self):
+        for file in os.listdir("bak"):
+            file_path = os.path.join("bak", file)
+            if os.path.isfile(file_path):
+                if os.path.getmtime(file_path) < time.time() - 24 * 60 * 60:
+                    os.remove(file_path)
 
     def getSystemPrompt(self) -> str:
         subtype: str = self.birespiConfig[ComponentConfigKey.Chatter]["type"]

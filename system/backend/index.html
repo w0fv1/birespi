@@ -53,45 +53,14 @@
                 },
                 async init() {
                     setInterval(async () => {
-                        
-
-
                         const danmuList = document.getElementById('danmu_list');
 
-                        // const getDanmusResult = await getDanmus();
-                        // if (getDanmusResult.code == 0) {
 
-                        //     const danmus = getDanmusResult.data.danmus;
-                        //     this.danmus = danmus;
-                        //     if (this.danmuAutoScroll) {
-                        //         danmuList.scrollTop = danmuList.scrollHeight;
-                        //     }
-
-                        // }
-
-                        // const getLastTalkResult = await getLastTalk();
-                        // if (getLastTalkResult.code == 0) {
-                        //     const lastTalkDanmu = getLastTalkResult.data.lastTalkDanmu;
-                        //     this.lastTalkDanmu = lastTalkDanmu;
-                        //     const lastTalkBirespi = getLastTalkResult.data.lastTalkBirespi;
-                        //     this.lastTalkBirespi = lastTalkBirespi;
-                        // }
-                        // const getLiveRoomInfoResult = await getLiveRoomInfo();
-                        // if (getLiveRoomInfoResult.code == 0) {
-                        //     const liveRoomInfo = getLiveRoomInfoResult.data;
-                        //     this.liveRoomInfo = liveRoomInfo;
-                        // }
-                        // const getBirespiInfoResult = await getBirespiInfo();
-                        // if (getBirespiInfoResult.code == 0) {
-                        //     const birespiInfo = getBirespiInfoResult.data;
-                        //     this.birespiInfo = birespiInfo;
-                        // }
-                   
                         const getIndexInfoResult = await getIndexInfo();
                         if (getIndexInfoResult.code == 0) {
                             const indexInfo = getIndexInfoResult.data;
                             console.log(indexInfo);
-                            this.lastTalkDanmu =  indexInfo.lastTalkDanmu;
+                            this.lastTalkDanmu = indexInfo.lastTalkDanmu;
                             this.lastTalkBirespi = indexInfo.lastTalkBirespi;
                             this.liveRoomInfo = indexInfo.roomInfo;
                             const danmus = indexInfo.danmus;
@@ -101,7 +70,7 @@
                             }
                             this.birespiInfo = indexInfo.birespiInfo;
                         }
-                   
+
                     }, 700);
 
 
@@ -363,6 +332,9 @@
                     <div class="card ps-0 pe-0">
                         <div class="card-header">
                             正在回复
+                            <a class="btn btn-sm btn-primary" href="/config?componentKey=player">设置语音回复</a>
+
+                            <a class="btn btn-sm btn-primary" href="/task">查看任务</a>
                         </div>
                         <div class="card-body">
                             <template x-if="Object.keys(lastTalkDanmu).length !== 0">

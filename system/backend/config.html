@@ -41,7 +41,7 @@
                     const getConfigResult = await getConfig();
                     if (getConfigResult.code === 0) {
                         this.config = getConfigResult.data.config;
-
+                        this.scrollToComponent();
                     }
                 },
                 async changeComponentSubtypeConfig(componentKey, componentSubType) {
@@ -63,6 +63,19 @@
                     const enableComponentResult = await enableComponent(componentKey);
                     if (enableComponentResult.code === 0) {
                         this.config = enableComponentResult.data.config;
+                    }
+                },
+                scrollToComponent() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const componentKey = urlParams.get('componentKey');
+                    console.log(componentKey);
+                    if (componentKey && this.config[componentKey]) {
+                        setTimeout(() => {
+                            const element = document.getElementById(componentKey + 'Card');
+                            if (element) {
+                                element.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }, 100);
                     }
                 },
             };
@@ -117,7 +130,7 @@
 
         <template x-for="componentKey in Object.keys(config)">
             <div>
-                <div class="card"
+                <div :id="componentKey+'Card'" class="card"
                     style="width: 80%;max-width: 1200px; min-width: 800px; margin-left: auto; margin-right: auto;">
                     <div class="card-header">
                         <span x-text="componentKey"></span>
