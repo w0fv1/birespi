@@ -221,6 +221,8 @@ python main.py config=/path/to/config.json
 2. 更好的打包, 例如exe, docker等
 3. 更好的文档
 4. 补充单元测试
+5. 更多直播平台支持
+6. 更多的事件支持, 进入直播间, 礼物等.
 
 # Q&A
 
