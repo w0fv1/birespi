@@ -87,9 +87,17 @@ class BiRespiConfig:
                 "host": "",
             },
             "ThirdLiveEventReceiver": {
+                # roomId是必填的, 其他的参数根据不同的登录方式填写
+                "roomId": 0,
+                # 如果使用账户密码登录, 则填写username和password还有roomId, 否则请留空. 如果username和sessdata都是空, 则使用二维码登录
                 "username": "",
                 "password": "",
-                "roomId": 0,
+                # 如果你不使用账户密码或者二维码登录, 那么到https://nemo2011.github.io/bilibili-api/#/get-credential这个文档中寻找下面的登录参数, 并填写, 否则请留空
+                "sessdata": "",
+                "bili_jct": "",
+                "buvid3": "",
+                "dedeuserid": "",
+                "ac_time_value": "",
             },
         },
         ComponentConfigKey.WebUi: {

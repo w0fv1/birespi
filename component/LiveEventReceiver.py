@@ -113,11 +113,31 @@ class ThirdLiveEventReceiverConfig(BaseConfig):
     roomId: int
     buvid3: str = ""
 
-    def __init__(self, username: str, password: str, roomId: int, buvid3: str):
+    sessdata: str = ""
+    bili_jct: str = ""
+    buvid3: str = ""
+    dedeuserid: str = ""
+    ac_time_value: str = ""
+
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        roomId: int,
+        buvid3: str = "",
+        sessdata: str = "",
+        bili_jct: str = "",
+        dedeuserid: str = "",
+        ac_time_value: str = "",
+    ):
         self.username = username
         self.password = password
         self.roomId = roomId
         self.buvid3 = buvid3
+        self.sessdata = sessdata
+        self.bili_jct = bili_jct
+        self.dedeuserid = dedeuserid
+        self.ac_time_value = ac_time_value
 
     @staticmethod
     def fromJson(json):
@@ -126,6 +146,11 @@ class ThirdLiveEventReceiverConfig(BaseConfig):
             password=json["password"],
             roomId=json["roomId"],
             buvid3=json["buvid3"],
+            sessdata=json["sessdata"],
+            bili_jct=json["bili_jct"],
+            dedeuserid=json["dedeuserid"],
+            ac_time_value=json["ac_time_value"],
+
         )
 
 
@@ -167,11 +192,11 @@ class ThirdLiveEventReceiver(BaseLiveEventReceiver):
                     )
                     self.onRecvDanmu(danmu)
                 pass
-
-        await self.liveDanmaku.connect()
-        getLogger().logInfo("第三方弹幕链接成功")
+      
         roomInfoDict = (await self.room.get_room_info())["room_info"]
+        getLogger().logInfo(f"roomInfoDict: {roomInfoDict}")
         anchorInfoDict = (await self.room.get_room_info())["anchor_info"]
+        getLogger().logInfo(f"anchorInfoDict: {anchorInfoDict}")
         self.liveRoomInfo = LiveRoomInfo(
             roomId=roomInfoDict["room_id"],
             uid=roomInfoDict["uid"],
@@ -181,31 +206,45 @@ class ThirdLiveEventReceiver(BaseLiveEventReceiver):
             cover=roomInfoDict["cover"],
             isConnected=self.liveDanmaku.get_status() == 2,
         )
+        getLogger().logInfo("第三方弹幕开始链接")
+        await self.liveDanmaku.connect()
+
 
     def getLiveRoomInfo(self) -> LiveRoomInfo:
         return self.liveRoomInfo
 
     def login(self):
         result = None
-        try:
-            result = login_with_password(self.config.username, self.config.password)
-        except Exception as e:
-            getLogger().logInfo("登录失败!尝试扫码登录")
-            result = login_with_qrcode_term()
-            try:
-                result.raise_for_no_bili_jct()  # 判断是否成功
-                result.raise_for_no_sessdata()  # 判断是否成功
-            except:
-                getLogger().logInfo("登陆失败!请重新尝试登录。")
-        if isinstance(c, Check):
-            # 还需验证
-            getLogger().logInfo("需要进行验证。请考虑使用二维码登录")
 
-            result = login_with_qrcode_term()
+        if self.config.sessdata != "":
+            getLogger().logInfo("使用sessdata登录")
+            result = live.Credential(
+                sessdata=self.config.sessdata,
+                bili_jct=self.config.bili_jct,
+                buvid3=self.config.buvid3,
+                dedeuserid=self.config.dedeuserid,
+                ac_time_value=self.config.ac_time_value,
+            )
+        else: 
             try:
-                result.raise_for_no_bili_jct()  # 判断是否成功
-                result.raise_for_no_sessdata()  # 判断是否成功
-            except:
-                getLogger().logInfo("登陆失败!请重新尝试登录。")
+                result = login_with_password(self.config.username, self.config.password)
+            except Exception as e:
+                getLogger().logInfo("登录失败!尝试扫码登录")
+                result = login_with_qrcode_term()
+                try:
+                    result.raise_for_no_bili_jct()  # 判断是否成功
+                    result.raise_for_no_sessdata()  # 判断是否成功
+                except:
+                    getLogger().logInfo("登陆失败!请重新尝试登录。")
+            if isinstance(c, Check):
+                # 还需验证
+                getLogger().logInfo("需要进行验证。请考虑使用二维码登录")
+
+                result = login_with_qrcode_term()
+                try:
+                    result.raise_for_no_bili_jct()  # 判断是否成功
+                    result.raise_for_no_sessdata()  # 判断是否成功
+                except:
+                    getLogger().logInfo("登陆失败!请重新尝试登录。")
         getLogger().logInfo("登录成功!")
         self.credential = result

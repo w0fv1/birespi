@@ -25,7 +25,13 @@
             "username": "需要填写username",
             "password": "需要填写password",
             "roomId": 0,
-            "buvid3": "需要去浏览器寻找cookie中的buvid3然后填写"
+
+            
+            "sessdata": "",
+            "bili_jct": "如果你不使用账户密码或者二维码登录, 那么到https://nemo2011.github.io/bilibili-api/#/get-credential这个文档中寻找下面的登录参数, 并填写, 否则请留空",
+            "buvid3": "如果你不使用账户密码或者二维码登录, 那么到https://nemo2011.github.io/bilibili-api/#/get-credential这个文档中寻找下面的登录参数, 并填写, 否则请留空",
+            "dedeuserid": "如果你不使用账户密码或者二维码登录, 那么到https://nemo2011.github.io/bilibili-api/#/get-credential这个文档中寻找下面的登录参数, 并填写, 否则请留空",
+            "ac_time_value": "如果你不使用账户密码或者二维码登录, 那么到https://nemo2011.github.io/bilibili-api/#/get-credential这个文档中寻找下面的登录参数, 并填写, 否则请留空"
         }
     }
 }
