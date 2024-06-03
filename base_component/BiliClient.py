@@ -231,7 +231,7 @@ class BiliClient:
 
     def getStatus(self):
         return {
-            "isConnected": self.websocket.sock.connected,
+            "isConnected": False if self.websocket == None or self.websocket.sock == None else self.websocket.sock.connected,
         }
 
     async def heartBeat(self):

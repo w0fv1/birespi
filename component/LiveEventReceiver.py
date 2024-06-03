@@ -9,7 +9,7 @@ from component.BaseConfig import BaseConfig
 from model.LiveEventMessage import DanmuMessageData, LiveMessage
 from model.LiveRoomInfo import LiveRoomInfo
 
-from bilibili_api import live, sync
+from bilibili_api import LoginError, live, sync
 from bilibili_api.login import (
     login_with_qrcode_term,
     login_with_password,
@@ -181,23 +181,31 @@ class ThirdLiveEventReceiver(BaseLiveEventReceiver):
             cover=roomInfoDict["cover"],
             isConnected=self.liveDanmaku.get_status() == 2,
         )
-        getLogger().logInfo(f"self.liveDanmaku.get_status() {self.liveDanmaku.get_status()}")
 
     def getLiveRoomInfo(self) -> LiveRoomInfo:
-        getLogger().logInfo(f"self.liveDanmaku.get_status() {self.liveDanmaku.get_status()}")
         return self.liveRoomInfo
 
     def login(self):
-        c = login_with_password(self.config.username, self.config.password)
+        result = None
+        try:
+            result = login_with_password(self.config.username, self.config.password)
+        except Exception as e:
+            getLogger().logInfo("登录失败!尝试扫码登录")
+            result = login_with_qrcode_term()
+            try:
+                result.raise_for_no_bili_jct()  # 判断是否成功
+                result.raise_for_no_sessdata()  # 判断是否成功
+            except:
+                getLogger().logInfo("登陆失败!请重新尝试登录。")
         if isinstance(c, Check):
             # 还需验证
             getLogger().logInfo("需要进行验证。请考虑使用二维码登录")
 
-            c = login_with_qrcode_term()
+            result = login_with_qrcode_term()
             try:
-                c.raise_for_no_bili_jct()  # 判断是否成功
-                c.raise_for_no_sessdata()  # 判断是否成功
+                result.raise_for_no_bili_jct()  # 判断是否成功
+                result.raise_for_no_sessdata()  # 判断是否成功
             except:
                 getLogger().logInfo("登陆失败!请重新尝试登录。")
         getLogger().logInfo("登录成功!")
-        self.credential = c
+        self.credential = result
